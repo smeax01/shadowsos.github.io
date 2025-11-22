@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="theme-color" content="#0d111e" />
+<link rel="icon" href="/assets/img/logo.png" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SmeaxOS - Beta</title>
+
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+:root{
+  --bg: #0d111e;
+  --card: #181c25;
+  --accent: #6366f1;
+  --taskbar-height: 64px; /* hauteur "agrandie" par défaut */
+  --icon-size: 40px;
+  --icon-gap: 8px;
+  --taskbar-scale: 1; /* ajusté dynamiquement */
+}
+
+html,body{height:100%}
+body {
+  background: var(--bg);
+  overflow: hidden;
+  user-select: none;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* fond */
+.wallpaper{
+  position:absolute;
+  inset:0;
+  background-image: url('https://wallpapercave.com/wp/wp11643995.jpg');
+  background-size: cover;
+  background-position: center;
+  filter: brightness(1);
+  z-index: 0;
+}
+
+/* fenêtre / UI */
+.window {
+  position: absolute;
+  background-color: rgba(24,28,37,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: .5rem;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+  overflow: hidden;
+  min-width: 250px;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+}
+.window:hover { background: rgba(24,28,37,0.9); }
+
+.window-header {
+  cursor: grab;
+  background: #0f1318;
+  padding: .6rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  justify-content: space-between;
+  color: white;
+  align-items: center;
+}
+
+/* Start menu (recréé) */
+#start-menu {
+  position: fixed;
+  bottom: calc(var(--taskbar-height) + 14px);
+  left: 16px;
+  transform-origin: bottom left;
+  background: rgba(18,22,28,0.97);
+  width: 420px;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.05);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .18s ease, opacity .18s ease;
+  transform: translateY(4px) scale(.98);
+  z-index: 99999;
+}
+#start-menu.active { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+
+.start-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:12px;
+}
+.start-user {
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.start-user img{width:46px;height:46px;border-radius:10px;object-fit:cover;border:1px solid rgba(255,255,255,0.04)}
+
+/* apps grid */
+.start-grid {
+  display:grid;
+  grid-template-columns: repeat(4,1fr);
+  gap:12px;
+}
+.start-grid .app {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  cursor:pointer;
+}
+.start-grid img{width:44px;height:44px;object-fit:cover;border-radius:8px}
+
+/* taskbar */
+#taskbar {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 10px; /* "collée" presque au bas */
+  height: var(--taskbar-height);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 12px;
+  background: linear-gradient(180deg, rgba(24,28,37,0.65), rgba(18,22,28,0.55));
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  z-index: 9999;
+}
+
+/* left group (start + search) */
+.taskbar-left {
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* center group (pinned apps) - adaptive */
+.taskbar-center {
+  display:flex;
+  align-items:center;
+  gap:calc(var(--icon-gap) * var(--taskbar-scale));
+  flex:1 1 auto;
+  justify-content:center;
+  overflow:hidden;
+  position:relative;
+}
+
+/* area that can scroll if many icons */
+.pinned-strip {
+  display:flex;
+  align-items:center;
+  gap:calc(var(--icon-gap) * var(--taskbar-scale));
+  transition: transform .12s ease;
+  transform-origin:center;
+  transform: scale(var(--taskbar-scale));
+  will-change: transform;
+}
+
+/* icon buttons */
+.taskbar-button {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width: calc(var(--icon-size) * var(--taskbar-scale));
+  height: calc(var(--icon-size) * var(--taskbar-scale));
+  min-width: 28px;
+  min-height: 28px;
+  border-radius: 8px;
+  padding:6px;
+  transition: transform .12s ease, background .12s ease;
+  position:relative;
+  user-select:none;
+  flex-shrink:0;
+}
+.taskbar-button img { width:100%; height:100%; object-fit:cover; border-radius:6px; display:block; }
+
+/* active indicator */
+.taskbar-button.active::after{
+  content: "";
+  position:absolute;
+  bottom:-6px;
+  left:50%;
+  transform:translateX(-50%);
+  width: 24px;
+  height:4px;
+  border-radius:4px;
+  background: var(--accent);
+  box-shadow: 0 6px 10px rgba(99,102,241,0.18);
+}
+
+/* hover */
+.taskbar-button:hover{ transform: translateY(-3px); background: rgba(255,255,255,0.03); }
+
+/* overflow "more" button */
+.overflow-btn {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:36px;height:36px;border-radius:8px;
+  background: rgba(255,255,255,0.02);
+  cursor:pointer;
+}
+
+/* right group (tray) */
+.taskbar-right {
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* tray clock */
+.tray-clock {
+  min-width:110px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:6px 10px;
+  border-radius:8px;
+  cursor:pointer;
+  user-select:none;
+}
+.tray-clock .time { font-weight:600; }
+.tray-clock .date { font-size:12px; opacity:0.8; }
+
+/* tray popup */
+#tray-menu {
+  position: fixed;
+  bottom: calc(var(--taskbar-height) + 18px);
+  right: 12px;
+  width: 260px;
+  background: rgba(20,24,28,0.98);
+  padding:12px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+  transform-origin: bottom right;
+  opacity:0;
+  pointer-events:none;
+  transform: translateY(6px) scale(.98);
+  transition: opacity .15s ease, transform .15s ease;
+  z-index:99999;
+}
+#tray-menu.active { opacity:1; pointer-events:auto; transform: translateY(0) scale(1); }
+
+/* tray menu content */
+.tray-user { display:flex; gap:12px; align-items:center; margin-bottom:8px; }
+.tray-user img{width:56px;height:56px;border-radius:9px;object-fit:cover}
+.tray-actions { display:flex; gap:8px; margin-top:8px; }
+.tray-actions button{ flex:1; padding:8px 10px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.03); cursor:pointer;}
+
+/* small responsive tweaks */
+@media (max-width:900px){
+  #start-menu{ left:8px; width:92%; }
+  #taskbar{ left:8px; right:8px; padding:6px; border-radius:12px; }
+  :root{ --taskbar-height: 60px; --icon-size:36px; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="wallpaper" aria-hidden="true"></div>
+
+<div id="window-area" class="absolute inset-0 pointer-events-auto"></div>
+
+<!-- START MENU (reworked) -->
+<div id="start-menu" aria-hidden="true">
+  <div class="start-header">
+    <div class="start-user">
+      <img src="/assets/img/logo.png" alt="Avatar" />
+      <div>
+        <div class="text-white font-semibold">Smeax</div>
+        <div class="text-sm text-gray-300">Connecté</div>
+      </div>
+    </div>
+
+    <div class="flex gap-2 items-center">
+      <button id="btn-lock" title="Verrouiller" class="p-2 rounded-md hover:bg-white/3"><i class="bi bi-lock-fill text-lg text-gray-200"></i></button>
+      <div class="relative">
+        <button id="start-power" title="Options d'alimentation" class="p-2 rounded-md hover:bg-white/3">
+          <i class="bi bi-power text-lg text-red-400"></i>
+        </button>
+        <!-- simple dropdown (shown when clicked) -->
+        <div id="start-power-menu" class="absolute right-0 mt-2 w-44 bg-[#0b0d10] border border-white/5 rounded-md p-2 hidden">
+          <button class="w-full text-left px-3 py-2 rounded hover:bg-white/2" onclick="fakeAction('Redémarrer')">🔁 Redémarrer</button>
+          <button class="w-full text-left px-3 py-2 rounded hover:bg-white/2" onclick="fakeAction('Arrêter')">⏻ Éteindre</button>
+          <button class="w-full text-left px-3 py-2 rounded hover:bg-white/2" onclick="fakeAction('Se déconnecter')">↩ Se déconnecter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="text-sm text-gray-200 mb-2">Applications</h3>
+  <div class="start-grid">
+    <!-- reuse same apps as before -->
+    <div class="app" onclick="toggleWindow('Smeax','Smeax','index.html')">
+      <img src="/assets/img/logo.png" alt="Smeax">
+      <div class="text-white text-xs">Smeax</div>
+    </div>
+
+    <div class="app" onclick="toggleWindow('Exploreur','Exploreur','explorer.html')">
+      <img src="https://images.icon-icons.com/37/PNG/512/books_3025.png" alt="Explorateur">
+      <div class="text-white text-xs">Explorateur</div>
+    </div>
+
+    <div class="app" onclick="toggleWindow('Searx','Searx','https://metasearx.com/')">
+      <img src="https://images.icon-icons.com/1826/PNG/512/4202108browsereedgelogo-115709_115592.png" alt="Searx">
+      <div class="text-white text-xs">Searx</div>
+    </div>
+
+    <div class="app" onclick="toggleWindow('Democraft','Democraft','/demo.html')">
+      <img src="https://media.discordapp.net/attachments/1170747635410403448/1439712705442353329/logo-vide.png" alt="Demo">
+      <div class="text-white text-xs">Demo</div>
+    </div>
+
+    <div class="app" onclick="toggleWindow('AI','AI','https://ai.smeax.fr')">
+      <img src="https://images.icon-icons.com/1826/PNG/512/4202108browsereedgelogo-115709_115592.png" alt="AI">
+      <div class="text-white text-xs">AI</div>
+    </div>
+
+    <div class="app" onclick="toggleWindow('Terminal','Terminal','/cmd.html')">
+      <img src="https://img.icons8.com/?size=100&id=hvZ4mmbc3mTK&format=png&color=FFFFFF" alt="Terminal">
+      <div class="text-white text-xs">Terminal</div>
+    </div>
+
+    <!-- placeholder items so grid looks full -->
+    <div class="app" onclick="fakeAction('App 7')">
+      <img src="https://img.icons8.com/?size=100&id=M9BRw0RJZXKi&format=png&color=000000" alt="App">
+      <div class="text-white text-xs">App 7</div>
+    </div>
+    <div class="app" onclick="fakeAction('App 8')">
+      <img src="https://img.icons8.com/?size=100&id=hvZ4mmbc3mTK&format=png&color=FFFFFF" alt="App">
+      <div class="text-white text-xs">App 8</div>
+    </div>
+  </div>
+</div>
+
+<!-- TASKBAR -->
+<div id="taskbar" role="toolbar" aria-label="Barre des tâches">
+  <div class="taskbar-left">
+    <button id="btn-start" class="taskbar-button" title="Démarrer" onclick="toggleStartMenu()">
+      <img src="https://img.icons8.com/?size=100&id=M9BRw0RJZXKi&format=png&color=000000" alt="Start" />
+    </button>
+
+    <div class="relative hidden md:block">
+      <input id="searchTask" type="text"
+             class="w-60 md:w-72 lg:w-96 px-3 py-2 bg-[#0f1317] text-white rounded-lg text-sm"
+             placeholder="Rechercher sur Searx..." onkeypress="if(event.key==='Enter') searchFromTaskbar()">
+      <i class="bi bi-search absolute right-3 top-1/2 -translate-y-1/2 text-gray-300"></i>
+    </div>
+  </div>
+
+  <div class="taskbar-center">
+    <!-- pinned apps container -->
+    <div id="pinned-strip" class="pinned-strip">
+      <!-- example pinned icons (data-app key must match) -->
+      <button class="taskbar-button" data-app="Smeax" onclick="toggleWindow('Smeax','Smeax','index.html')">
+        <img src="/assets/img/logo.png" alt="Smeax" />
+      </button>
+
+      <button class="taskbar-button" data-app="Exploreur" onclick="toggleWindow('Exploreur','Exploreur','explorer.html')">
+        <img src="https://images.icon-icons.com/37/PNG/512/books_3025.png" alt="Explorateur" />
+      </button>
+
+      <button class="taskbar-button" data-app="Searx" onclick="toggleWindow('Searx','Searx','https://metasearx.com')">
+        <img src="https://images.icon-icons.com/1826/PNG/512/4202108browsereedgelogo-115709_115592.png" alt="Searx" />
+      </button>
+
+      <button class="taskbar-button" data-app="Demo" onclick="toggleWindow('Democraft','Democraft','/demo.html')">
+        <img src="https://media.discordapp.net/attachments/1170747635410403448/1439712705442353329/logo-vide.png" alt="Demo" />
+      </button>
+
+      <button class="taskbar-button" data-app="IA" onclick="toggleWindow('IA','IA','https://ai.smeax.fr')">
+        <img src="https://img.icons8.com/?size=100&id=hvZ4mmbc3mTK&format=png&color=FFFFFF" alt="IA" />
+      </button>
+
+      <button class="taskbar-button" data-app="Terminal" onclick="toggleWindow('Terminal','Terminal','/cmd.html')">
+        <img src="https://img.icons8.com/?size=100&id=hvZ4mmbc3mTK&format=png&color=FFFFFF" alt="Terminal" />
+      </button>
+      <!-- more icons can be added dynamically -->
+    </div>
+
+    <!-- overflow button (shows hidden apps when present) -->
+    <div id="overflowBtn" class="overflow-btn ml-2 hidden" title="Plus d'apps">
+      <i class="bi bi-three-dots-vertical text-white/80"></i>
+    </div>
+  </div>
+
+  <div class="taskbar-right">
+    <!-- optional quick embed (left part of tray) - you can put status/notifications here -->
+    <div id="tray-embed" class="hidden sm:flex items-center px-3 py-1 rounded-md bg-white/3">
+      <!-- Example small embed content: simple text or icon -->
+      <i class="bi bi-wifi text-sm mr-2"></i><span class="text-sm">LAN</span>
+    </div>
+
+    <!-- clock / tray -->
+    <div id="tray-clock" class="tray-clock" title="Afficher le menu" onclick="toggleTrayMenu()">
+      <div>
+        <div class="time text-white text-sm" id="tray-time">--:--</div>
+        <div class="date text-gray-300" id="tray-date">--</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRAY MENU -->
+<div id="tray-menu" aria-hidden="true">
+  <div class="tray-user">
+    <img src="/assets/img/logo.png" alt="Avatar" />
+    <div>
+      <div class="text-white font-semibold">Smeax</div>
+      <div class="text-sm text-gray-300">Europe/Paris</div>
+    </div>
+  </div>
+
+  <div class="text-sm text-gray-200 mb-2" id="tray-fulltime">--:--:--</div>
+
+  <div class="tray-actions">
+    <button onclick="fakeAction('Paramètres')">⚙️ Paramètres</button>
+    <button onclick="fakeAction('Verrouiller')">🔒 Verrouiller</button>
+    <button onclick="fakeAction('Éteindre')">⏻ Éteindre</button>
+  </div>
+</div>
+
+<!-- Start of JS -->
+<script>
+/* Global state */
+let zIndex = 50;
+const openedApps = {};
+const pinnedStrip = document.getElementById('pinned-strip');
+const overflowBtn = document.getElementById('overflowBtn');
+const startMenu = document.getElementById('start-menu');
+const startPower = document.getElementById('start-power');
+const startPowerMenu = document.getElementById('start-power-menu');
+const trayMenu = document.getElementById('tray-menu');
+const trayClock = document.getElementById('tray-clock');
+const trayTimeEl = document.getElementById('tray-time');
+const trayDateEl = document.getElementById('tray-date');
+const trayFullTime = document.getElementById('tray-fulltime');
+const taskbar = document.getElementById('taskbar');
+const root = document.documentElement;
+
+/* ---------- Window management (similar to your original code) ---------- */
+function toggleWindow(key, title, url) {
+  // normalize key used in data-app attributes for lookup
+  const keyAttr = key;
+
+  // if exists -> toggle visibility
+  if (openedApps[keyAttr]) {
+    const win = openedApps[keyAttr];
+    if (win.style.display === "none") {
+      win.style.display = "flex";
+      win.style.zIndex = ++zIndex;
+      document.querySelector(`[data-app="${keyAttr}"]`)?.classList.add("active");
+      win.focus?.();
+    } else {
+      win.style.display = "none";
+      document.querySelector(`[data-app="${keyAttr}"]`)?.classList.remove("active");
+    }
+    return;
+  }
+
+  const container = document.getElementById("window-area");
+  const win = document.createElement("div");
+  win.className = "window";
+  win.style.zIndex = ++zIndex;
+  win.dataset.appKey = keyAttr;
+
+  // default size & center
+  win.style.width = "820px";
+  win.style.height = "520px";
+  win.style.left = (window.innerWidth/2 - 410) + "px";
+  win.style.top = (window.innerHeight/2 - 260) + "px";
+
+  win.innerHTML = `
+    <div class="window-header">
+      <span class="text-sm">${title}</span>
+      <div class="flex gap-3 text-xl">
+        <i class="bi bi-dash cursor-pointer" onclick="minimizeWindow(this)"></i>
+        <i class="bi bi-arrows-fullscreen cursor-pointer" onclick="toggleFullscreen(this)"></i>
+        <i class="bi bi-x-lg text-red-400 cursor-pointer" onclick="closeWindow(this)"></i>
+      </div>
+    </div>
+
+    <iframe src="${url}" class="flex-1 w-full" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
+
+    <div class="resize-handle absolute right-0 bottom-0 w-6 h-6 cursor-se-resize"></div>
+  `;
+
+  container.appendChild(win);
+  openedApps[keyAttr] = win;
+
+  // set active icon
+  document.querySelector(`[data-app="${keyAttr}"]`)?.classList.add("active");
+
+  makeWindowDraggable(win);
+  makeWindowResizable(win);
+
+  adjustTaskbarScale(); // reflow icons if needed
+}
+
+function closeWindow(btn) {
+  const win = btn.closest(".window");
+  const key = win.dataset.appKey;
+  document.querySelector(`[data-app="${key}"]`)?.classList.remove("active");
+  delete openedApps[key];
+  win.remove();
+  adjustTaskbarScale();
+}
+
+function minimizeWindow(btn) {
+  const win = btn.closest(".window");
+  win.style.display = "none";
+  document.querySelector(`[data-app="${win.dataset.appKey}"]`)?.classList.remove("active");
+  adjustTaskbarScale();
+}
+
+function toggleFullscreen(btn) {
+  const win = btn.closest(".window");
+  if (!win.dataset.fullscreen) {
+    win.dataset.prev = JSON.stringify({
+      left: win.style.left,
+      top: win.style.top,
+      width: win.style.width,
+      height: win.style.height
+    });
+    win.style.left = "0";
+    win.style.top = "0";
+    win.style.width = "100vw";
+    win.style.height = "100vh";
+    win.dataset.fullscreen = "1";
+  } else {
+    const prev = JSON.parse(win.dataset.prev);
+    win.style.left = prev.left;
+    win.style.top = prev.top;
+    win.style.width = prev.width;
+    win.style.height = prev.height;
+    win.removeAttribute("data-fullscreen");
+  }
+}
+
+/* drag & resize */
+function makeWindowDraggable(win) {
+  const header = win.querySelector(".window-header");
+  let dragging = false, offsetX = 0, offsetY = 0;
+
+  header.addEventListener("mousedown", e => {
+    dragging = true;
+    offsetX = e.clientX - win.offsetLeft;
+    offsetY = e.clientY - win.offsetTop;
+    win.style.zIndex = ++zIndex;
+  });
+
+  document.addEventListener("mousemove", e => {
+    if (!dragging) return;
+    if (win.dataset.fullscreen) return;
+    win.style.left = (e.clientX - offsetX) + "px";
+    win.style.top = (e.clientY - offsetY) + "px";
+  });
+
+  document.addEventListener("mouseup", () => dragging = false);
+}
+
+function makeWindowResizable(win) {
+  const h = win.querySelector(".resize-handle");
+  let resizing = false, sx, sy, sw, sh;
+  h.addEventListener("mousedown", e => {
+    resizing = true;
+    sx = e.clientX;
+    sy = e.clientY;
+    sw = win.offsetWidth;
+    sh = win.offsetHeight;
+    win.style.zIndex = ++zIndex;
+    e.preventDefault();
+  });
+  document.addEventListener("mousemove", e => {
+    if (!resizing) return;
+    win.style.width = Math.max(360, sw + (e.clientX - sx)) + "px";
+    win.style.height = Math.max(220, sh + (e.clientY - sy)) + "px";
+  });
+  document.addEventListener("mouseup", () => resizing = false);
+}
+
+/* ---------- Start menu toggles ---------- */
+function toggleStartMenu() {
+  startMenu.classList.toggle('active');
+  // close tray if open
+  trayMenu.classList.remove('active');
+}
+
+document.addEventListener('click', (e) => {
+  // close start menu when clicking outside
+  if (!startMenu.contains(e.target) && !document.getElementById('btn-start').contains(e.target)) {
+    startMenu.classList.remove('active');
+  }
+  // close power menu if clicked outside
+  if (!startPower.contains(e.target) && !startPowerMenu.contains(e.target)) {
+    startPowerMenu.classList.add('hidden');
+  }
+});
+
+/* power button */
+startPower.addEventListener('click', (e) => {
+  e.stopPropagation();
+  startPowerMenu.classList.toggle('hidden');
+});
+
+/* fake action for demo */
+function fakeAction(name){
+  alert(name + ' (action de démo)');
+}
+
+/* ---------- Taskbar adaptive behavior ---------- */
+
+/*
+  idée : on mesure la largeur disponible de la zone centrale,
+  on calcule la largeur totale des icônes "normales". Si ça dépasse,
+  on réduit légèrement l'échelle (var --taskbar-scale) jusqu'à un min (0.65).
+  Si beaucoup trop d'icônes, on affiche le bouton overflow (clic: liste)
+*/
+
+function adjustTaskbarScale(){
+  // small delay for layout to update
+  requestAnimationFrame(() => {
+    const center = document.querySelector('.taskbar-center');
+    const pinned = pinnedStrip;
+    const centerStyle = getComputedStyle(center);
+    const available = center.clientWidth - 48; // leave room for overflow btn
+
+    // count icons and average width (including gap)
+    const icons = Array.from(pinned.children);
+    if (!icons.length) {
+      root.style.setProperty('--taskbar-scale', '1');
+      overflowBtn.classList.add('hidden');
+      return;
+    }
+
+    // measure sum width if scale=1
+    const sampleIcon = icons[0].getBoundingClientRect().width;
+    const gap = parseFloat(getComputedStyle(root).getPropertyValue('--icon-gap')) || 8;
+    const baseIconW = sampleIcon || 40;
+    const totalRequired = icons.length * baseIconW + (icons.length - 1) * gap;
+
+    // compute desired scale
+    let scale = Math.min(1, available / Math.max(1, totalRequired));
+    // clamp min scale so icons remain usable
+    scale = Math.max(scale, 0.66);
+
+    root.style.setProperty('--taskbar-scale', String(scale));
+    // toggles overflow if still too big
+    if (totalRequired * scale > available + 6) {
+      overflowBtn.classList.remove('hidden');
+    } else {
+      overflowBtn.classList.add('hidden');
+    }
+  });
+}
+
+/* overflow menu - show a simple popup list of hidden apps */
+overflowBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  showOverflowMenu();
+});
+
+function showOverflowMenu(){
+  // build a simple list using currently pinned apps
+  let existing = document.getElementById('overflow-menu');
+  if (existing) {
+    existing.remove();
+    return;
+  }
+
+  const menu = document.createElement('div');
+  menu.id = 'overflow-menu';
+  menu.style.position = 'absolute';
+  menu.style.bottom = (parseFloat(getComputedStyle(taskbar).bottom) + parseFloat(getComputedStyle(taskbar).height || '64') + 10) + 'px';
+  menu.style.left = (overflowBtn.getBoundingClientRect().left) + 'px';
+  menu.style.background = 'rgba(12,14,16,0.98)';
+  menu.style.border = '1px solid rgba(255,255,255,0.04)';
+  menu.style.padding = '8px';
+  menu.style.borderRadius = '8px';
+  menu.style.boxShadow = '0 18px 50px rgba(0,0,0,0.6)';
+  menu.style.zIndex = 999999;
+
+  // create entries for icons
+  const icons = Array.from(pinnedStrip.children);
+  icons.forEach(ic => {
+    const label = ic.getAttribute('data-app') || 'App';
+    const el = document.createElement('div');
+    el.className = 'flex items-center gap-2 p-2 rounded hover:bg-white/2';
+    el.style.cursor = 'pointer';
+    el.innerHTML = `<div style="width:28px;height:28px;overflow:hidden;border-radius:6px">${ic.innerHTML}</div><div style="color:#fff;margin-left:6px">${label}</div>`;
+    el.onclick = () => {
+      const app = ic.getAttribute('data-app') || label;
+      // simulate click on original button
+      ic.click();
+      menu.remove();
+    };
+    menu.appendChild(el);
+  });
+
+  document.body.appendChild(menu);
+
+  // click anywhere closes it
+  const closeFn = (ev) => {
+    if (!menu.contains(ev.target)) {
+      menu.remove();
+      document.removeEventListener('click', closeFn);
+    }
+  };
+  document.addEventListener('click', closeFn);
+}
+
+/* recalc on resize and when DOM changes */
+new ResizeObserver(adjustTaskbarScale).observe(document.getElementById('taskbar'));
+const observer = new MutationObserver(adjustTaskbarScale);
+observer.observe(pinnedStrip, { childList: true, subtree: false });
+
+/* initial run */
+adjustTaskbarScale();
+
+/* ---------- Tray clock (Europe/Paris) ---------- */
+function updateClock(){
+  // get Paris time (Europe/Paris)
+  const now = new Date();
+  // compute in Paris timezone using Intl
+  const optsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Europe/Paris' };
+  const optsShort = { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Paris' };
+  const optsDate = { weekday: 'short', day:'2-digit', month:'short', timeZone: 'Europe/Paris' };
+
+  const timeStr = new Intl.DateTimeFormat('fr-FR', optsShort).format(now);
+  const timeFull = new Intl.DateTimeFormat('fr-FR', optsTime).format(now);
+  const dateStr = new Intl.DateTimeFormat('fr-FR', optsDate).format(now);
+
+  trayTimeEl.textContent = timeStr;
+  trayDateEl.textContent = dateStr;
+  trayFullTime.textContent = timeFull + ' — ' + new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day:'numeric', month:'long', year:'numeric', timeZone: 'Europe/Paris' }).format(now);
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* tray toggle */
+function toggleTrayMenu(){
+  const active = trayMenu.classList.toggle('active');
+  // also hide start menu if open
+  startMenu.classList.remove('active');
+}
+
+/* close tray menu when clicking outside */
+document.addEventListener('click', (e) => {
+  if (!trayMenu.contains(e.target) && !trayClock.contains(e.target)) {
+    trayMenu.classList.remove('active');
+  }
+});
+
+/* ---------- Search from taskbar ---------- */
+function searchFromTaskbar(){
+  const q = document.getElementById("searchTask").value.trim();
+  if (!q) return;
+  toggleWindow("Searx", "Searx", "https://metasearx.com//?q=" + encodeURIComponent(q));
+}
+
+/* ---------- Accessibility & keyboard: ESC closes menus ---------- */
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    startMenu.classList.remove('active');
+    trayMenu.classList.remove('active');
+    const overflow = document.getElementById('overflow-menu');
+    if (overflow) overflow.remove();
+  }
+});
+
+/* keep icons tidy when user adds more - example helper to add pinned icons programmatically */
+function pinApp(src, key, title){
+  const btn = document.createElement('button');
+  btn.className = 'taskbar-button';
+  btn.dataset.app = key;
+  btn.title = title || key;
+  btn.innerHTML = `<img src="${src}" alt="${title || key}">`;
+  btn.onclick = () => toggleWindow(key, title || key, '/');
+  pinnedStrip.appendChild(btn);
+  adjustTaskbarScale();
+}
+
+/* Example: dynamically pin an app after 1s to demo adaptive shrinking */
+// setTimeout(()=> pinApp('https://img.icons8.com/?size=100&id=1708&format=png','Music','Music'), 1000);
+
+</script>
+
+</body>
+</html>

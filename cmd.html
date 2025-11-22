@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="theme-color" content="#0d111e">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terminal - SmeaxOS</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+:root {
+    --bg: #0d111e;
+    --card: #181c25;
+    --green: #6CFF6C;
+}
+
+body {
+    background: var(--bg);
+    font-family: monospace;
+    color: white;
+}
+
+#terminal {
+    background: rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 25px rgba(0,0,0,0.5);
+    border-radius: .5rem;
+}
+
+.line {
+    white-space: pre-wrap;
+}
+
+.prompt {
+    color: var(--green);
+}
+
+input {
+    outline: none;
+    background: transparent;
+    border: none;
+    color: white;
+    width: 100%;
+}
+
+</style>
+</head>
+
+<body class="p-4">
+
+<div id="terminal" class="p-4 h-[95vh] overflow-y-auto">
+    <div id="output"></div>
+
+    <div class="flex gap-1 items-center mt-2">
+        <span class="prompt">smeax@smeaxOS:~$</span>
+        <input id="cmdInput" autofocus autocomplete="off">
+    </div>
+</div>
+
+<script>
+// =====================================================
+// FILESYSTEM VIRTUEL
+// =====================================================
+
+let fs = {
+    "/": {
+        type: "folder",
+        content: {
+            "system": { type: "folder", content: {} },
+            "apps": { type: "folder", content: {} },
+            "user": { type: "folder", content: {} },
+            "smeax.txt": { type: "file", content: "Bienvenue dans SmeaxOS Terminal !" }
+        }
+    }
+};
+
+let currentPath = "/";
+
+// =====================================================
+// TERMINAL OUTPUT
+// =====================================================
+
+const output = document.getElementById("output");
+const input = document.getElementById("cmdInput");
+
+function print(text = "") {
+    const line = document.createElement("div");
+    line.className = "line";
+    line.textContent = text;
+    output.appendChild(line);
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+// Trouve un chemin dans le FS
+function resolvePath(path) {
+    if (!path || path === "/") return fs["/"];
+    let parts = path.split("/").filter(Boolean);
+    let node = fs["/"];
+    for (let p of parts) {
+        if (!node.content[p]) return null;
+        node = node.content[p];
+    }
+    return node;
+}
+
+// =====================================================
+// COMMANDES INSTALLATION ANIMÉE
+// =====================================================
+
+async function fakeInstall(pkg) {
+    print(`Installation de ${pkg}...`);
+    for (let i = 0; i <= 100; i += Math.floor(Math.random() * 15)) {
+        await new Promise(r => setTimeout(r, 120));
+        print(`➡️  ${pkg} : ${i}%`);
+    }
+    print(`✔ ${pkg} installé avec succès.`);
+}
+
+// =====================================================
+// COMMANDES
+// =====================================================
+
+async function exec(cmd) {
+    const args = cmd.split(" ");
+    print(`smeax@smeaxOS:${currentPath}$ ${cmd}`);
+
+    switch (args[0]) {
+
+        // ------------------------------
+        case "help":
+            print("Commandes disponibles :");
+            print("  help           → Liste des commandes");
+            print("  clear          → Nettoie l'écran");
+            print("  ls             → Liste les fichiers");
+            print("  cd <dossier>   → Change de dossier");
+            print("  mkdir <nom>    → Crée un dossier");
+            print("  cat <file>     → Lit un fichier");
+            print("  install <pkg>  → Faux installateur");
+            print("  update         → Fake update");
+            print("  upgrade        → Fake upgrade");
+            print("  fetch          → Info système SmeaxOS");
+            print("  whoami         → Retourne l'utilisateur");
+            print("  ip             → IP aléatoire");
+            print("  pwd            → Chemin actuel");
+            break;
+
+        // ------------------------------
+        case "clear":
+            output.innerHTML = "";
+            break;
+
+        // ------------------------------
+        case "pwd":
+            print(currentPath);
+            break;
+
+        // ------------------------------
+        case "whoami":
+            print("smeax");
+            break;
+
+        // ------------------------------
+        case "ip":
+            print("Adresse IP : 192.168." + Math.floor(Math.random()*255) + "." + Math.floor(Math.random()*255));
+            break;
+
+        // ------------------------------
+        case "fetch":
+            print("██████  ███    ███ ███████  █████  ██   ██  ██████  ███████ ");
+            print("██   ██ ████  ████ ██      ██   ██ ██  ██  ██       ██      ");
+            print("██████  ██ ████ ██ █████   ███████ █████   ██   ███ █████   ");
+            print("██      ██  ██  ██ ██      ██   ██ ██  ██  ██    ██ ██      ");
+            print("██      ██      ██ ███████ ██   ██ ██   ██  ██████  ███████ ");
+            print("");
+            print("OS      : SmeaxOS Web Edition");
+            print("Shell   : smeax-terminal 1.0");
+            print("Theme   : Dark Neon");
+            print("User    : smeax");
+            break;
+
+        // ------------------------------
+        case "ls":
+            let node = resolvePath(currentPath);
+            print(Object.keys(node.content).join("    "));
+            break;
+
+        // ------------------------------
+        case "mkdir":
+            const name = args[1];
+            if (!name) return print("Nom invalide.");
+            let here = resolvePath(currentPath);
+            here.content[name] = { type: "folder", content: {} };
+            print(`Dossier '${name}' créé.`);
+            break;
+
+        // ------------------------------
+        case "cat":
+            const file = args[1];
+            let n = resolvePath(currentPath).content[file];
+            if (!n) return print("Fichier introuvable.");
+            if (n.type !== "file") return print("Ce n'est pas un fichier.");
+            print(n.content);
+            break;
+
+        // ------------------------------
+        case "cd":
+            let dest = args[1];
+            if (!dest) dest = "/";
+            let newPath;
+
+            if (dest === "/") newPath = "/";
+            else if (dest === "..") {
+                newPath = currentPath.split("/").slice(0, -1).join("/") || "/";
+            } else {
+                newPath = currentPath.endsWith("/") ? currentPath + dest : currentPath + "/" + dest;
+            }
+
+            if (!resolvePath(newPath)) return print("Dossier introuvable.");
+
+            currentPath = newPath;
+            break;
+
+        // ------------------------------
+        case "install":
+            if (!args[1]) return print("Usage: install <package>");
+            await fakeInstall(args[1]);
+            break;
+
+        // ------------------------------
+        case "update":
+            print("Mise à jour des paquets...");
+            await fakeInstall("core-system");
+            await fakeInstall("smeax-kernel");
+            print("✔ Système à jour.");
+            break;
+
+        // ------------------------------
+        case "upgrade":
+            print("Mise à niveau du système...");
+            await fakeInstall("smeaxOS-pro");
+            print("✔ SmeaxOS mis à niveau.");
+            break;
+
+        // ------------------------------
+        case "":
+            break;
+
+        // ------------------------------
+        default:
+            print(`Commande inconnue : '${args[0]}'`);
+            print("Tape 'help' pour la liste des commandes.");
+            break;
+    }
+}
+
+// =====================================================
+// INPUT ENTER
+// =====================================================
+
+input.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+        exec(input.value.trim());
+        input.value = "";
+    }
+});
+
+</script>
+</body>
+</html>
