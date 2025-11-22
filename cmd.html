@@ -60,9 +60,6 @@ input {
 </div>
 
 <script>
-// =====================================================
-// FILESYSTEM VIRTUEL
-// =====================================================
 
 let fs = {
     "/": {
@@ -78,9 +75,6 @@ let fs = {
 
 let currentPath = "/";
 
-// =====================================================
-// TERMINAL OUTPUT
-// =====================================================
 
 const output = document.getElementById("output");
 const input = document.getElementById("cmdInput");
@@ -93,7 +87,6 @@ function print(text = "") {
     terminal.scrollTop = terminal.scrollHeight;
 }
 
-// Trouve un chemin dans le FS
 function resolvePath(path) {
     if (!path || path === "/") return fs["/"];
     let parts = path.split("/").filter(Boolean);
@@ -105,9 +98,6 @@ function resolvePath(path) {
     return node;
 }
 
-// =====================================================
-// COMMANDES INSTALLATION ANIMÉE
-// =====================================================
 
 async function fakeInstall(pkg) {
     print(`Installation de ${pkg}...`);
@@ -118,9 +108,6 @@ async function fakeInstall(pkg) {
     print(`✔ ${pkg} installé avec succès.`);
 }
 
-// =====================================================
-// COMMANDES
-// =====================================================
 
 async function exec(cmd) {
     const args = cmd.split(" ");
@@ -128,7 +115,6 @@ async function exec(cmd) {
 
     switch (args[0]) {
 
-        // ------------------------------
         case "help":
             print("Commandes disponibles :");
             print("  help           → Liste des commandes");
@@ -146,27 +132,22 @@ async function exec(cmd) {
             print("  pwd            → Chemin actuel");
             break;
 
-        // ------------------------------
         case "clear":
             output.innerHTML = "";
             break;
 
-        // ------------------------------
         case "pwd":
             print(currentPath);
             break;
 
-        // ------------------------------
         case "whoami":
             print("smeax");
             break;
 
-        // ------------------------------
         case "ip":
             print("Adresse IP : 192.168." + Math.floor(Math.random()*255) + "." + Math.floor(Math.random()*255));
             break;
 
-        // ------------------------------
         case "fetch":
             print("██████  ███    ███ ███████  █████  ██   ██  ██████  ███████ ");
             print("██   ██ ████  ████ ██      ██   ██ ██  ██  ██       ██      ");
@@ -180,13 +161,11 @@ async function exec(cmd) {
             print("User    : smeax");
             break;
 
-        // ------------------------------
         case "ls":
             let node = resolvePath(currentPath);
             print(Object.keys(node.content).join("    "));
             break;
 
-        // ------------------------------
         case "mkdir":
             const name = args[1];
             if (!name) return print("Nom invalide.");
@@ -195,7 +174,6 @@ async function exec(cmd) {
             print(`Dossier '${name}' créé.`);
             break;
 
-        // ------------------------------
         case "cat":
             const file = args[1];
             let n = resolvePath(currentPath).content[file];
@@ -204,7 +182,6 @@ async function exec(cmd) {
             print(n.content);
             break;
 
-        // ------------------------------
         case "cd":
             let dest = args[1];
             if (!dest) dest = "/";
@@ -222,13 +199,11 @@ async function exec(cmd) {
             currentPath = newPath;
             break;
 
-        // ------------------------------
         case "install":
             if (!args[1]) return print("Usage: install <package>");
             await fakeInstall(args[1]);
             break;
 
-        // ------------------------------
         case "update":
             print("Mise à jour des paquets...");
             await fakeInstall("core-system");
@@ -236,18 +211,15 @@ async function exec(cmd) {
             print("✔ Système à jour.");
             break;
 
-        // ------------------------------
         case "upgrade":
             print("Mise à niveau du système...");
             await fakeInstall("smeaxOS-pro");
             print("✔ SmeaxOS mis à niveau.");
             break;
 
-        // ------------------------------
         case "":
             break;
 
-        // ------------------------------
         default:
             print(`Commande inconnue : '${args[0]}'`);
             print("Tape 'help' pour la liste des commandes.");
@@ -255,9 +227,6 @@ async function exec(cmd) {
     }
 }
 
-// =====================================================
-// INPUT ENTER
-// =====================================================
 
 input.addEventListener("keydown", e => {
     if (e.key === "Enter") {
