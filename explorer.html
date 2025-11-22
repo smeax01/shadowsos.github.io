@@ -23,7 +23,6 @@ body {
     font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
 }
 
-/* Layout */
 .app {
     display: grid;
     grid-template-columns: 240px 1fr;
@@ -32,7 +31,6 @@ body {
     padding: 16px;
 }
 
-/* Sidebar */
 .sidebar {
     background: linear-gradient(180deg, rgba(24,28,37,0.9), rgba(24,28,37,0.85));
     border: 1px solid rgba(255,255,255,0.05);
@@ -51,19 +49,16 @@ body {
 .side-item:hover { background: var(--hover); }
 .side-item.active { background: rgba(79,70,229,0.12); }
 
-/* Main */
 .main {
     display:flex; flex-direction:column; gap:12px;
 }
 
-/* Topbar */
 .topbar {
     display:flex; align-items:center; justify-content:space-between;
     background: rgba(24,28,37,0.6);
     padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.04);
 }
 
-/* Files area */
 .files-area {
     background: linear-gradient(180deg, rgba(24,28,37,0.25), rgba(24,28,37,0.12));
     border-radius:12px;
@@ -76,7 +71,6 @@ body {
     height: calc(100% - 80px);
 }
 
-/* items */
 .item {
     background: rgba(255,255,255,0.02);
     padding:12px;
@@ -87,17 +81,13 @@ body {
 }
 .item .name { margin-top:8px; font-size:13px; word-break:break-word; }
 
-/* Drag & drop highlight */
 .files-area.dragover { outline: 3px dashed rgba(79,70,229,0.6); outline-offset: -6px; }
 
-/* Modals */
 .modal-bg { backdrop-filter: blur(10px); background: rgba(0,0,0,0.6); }
 
-/* Editor & preview */
 #editor { background: #0b0f17; border: 1px solid rgba(255,255,255,0.06); color: white; resize: none; }
 .preview-image { max-width:100%; max-height:60vh; border-radius:8px; }
 
-/* Small UI */
 .small { font-size:13px; color:#cbd5e1; }
 .btn { padding:8px 10px; border-radius:8px; background:#0f1724; }
 .input-file { display:none; }
@@ -107,7 +97,6 @@ body {
 <body>
 
 <div class="app">
-    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="flex items-center gap-3">
             <img src="/assets/img/logo.png" alt="logo" class="w-10 h-10 rounded-md">
@@ -148,7 +137,6 @@ body {
         </div>
     </aside>
 
-    <!-- MAIN -->
     <main class="main">
         <div class="topbar">
             <div class="flex items-center gap-3">
@@ -169,12 +157,10 @@ body {
         </div>
 
         <div id="filesArea" class="files-area" ondrop="onDrop(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)">
-            <!-- items injected -->
         </div>
     </main>
 </div>
 
-<!-- RENAME MODAL -->
 <div id="renameModal" class="fixed inset-0 hidden modal-bg flex items-center justify-center">
     <div class="bg-[#181c25] p-6 rounded-xl border border-white/10 w-80">
         <h2 class="text-lg mb-3">Renommer</h2>
@@ -186,7 +172,6 @@ body {
     </div>
 </div>
 
-<!-- EDITOR / PREVIEW MODAL -->
 <div id="viewerModal" class="fixed inset-0 hidden modal-bg flex items-center justify-center p-6">
     <div class="bg-[#181c25] p-4 rounded-xl border border-white/10 w-full max-w-3xl max-h-[90vh] overflow-auto">
         <div class="flex justify-between items-center mb-3">
@@ -201,11 +186,6 @@ body {
 </div>
 
 <script>
-// ==========================
-// FILESYSTEM (localStorage)
-// Structure: fs = { "/": {type:'folder', content:{ name:{type:'file'|'folder', ...} } } }
-// Files: { type:'file', content: 'base64' or text, mime: 'image/png' or 'text/plain', size: n }
-// ==========================
 const STORAGE_KEY = "smeax_fs_v2";
 let fs = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
     "/": { type: "folder", content: {
@@ -221,7 +201,6 @@ let clip = null;
 let renameTarget = null;
 let viewerFilePath = null;
 
-// Helpers
 function saveFS(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(fs)); updateStorageInfo(); }
 function resolve(path){
     if (!path) path = "/";
@@ -235,7 +214,6 @@ function resolve(path){
 }
 function ensureTrailing(path){ return path.endsWith("/") ? path : path + "/"; }
 
-// Init storage info
 function updateStorageInfo(){
     let raw = JSON.stringify(fs);
     let kb = Math.round(raw.length/1024);
@@ -243,16 +221,12 @@ function updateStorageInfo(){
 }
 updateStorageInfo();
 
-// ==========================
-// RENDER
-// ==========================
 function render(){
     const area = document.getElementById("filesArea");
     area.innerHTML = "";
     const folder = resolve(currentPath);
     document.getElementById("currentPath").innerText = currentPath;
 
-    // optional search
     const q = (document.getElementById("searchInput").value||"").toLowerCase();
 
     for (const name in folder.content) {
@@ -262,17 +236,15 @@ function render(){
         el.className = "item";
         el.draggable = true;
         el.ondragstart = (ev)=>onItemDragStart(ev, name);
-        el.ondrop = (ev)=>{ ev.preventDefault(); }; // avoid nested drop issues
+        el.ondrop = (ev)=>{ ev.preventDefault(); };
 
         if (item.type === "folder") {
             el.innerHTML = `<div class="text-4xl"><i class="bi bi-folder-fill"></i></div><div class="name">${name}</div>`;
             el.onclick = ()=>{ navigateTo(ensureTrailing(currentPath)+name+"/"); };
             el.oncontextmenu = (e)=>{ e.preventDefault(); showContextMenu(e,name,'folder'); };
-            // allow dropping files into folder element to move
             el.ondragover = (ev)=>ev.preventDefault();
             el.ondrop = (ev)=>{ ev.preventDefault(); handleDropOnFolder(ev, name); };
         } else {
-            // determine icon by mime
             const mime = item.mime || "";
             let icon = 'bi-file-earmark-text';
             if (mime.startsWith("image/")) icon = 'bi-file-earmark-image';
@@ -291,14 +263,9 @@ function render(){
 }
 render();
 
-// ==========================
-// NAVIGATION & SIDEBAR
-// ==========================
 function navigateTo(path){
     if (!path.startsWith("/")) path = currentPath + path;
-    // normalize
     if (!path.endsWith("/")) path = path + "/";
-    // exists?
     try {
         resolve(path);
         currentPath = path;
@@ -318,9 +285,6 @@ function highlightSidebar(path){
 }
 highlightSidebar(currentPath);
 
-// ==========================
-// CREATE
-// ==========================
 function createFolder(){
     const folder = resolve(currentPath);
     let i=1; while(folder.content["Nouveau dossier "+i]) i++;
@@ -335,9 +299,6 @@ function createFile(){
     saveFS(); render();
 }
 
-// ==========================
-// CONTEXT MENU (rename/delete/copy/move)
-// ==========================
 let ctx;
 function showContextMenu(e,name,type){
     if (ctx) ctx.remove();
@@ -414,9 +375,6 @@ function pasteItem(){
     saveFS(); render();
 }
 
-// ==========================
-// OPEN / VIEW / EDIT
-// ==========================
 function openFile(name){
     const path = ensureTrailing(currentPath) + name;
     const file = resolve(path);
@@ -458,7 +416,6 @@ function openFile(name){
         return;
     }
 
-    // For others (zip, pdf, binary) offer preview if possible, else download link
     const info = document.createElement('div');
     info.innerHTML = `<div class="small mb-2">Type: ${file.mime || 'unknown'} — Taille: ${Math.round(file.size/1024)} KB</div>`;
     const dl = document.createElement('button');
@@ -483,7 +440,6 @@ function downloadCurrent(){
     downloadBlobFromBase64(file.content, file.mime || 'application/octet-stream', name);
 }
 function downloadBlobFromBase64(dataUrl, mime, filename){
-    // dataUrl may already be data:...; if it's raw base64, handle both
     if (dataUrl.startsWith('data:')) {
         const a = document.createElement('a');
         a.href = dataUrl;
@@ -491,7 +447,6 @@ function downloadBlobFromBase64(dataUrl, mime, filename){
         a.click();
         return;
     }
-    // else dataUrl is base64 without header (just in case) - construct blob
     const byteString = atob(dataUrl.split(',').pop());
     const ia = new Uint8Array(byteString.length);
     for (let i=0;i<byteString.length;i++) ia[i]=byteString.charCodeAt(i);
@@ -502,9 +457,6 @@ function downloadBlobFromBase64(dataUrl, mime, filename){
     URL.revokeObjectURL(url);
 }
 
-// ==========================
-// UPLOAD (drag & drop + input)
-// ==========================
 function handleFilesInput(files){
     handleFiles(files);
     document.getElementById('fileInput').value = '';
@@ -514,7 +466,6 @@ function handleFiles(files){
     for (const file of files) {
         const reader = new FileReader();
         reader.onload = (e)=>{
-            // store as dataURL so we keep mime
             const data = e.target.result;
             folder.content[file.name] = {
                 type: 'file',
@@ -524,7 +475,6 @@ function handleFiles(files){
             };
             saveFS(); render();
         };
-        // prefer DataURL for images/binaries; text as text
         if (file.type.startsWith('text/')) reader.readAsText(file);
         else reader.readAsDataURL(file);
     }
@@ -543,23 +493,18 @@ function onDrop(e){
     const files = e.dataTransfer.files;
     if (files && files.length) handleFiles(files);
     else {
-        // maybe internal drag move - handled elsewhere
         const src = e.dataTransfer.getData('text/smeax-path');
         if (src) {
-            // drop into current folder
             moveInternal(src, currentPath);
         }
     }
 }
 
-// allow dragging item to move
 function onItemDragStart(ev, name){
     const srcPath = ensureTrailing(currentPath) + name;
     ev.dataTransfer.setData('text/smeax-path', srcPath);
-    // customize drag image
 }
 
-// drop on sidebar folder to move
 function handleDropOnFolder(ev, folderName){
     const src = ev.dataTransfer.getData('text/smeax-path');
     if (!src) return;
@@ -570,7 +515,6 @@ function handleDropOnFolder(ev, folderName){
     moveInternal(src, dest);
 }
 
-// move internal helper
 function moveInternal(srcPath, destFolderPath){
     try{
         if (!destFolderPath.endsWith('/')) destFolderPath += '/';
@@ -581,7 +525,6 @@ function moveInternal(srcPath, destFolderPath){
         const node = parent.content[name];
         const dest = resolve(destFolderPath);
         if (dest.content[name]) {
-            // rename to avoid clash
             let i=1; let newName = name;
             while(dest.content[newName]) { newName = name + ' ('+i+')'; i++; }
             dest.content[newName] = node;
@@ -591,20 +534,12 @@ function moveInternal(srcPath, destFolderPath){
     }catch(e){ console.error(e); alert('Erreur de déplacement'); }
 }
 
-// ==========================
-// UTILS
-// ==========================
 function guessMimeFromName(name){
     const ext = name.split('.').pop().toLowerCase();
     const map = { png:'image/png', jpg:'image/jpeg', jpeg:'image/jpeg', gif:'image/gif', mp3:'audio/mpeg', wav:'audio/wav', zip:'application/zip', txt:'text/plain', md:'text/markdown', pdf:'application/pdf' };
     return map[ext] || '';
 }
 
-// ==========================
-// DOWNLOAD ALL as zip (simple approach: create folder of files and download as JSON or multiple)
-// Note: Creating real .zip in browser requires JS library (zip.js/jszip). To keep single-file, we'll create a JSON archive downloadable.
-// If you prefer real ZIP, I can add JSZip. For now we'll create an export .smeax (json) and user can re-import.
-// ==========================
 function downloadAllZip(){
     const data = JSON.stringify(fs);
     const blob = new Blob([data], {type:'application/json'});
@@ -614,16 +549,12 @@ function downloadAllZip(){
     URL.revokeObjectURL(url);
 }
 
-// ==========================
-// TRASH / CLEAR small functionality
 function emptyTrash(){
     if (!confirm('Vider tout le contenu (attention) ?')) return;
     fs = { "/": { type: "folder", content: {} } };
     saveFS(); render();
 }
 
-// ==========================
-// DRAG to sidebar: listen for drop on sidebar items
 document.querySelectorAll('.side-item').forEach(el=>{
     el.ondragover = (e)=>e.preventDefault();
     el.ondrop = (e)=>{
@@ -635,8 +566,6 @@ document.querySelectorAll('.side-item').forEach(el=>{
     };
 });
 
-// ==========================
-// Init
 saveFS();
 render();
 </script>
