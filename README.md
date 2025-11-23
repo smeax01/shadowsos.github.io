@@ -1,7 +1,7 @@
-# ShadowsOS  
+# ShadowOS  
 Un mini système d’exploitation directement dans votre navigateur
 
-ShadowsOS réunit l’essentiel de Windows, Linux et macOS dans un environnement léger, propre et accessible instantanément.  
+ShadowOS réunit l’essentiel de Windows, Linux et macOS dans un environnement léger, propre et accessible instantanément.  
 Aucune installation, aucune publicité, aucun tracker.  
 Un OS web conçu par des passionnés, pour des utilisateurs qui veulent quelque chose de simple, efficace et sans compromis.
 
@@ -9,9 +9,9 @@ Un OS web conçu par des passionnés, pour des utilisateurs qui veulent quelque 
 
 ## Présentation
 
-![Bannière ShadowsOS](https://via.placeholder.com/1200x300?text=ShadowsOS)
+![Bannière ShadowOS](/assets/desktop.png)
 
-ShadowsOS offre une interface rappelant un vrai système d’exploitation :
+ShadowOS offre une interface rappelant un vrai système d’exploitation :
 
 - Bureau personnalisable  
 - Fenêtres déplaçables et redimensionnables  
@@ -25,30 +25,34 @@ ShadowsOS offre une interface rappelant un vrai système d’exploitation :
 ## Fonctionnalités principales
 
 ### Interface
-![Aperçu du bureau](https://via.placeholder.com/900x500?text=Apercu+Bureau)
-- Barre des tâches complète  
-- Thèmes clair / sombre  
+![Aperçu du bureau](/assets/desktop.png)
+- Barre des tâches semi-complète  
+- Thèmes clair / sombre (Prochainement) 
 - Gestion fluide des fenêtres
 
 ### Système de fichiers
-![Explorateur de fichiers](https://via.placeholder.com/900x500?text=Explorateur+de+fichiers)
+![Explorateur de fichiers](/assets/explorer.png)
 - Stockage local (localStorage / IndexedDB)  
 - Création, suppression, renommage  
 - Aperçu des fichiers texte et images
+- Possibilité d'upload ses propres fichiers depuis sont propre appareilles
+- Prochainement : cloud, fichier sauvgarder via database...
 
 ### Applications intégrées
-![Applications de ShadowsOS](https://via.placeholder.com/900x500?text=Apps+ShadowsOS)
-- Terminal simulé  
-- Bloc-notes  
-- Lecteur multimédia  
-- Navigateur interne  
-- Paramètres système
+![Applications de ShadowOS](/assets/dock.png)
+- Terminal simulé
+- AI - chat 100% fonctionnel (non visible)
+- Bloc-notes (non visible)
+- Explorateur de fichier  
+- Mini Navigateur  
+- Paramètres système (non visible)
+- Et bien d'autres.. prochainement
 
 ### Vie privée
 - Aucun suivi  
 - Aucun script externe inutile  
 - Code transparent  
-- Fonctionne même hors connexion
+- Fonctionne même hors connexion (via notre app)
 
 ---
 
