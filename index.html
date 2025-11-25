@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="theme-color" content="#0d111e" />
-<link rel="icon" href="/assets/img/logo.png" />
+<link rel="icon" href="/assets/img/shadowos-icon.png" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SmeaxOS - Beta</title>
 
@@ -262,7 +262,7 @@ body {
 <div id="start-menu" aria-hidden="true">
   <div class="start-header">
     <div class="start-user">
-      <img src="/assets/img/logo.png" alt="Avatar" />
+      <img src="/assets/img/shadowos-icon.png" alt="Avatar" />
       <div>
         <div class="text-white font-semibold">Smeax</div>
         <div class="text-sm text-gray-300">Connecté</div>
@@ -276,7 +276,7 @@ body {
         </button>
         <div id="start-power-menu" class="absolute right-0 mt-2 w-44 bg-[#0b0d10] border border-white/5 rounded-md p-2 hidden">
           <button class="w-full text-left px-3 py-2 rounded hover:bg-white/2" onclick="fakeAction('Redémarrer')">🔁 Redémarrer</button>
-          <button class="w-full text-left px-3 py-2 rounded hover:bg-white/2" onclick="fakeAction('Arrêter')">⏻ Éteindre</button>
+          <button lass="w-full text-left px-3 py-2 rounded hover:bg-white/2" onclick="fakeAction('Arrêter')">⏻ Éteindre</button>
           <button class="w-full text-left px-3 py-2 rounded hover:bg-white/2" onclick="fakeAction('Se déconnecter')">↩ Se déconnecter</button>
         </div>
       </div>
@@ -300,13 +300,18 @@ body {
       <img src="https://img.icons8.com/?size=100&id=hvZ4mmbc3mTK&format=png&color=FFFFFF" alt="Terminal">
       <div class="text-white text-xs">Terminal</div>
     </div>
+
+    <div class="app" onclick="toggleWindow('ia','AI - School','https://devoirfacile.fr/')">
+      <img src="https://lannetech.com/client/admin/img/67b0a7572a54d.png" alt="Terminal">
+      <div class="text-white text-xs">AI - School</div>
+    </div>
   </div>
 </div>
 
 <div id="taskbar" role="toolbar" aria-label="Barre des tâches">
   <div class="taskbar-left">
     <button id="btn-start" class="taskbar-button" title="Démarrer" onclick="toggleStartMenu()">
-      <img src="https://img.icons8.com/?size=100&id=M9BRw0RJZXKi&format=png&color=000000" alt="Start" />
+      <img src="/assets/img/shadowos-icon.png" alt="Start" />
     </button>
 
     <div class="relative hidden md:block">
