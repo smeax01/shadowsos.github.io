@@ -270,7 +270,6 @@ body {
     </div>
 
     <div class="flex gap-2 items-center">
-      <button id="btn-lock" title="Verrouiller" class="p-2 rounded-md hover:bg-white/3"><i class="bi bi-lock-fill text-lg text-gray-200"></i></button>
       <div class="relative">
         <button id="start-power" title="Options d'alimentation" class="p-2 rounded-md hover:bg-white/3">
           <i class="bi bi-power text-lg text-red-400"></i>
@@ -286,10 +285,6 @@ body {
 
   <h3 class="text-sm text-gray-200 mb-2">Applications</h3>
   <div class="start-grid">
-    <div class="app" onclick="toggleWindow('Smeax','Smeax','index.html')">
-      <img src="/assets/img/logo.png" alt="Smeax">
-      <div class="text-white text-xs">Smeax</div>
-    </div>
 
     <div class="app" onclick="toggleWindow('Exploreur','Exploreur','explorer.html')">
       <img src="https://images.icon-icons.com/37/PNG/512/books_3025.png" alt="Explorateur">
@@ -301,28 +296,9 @@ body {
       <div class="text-white text-xs">Searx</div>
     </div>
 
-    <div class="app" onclick="toggleWindow('Democraft','Democraft','/demo.html')">
-      <img src="https://media.discordapp.net/attachments/1170747635410403448/1439712705442353329/logo-vide.png" alt="Demo">
-      <div class="text-white text-xs">Demo</div>
-    </div>
-
-    <div class="app" onclick="toggleWindow('AI','AI','https://ai.smeax.fr')">
-      <img src="https://images.icon-icons.com/1826/PNG/512/4202108browsereedgelogo-115709_115592.png" alt="AI">
-      <div class="text-white text-xs">AI</div>
-    </div>
-
     <div class="app" onclick="toggleWindow('Terminal','Terminal','/cmd.html')">
       <img src="https://img.icons8.com/?size=100&id=hvZ4mmbc3mTK&format=png&color=FFFFFF" alt="Terminal">
       <div class="text-white text-xs">Terminal</div>
-    </div>
-
-    <div class="app" onclick="fakeAction('App 7')">
-      <img src="https://img.icons8.com/?size=100&id=M9BRw0RJZXKi&format=png&color=000000" alt="App">
-      <div class="text-white text-xs">App 7</div>
-    </div>
-    <div class="app" onclick="fakeAction('App 8')">
-      <img src="https://img.icons8.com/?size=100&id=hvZ4mmbc3mTK&format=png&color=FFFFFF" alt="App">
-      <div class="text-white text-xs">App 8</div>
     </div>
   </div>
 </div>
@@ -343,9 +319,6 @@ body {
 
   <div class="taskbar-center">
     <div id="pinned-strip" class="pinned-strip">
-      <button class="taskbar-button" data-app="Smeax" onclick="toggleWindow('Smeax','Smeax','index.html')">
-        <img src="/assets/img/logo.png" alt="Smeax" />
-      </button>
 
       <button class="taskbar-button" data-app="Exploreur" onclick="toggleWindow('Exploreur','Exploreur','explorer.html')">
         <img src="https://images.icon-icons.com/37/PNG/512/books_3025.png" alt="Explorateur" />
@@ -353,14 +326,6 @@ body {
 
       <button class="taskbar-button" data-app="Searx" onclick="toggleWindow('Searx','Searx','https://metasearx.com')">
         <img src="https://images.icon-icons.com/1826/PNG/512/4202108browsereedgelogo-115709_115592.png" alt="Searx" />
-      </button>
-
-      <button class="taskbar-button" data-app="Demo" onclick="toggleWindow('Democraft','Democraft','/demo.html')">
-        <img src="https://media.discordapp.net/attachments/1170747635410403448/1439712705442353329/logo-vide.png" alt="Demo" />
-      </button>
-
-      <button class="taskbar-button" data-app="IA" onclick="toggleWindow('IA','IA','https://ai.smeax.fr')">
-        <img src="https://img.icons8.com/?size=100&id=hvZ4mmbc3mTK&format=png&color=FFFFFF" alt="IA" />
       </button>
 
       <button class="taskbar-button" data-app="Terminal" onclick="toggleWindow('Terminal','Terminal','/cmd.html')">
@@ -372,11 +337,6 @@ body {
       <i class="bi bi-three-dots-vertical text-white/80"></i>
     </div>
   </div>
-
-  <div class="taskbar-right">
-    <div id="tray-embed" class="hidden sm:flex items-center px-3 py-1 rounded-md bg-white/3">
-      <i class="bi bi-wifi text-sm mr-2"></i><span class="text-sm">LAN</span>
-    </div>
 
     <div id="tray-clock" class="tray-clock" title="Afficher le menu" onclick="toggleTrayMenu()">
       <div>
@@ -400,7 +360,6 @@ body {
 
   <div class="tray-actions">
     <button onclick="fakeAction('Paramètres')">⚙️ Paramètres</button>
-    <button onclick="fakeAction('Verrouiller')">🔒 Verrouiller</button>
     <button onclick="fakeAction('Éteindre')">⏻ Éteindre</button>
   </div>
 </div>
