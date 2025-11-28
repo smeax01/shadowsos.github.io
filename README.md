@@ -42,7 +42,7 @@ ShadowOS offre une interface rappelant un vrai système d’exploitation :
 - Prochainement : cloud, fichier sauvgarder via database...
 
 ### Applications intégrées
-![Applications de ShadowOS]([/assets/dock.png](https://media.discordapp.net/attachments/1191059562166501550/1443986903501373491/tgafwME.png?ex=692b1119&is=6929bf99&hm=e6fd907dc3ea3e3cfe10f639065f2efb36424a651c4139e2db9c2920123261bf&=&format=png&quality=lossless&width=1517&height=61))
+![Applications de ShadowOS](https://media.discordapp.net/attachments/1191059562166501550/1444014649359208448/jbsOsS5.png?ex=692b2af0&is=6929d970&hm=e52799360daea7f4a8b38462ad1d390405589f6021d3fca1ed836b6da58a7152&=&format=png&quality=lossless)
 - Terminal simulé
 - AI - chat 100% fonctionnel (non visible)
 - Bloc-notes (non visible)
