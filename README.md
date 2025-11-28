@@ -1,5 +1,6 @@
 <img width="1721" height="1032" alt="image" src="https://github.com/user-attachments/assets/f68518ef-186d-4756-aa17-e570ee39ffa6" />
-# ShadowOS  
+# ShadowOS
+
 Un mini système d’exploitation directement dans votre navigateur
 
 ShadowOS réunit l’essentiel de Windows, Linux et macOS dans un environnement léger, propre et accessible instantanément.  
