@@ -1,6 +1,6 @@
 ![img](https://media.discordapp.net/attachments/1191059562166501550/1444006691350774113/OSUCvLY.png?ex=692b2387&is=6929d207&hm=575a321642e3a55767efcc137200c0fcf0ba6aa793f83a69cdadbcf503c767f0&=&format=png&quality=lossless&width=1403&height=789)
 
-# ShadowOS
+# ShadowOS - Beta (Croquis)
 
 Un mini système d’exploitation directement dans votre navigateur
 
