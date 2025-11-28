@@ -1,4 +1,5 @@
-<img width="1721" height="1032" alt="image" src="https://github.com/user-attachments/assets/f68518ef-186d-4756-aa17-e570ee39ffa6" />
+<img width="1721" height="1032" alt="image" src="[https://github.com/user-attachments/assets/f68518ef-186d-4756-aa17-e570ee39ffa6](https://media.discordapp.net/attachments/1191059562166501550/1444006691350774113/OSUCvLY.png?ex=692b2387&is=6929d207&hm=575a321642e3a55767efcc137200c0fcf0ba6aa793f83a69cdadbcf503c767f0&=&format=png&quality=lossless&width=1403&height=789)" />
+
 # ShadowOS
 
 Un mini système d’exploitation directement dans votre navigateur
