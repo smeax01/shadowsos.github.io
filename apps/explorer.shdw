@@ -1,8 +1,7 @@
 {
-  "name": "File Explorer",
-  "description": "Gestionnaire de fichiers ShadowOS",
-  "icon": "system/icons/explorer.png",
+  "name": "Explorateur de fichiers",
+  "description": "Naviguer dans les fichiers du ShadowOS.",
+  "icon": "icons/explorer.png",
   "path": "system/apps/explorer/index.html",
-  "version": "2.0.0",
-  "permissions": {}
+  "version": "1.0.0"
 }

@@ -323,6 +323,15 @@ body {
 
 <div class="wallpaper" aria-hidden="true"></div>
 
+<div id="desktop-icons"></div>
+
+<div id="window" style="display:none;">
+    <iframe id="app-frame" class="w-full h-full"></iframe>
+</div>
+
+<script src="assets/scripts/launcher.js"></script>
+<script src="assets/scripts/store.js"></script>
+
 <!-- Desktop layer -->
 <div id="desktop" aria-hidden="false"></div>
 <div id="selection-box" aria-hidden="true"></div>
@@ -380,9 +389,13 @@ body {
       <button class="taskbar-button" data-app="Exploreur" onclick="toggleWindow('Exploreur','Exploreur','explorer.html')">
         <img src="https://images.icon-icons.com/37/PNG/512/books_3025.png" alt="Explorateur" />
       </button>
-
+      
       <button class="taskbar-button" data-app="Searx" onclick="toggleWindow('Searx','Searx','https://metasearx.com')">
         <img src="https://images.icon-icons.com/1826/PNG/512/4202108browsereedgelogo-115709_115592.png" alt="Searx" />
+      </button>
+
+      <button class="taskbar-button" data-app="Store" onclick="toggleWindow('Store','Store','/store.html')">
+        <img src="https://media.discordapp.net/attachments/1191059562166501550/1434168393019166820/image-removebg-preview.png?ex=693188e6&is=69303766&hm=6c9417e1552afd72212dbbbfc2b73723389931c1f34167a64b1de42b4ca4553a&=&format=png&quality=lossless" alt="Searx" />
       </button>
 
       <button class="taskbar-button" data-app="Terminal" onclick="toggleWindow('Terminal','Terminal','/cmd.html')">

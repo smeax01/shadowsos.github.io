@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>ShadowOS Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="assets/scripts/store.js"></script>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen">
+
+    <!-- Header -->
+    <header class="w-full bg-gray-800 border-b border-gray-700 p-4 flex items-center justify-between">
+        <h1 class="text-xl font-bold">ShadowOS Store</h1>
+        <button onclick="window.location.href='index.html'" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">
+            Retour
+        </button>
+    </header>
+
+    <!-- Container -->
+    <div class="max-w-6xl mx-auto mt-6">
+        <h2 class="text-2xl font-semibold mb-4">Applications disponibles</h2>
+
+        <div id="store-list" 
+             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <!-- Les apps seront injectées ici -->
+        </div>
+    </div>
+
+</body>
+</html>
