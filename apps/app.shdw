@@ -1,0 +1,9 @@
+{
+  "key": "minecraft",
+  "name": "Minecraft",
+  "version": "1.0",
+  "description": "Minecraft via Eaglercraft",
+  "icon": "https://images.icon-icons.com/2699/PNG/512/minecraft_logo_icon_168974.png",
+  "url": "https://eaglercraft.com/play/?version=1.12.2",
+  "target": "iframe"
+}

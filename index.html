@@ -8,254 +8,18 @@
 <title>ShadowOS - Beta</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="/assets/styles/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-<style>
-:root{
-  --bg: #0d111e;
-  --card: #181c25;
-  --accent: #6366f1;
-  --taskbar-height: 64px;
-  --icon-size: 40px;
-  --icon-gap: 8px;
-  --taskbar-scale: 1;
-}
 
-html,body{height:100%}
-body {
-  background: var(--bg);
-  overflow: hidden;
-  user-select: none;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.wallpaper{
-  position:absolute;
-  inset:0;
-  background-image: url('https://wallpapercave.com/wp/wp11643995.jpg');
-  background-size: cover;
-  background-position: center;
-  filter: brightness(1);
-  z-index: 0;
-}
-
-.window {
-  position: absolute;
-  background-color: rgba(24,28,37,0.95);
-  backdrop-filter: blur(10px);
-  border-radius: .5rem;
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.45);
-  overflow: hidden;
-  min-width: 250px;
-  min-height: 150px;
-  display: flex;
-  flex-direction: column;
-  z-index: 50;
-}
-.window:hover { background: rgba(24,28,37,0.9); }
-
-.window-header {
-  cursor: grab;
-  background: #0f1318;
-  padding: .6rem 1rem;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  display: flex;
-  justify-content: space-between;
-  color: white;
-  align-items: center;
-}
-
-#start-menu {
-  position: fixed;
-  bottom: calc(var(--taskbar-height) + 14px);
-  left: 16px;
-  transform-origin: bottom left;
-  background: rgba(18,22,28,0.97);
-  width: 420px;
-  padding: 18px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.05);
-  backdrop-filter: blur(16px);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform .18s ease, opacity .18s ease;
-  transform: translateY(4px) scale(.98);
-  z-index: 99999;
-}
-#start-menu.active { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
-
-.start-header {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  margin-bottom:12px;
-}
-.start-user {
-  display:flex;
-  gap:12px;
-  align-items:center;
-}
-.start-user img{width:46px;height:46px;border-radius:10px;object-fit:cover;border:1px solid rgba(255,255,255,0.04)}
-
-.start-grid {
-  display:grid;
-  grid-template-columns: repeat(4,1fr);
-  gap:12px;
-}
-.start-grid .app {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:6px;
-  cursor:pointer;
-}
-.start-grid img{width:44px;height:44px;object-fit:cover;border-radius:8px}
-
-#taskbar {
-  position: fixed;
-  left: 12px;
-  right: 12px;
-  bottom: 10px;
-  height: var(--taskbar-height);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:8px 12px;
-  background: linear-gradient(180deg, rgba(24,28,37,0.65), rgba(18,22,28,0.55));
-  backdrop-filter: blur(10px);
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-  z-index: 9999;
-}
-
-.taskbar-left {
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.taskbar-center {
-  display:flex;
-  align-items:center;
-  gap:calc(var(--icon-gap) * var(--taskbar-scale));
-  flex:1 1 auto;
-  justify-content:center;
-  overflow:hidden;
-  position:relative;
-}
-
-.pinned-strip {
-  display:flex;
-  align-items:center;
-  gap:calc(var(--icon-gap) * var(--taskbar-scale));
-  transition: transform .12s ease;
-  transform-origin:center;
-  transform: scale(var(--taskbar-scale));
-  will-change: transform;
-}
-
-.taskbar-button {
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width: calc(var(--icon-size) * var(--taskbar-scale));
-  height: calc(var(--icon-size) * var(--taskbar-scale));
-  min-width: 28px;
-  min-height: 28px;
-  border-radius: 8px;
-  padding:6px;
-  transition: transform .12s ease, background .12s ease;
-  position:relative;
-  user-select:none;
-  flex-shrink:0;
-}
-.taskbar-button img { width:100%; height:100%; object-fit:cover; border-radius:6px; display:block; }
-
-.taskbar-button.active::after{
-  content: "";
-  position:absolute;
-  bottom:-6px;
-  left:50%;
-  transform:translateX(-50%);
-  width: 24px;
-  height:4px;
-  border-radius:4px;
-  background: var(--accent);
-  box-shadow: 0 6px 10px rgba(99,102,241,0.18);
-}
-
-.taskbar-button:hover{ transform: translateY(-3px); background: rgba(255,255,255,0.03); }
-
-.overflow-btn {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:36px;height:36px;border-radius:8px;
-  background: rgba(255,255,255,0.02);
-  cursor:pointer;
-}
-
-.taskbar-right {
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.tray-clock {
-  min-width:110px;
-  display:flex;
-  gap:10px;
-  align-items:center;
-  padding:6px 10px;
-  border-radius:8px;
-  cursor:pointer;
-  user-select:none;
-}
-.tray-clock .time { font-weight:600; }
-.tray-clock .date { font-size:12px; opacity:0.8; }
-
-#tray-menu {
-  position: fixed;
-  bottom: calc(var(--taskbar-height) + 18px);
-  right: 12px;
-  width: 260px;
-  background: rgba(20,24,28,0.98);
-  padding:12px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,0.04);
-  box-shadow: 0 24px 60px rgba(0,0,0,0.6);
-  transform-origin: bottom right;
-  opacity:0;
-  pointer-events:none;
-  transform: translateY(6px) scale(.98);
-  transition: opacity .15s ease, transform .15s ease;
-  z-index:99999;
-}
-#tray-menu.active { opacity:1; pointer-events:auto; transform: translateY(0) scale(1); }
-
-.tray-user { display:flex; gap:12px; align-items:center; margin-bottom:8px; }
-.tray-user img{width:56px;height:56px;border-radius:9px;object-fit:cover}
-.tray-actions { display:flex; gap:8px; margin-top:8px; }
-.tray-actions button{ flex:1; padding:8px 10px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.03); cursor:pointer;}
-
-@media (max-width:900px){
-  #start-menu{ left:8px; width:92%; }
-  #taskbar{ left:8px; right:8px; padding:6px; border-radius:12px; }
-  :root{ --taskbar-height: 60px; --icon-size:36px; }
-}
-
-</style>
 </head>
 <body>
 
 <div class="wallpaper" aria-hidden="true"></div>
+
+<!-- Desktop layer -->
+<div id="desktop" aria-hidden="false"></div>
+<div id="selection-box" aria-hidden="true"></div>
 
 <div id="window-area" class="absolute inset-0 pointer-events-auto"></div>
 
@@ -276,7 +40,7 @@ body {
         </button>
         <div id="start-power-menu" class="absolute right-0 mt-2 w-44 bg-[#0b0d10] border border-white/5 rounded-md p-2 hidden">
           <button class="w-full text-left px-3 py-2 rounded hover:bg-white/2" onclick="fakeAction('Redémarrer')">🔁 Redémarrer</button>
-          <button lass="w-full text-left px-3 py-2 rounded hover:bg-white/2" onclick="fakeAction('Arrêter')">⏻ Éteindre</button>
+          <button class="w-full text-left px-3 py-2 rounded hover:bg-white/2" onclick="fakeAction('Arrêter')">⏻ Éteindre</button>
           <button class="w-full text-left px-3 py-2 rounded hover:bg-white/2" onclick="fakeAction('Se déconnecter')">↩ Se déconnecter</button>
         </div>
       </div>
@@ -284,12 +48,8 @@ body {
   </div>
 
   <h3 class="text-sm text-gray-200 mb-2">Applications</h3>
-  <div class="start-grid">
-
-    <div class="app" onclick="toggleWindow('Minecaft','Minecraft','https://eaglercraft.com/play/?version=1.12.2')">
-      <img src="https://images.icon-icons.com/2699/PNG/512/minecraft_logo_icon_168974.png" alt="Minecraft">
-      <div class="text-white text-xs">Minecraft</div>
-    </div>
+  <div id="start-grid" class="start-grid">
+    <!-- apps will be injected here -->
   </div>
 </div>
 
@@ -310,6 +70,7 @@ body {
   <div class="taskbar-center">
     <div id="pinned-strip" class="pinned-strip">
 
+      <!-- pinned apps (default) -->
       <button class="taskbar-button" data-app="Exploreur" onclick="toggleWindow('Exploreur','Exploreur','explorer.html')">
         <img src="https://images.icon-icons.com/37/PNG/512/books_3025.png" alt="Explorateur" />
       </button>
@@ -350,11 +111,13 @@ body {
 </div>
 
 <script>
+/* State */
 let zIndex = 50;
 const openedApps = {};
 const pinnedStrip = document.getElementById('pinned-strip');
 const overflowBtn = document.getElementById('overflowBtn');
 const startMenu = document.getElementById('start-menu');
+const startGrid = document.getElementById('start-grid');
 const startPower = document.getElementById('start-power');
 const startPowerMenu = document.getElementById('start-power-menu');
 const trayMenu = document.getElementById('tray-menu');
@@ -364,10 +127,154 @@ const trayDateEl = document.getElementById('tray-date');
 const trayFullTime = document.getElementById('tray-fulltime');
 const taskbar = document.getElementById('taskbar');
 const root = document.documentElement;
+const desktop = document.getElementById('desktop');
+const selectionBox = document.getElementById('selection-box');
 
-function toggleWindow(key, title, url) {
+let appsList = []; // loaded app objects
+
+/* Utility: fetch JSON with graceful fallback */
+async function fetchJson(url){
+  try {
+    const r = await fetch(url, {cache: "no-cache"});
+    if (!r.ok) throw new Error('fetch error ' + r.status);
+    return await r.json();
+  } catch (err) {
+    console.warn('fetchJson failed', url, err);
+    return null;
+  }
+}
+
+/* Load apps:
+   - expects /apps/apps.json : ["app1.shdw","app2.shdw"]
+   - each file is JSON .shdw with fields: key, name, version, description, icon, url, target
+*/
+async function loadApps(){
+  const manifest = await fetchJson('/apps/apps.json');
+  let files = manifest && Array.isArray(manifest) ? manifest : null;
+
+  // fallback: check /apps/index.json or attempt to load a few defaults if manifest missing
+  if (!files){
+    const fallback = await fetchJson('/apps/index.json');
+    if (fallback && Array.isArray(fallback)) files = fallback;
+  }
+
+  // if still no manifest, use an embedded sample set (useful for dev/local)
+  if (!files){
+    files = [
+      "minecraft.shdw",
+      "explorer.shdw"
+    ];
+    console.warn('Aucun manifest trouvé (/apps/apps.json). Utilisation d\'un fallback interne. Pour production, crée /apps/apps.json listant les .shdw');
+  }
+
+  const loaded = [];
+  for (const f of files) {
+    if (!f) continue;
+    const path = '/apps/' + f;
+    const data = await fetchJson(path);
+    if (data) {
+      // normalize minimal fields and default target
+      const app = {
+        key: data.key || (data.name || f).toLowerCase().replace(/\s+/g,'-'),
+        name: data.name || f,
+        version: data.version || '1.0',
+        description: data.description || '',
+        icon: data.icon || '/assets/img/shadowos-icon.png',
+        url: data.url || '/',
+        target: data.target || 'iframe', // iframe or newtab
+        file: f,
+        raw: data
+      };
+      loaded.push(app);
+    } else {
+      console.warn('Impossible de charger', path);
+    }
+  }
+
+  appsList = loaded;
+  renderStartGrid();
+  renderDesktopIcons();
+}
+
+/* render the start menu grid */
+function renderStartGrid(){
+  startGrid.innerHTML = '';
+  appsList.forEach(app => {
+    const el = document.createElement('div');
+    el.className = 'app';
+    el.title = app.description;
+    el.innerHTML = `<img src="${app.icon}" alt="${app.name}"><div class="text-white text-xs">${app.name}</div>`;
+    el.onclick = () => {
+      toggleWindow(app.key, app.name, app.url, app);
+      startMenu.classList.remove('active');
+    };
+    // allow right-click to pin to taskbar
+    el.oncontextmenu = (e) => {
+      e.preventDefault();
+      pinApp(app.icon, app.key, app.name, app);
+    };
+    startGrid.appendChild(el);
+  });
+}
+
+/* Render desktop icons (grid-like auto placement) */
+function renderDesktopIcons(){
+  desktop.innerHTML = ''; // clear
+  const margin = 24;
+  const iconW = 92;
+  const iconH = 110;
+  // compute columns based on width
+  const cols = Math.max(1, Math.floor((window.innerWidth - margin*2) / (iconW + 12)));
+  appsList.forEach((app, idx) => {
+    const x = margin + (idx % cols) * (iconW + 12);
+    const y = margin + Math.floor(idx / cols) * (iconH + 12);
+    const el = document.createElement('div');
+    el.className = 'desktop-icon';
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.dataset.appKey = app.key;
+    el.innerHTML = `<div class="ico"><img src="${app.icon}" alt="${app.name}" style="width:100%;height:100%;object-fit:cover;"></div><div class="label">${app.name}</div>`;
+    el.onclick = (ev) => {
+      // single click: select; double click open
+      if (ev.detail === 1) {
+        clearSelection();
+        el.classList.add('selected');
+      } else if (ev.detail === 2) {
+        toggleWindow(app.key, app.name, app.url, app);
+      }
+    };
+    // allow drag to move icons on desktop (simple)
+    makeDesktopIconDraggable(el);
+    desktop.appendChild(el);
+  });
+}
+
+/* make desktop icon draggable (simple) */
+function makeDesktopIconDraggable(el){
+  let dragging = false, sx=0, sy=0, ox=0, oy=0;
+  el.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    dragging = true;
+    sx = e.clientX; sy = e.clientY;
+    ox = parseFloat(el.style.left); oy = parseFloat(el.style.top);
+    el.style.transition = 'none';
+  });
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    el.style.left = Math.max(8, Math.min(window.innerWidth - 100, ox + (e.clientX - sx))) + 'px';
+    el.style.top = Math.max(8, Math.min(window.innerHeight - 120, oy + (e.clientY - sy))) + 'px';
+  });
+  window.addEventListener('mouseup', () => {
+    if (dragging) {
+      dragging = false;
+      el.style.transition = '';
+    }
+  });
+}
+
+/* toggle window creation / toggle visibility */
+function toggleWindow(key, title, url, appObj){
   const keyAttr = key;
-
   if (openedApps[keyAttr]) {
     const win = openedApps[keyAttr];
     if (win.style.display === "none") {
@@ -388,12 +295,19 @@ function toggleWindow(key, title, url) {
   win.style.zIndex = ++zIndex;
   win.dataset.appKey = keyAttr;
 
-  win.style.width = "820px";
-  win.style.height = "520px";
-  win.style.left = (window.innerWidth/2 - 410) + "px";
-  win.style.top = (window.innerHeight/2 - 260) + "px";
+  // default size
+  const width = Math.min(1200, Math.max(420, Math.floor(window.innerWidth * 0.7)));
+  const height = Math.min(800, Math.max(300, Math.floor(window.innerHeight * 0.7)));
+  win.style.width = width + "px";
+  win.style.height = height + "px";
+  win.style.left = (window.innerWidth/2 - width/2) + "px";
+  win.style.top = (window.innerHeight/2 - height/2) + "px";
 
-  win.innerHTML = `
+  // choose iframe or external
+  let content = '';
+  const src = url || '/';
+  const safeSandbox = 'allow-same-origin allow-scripts allow-forms allow-modals';
+  content += `
     <div class="window-header">
       <span class="text-sm">${title}</span>
       <div class="flex gap-3 text-xl">
@@ -402,15 +316,24 @@ function toggleWindow(key, title, url) {
         <i class="bi bi-x-lg text-red-400 cursor-pointer" onclick="closeWindow(this)"></i>
       </div>
     </div>
-
-    <iframe src="${url}" class="flex-1 w-full" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
-
-    <div class="resize-handle absolute right-0 bottom-0 w-6 h-6 cursor-se-resize"></div>
   `;
 
+  // if target is newtab, open in external tab
+  const target = appObj?.target || 'iframe';
+  if (target === 'newtab' || /^https?:\/\//i.test(src) && appObj?.target === 'newtab') {
+    window.open(src, '_blank');
+    return;
+  } else {
+    content += `<iframe src="${src}" class="flex-1 w-full" sandbox="${safeSandbox}"></iframe>`;
+  }
+
+  content += `<div class="resize-handle absolute right-0 bottom-0 w-6 h-6 cursor-se-resize"></div>`;
+
+  win.innerHTML = content;
   container.appendChild(win);
   openedApps[keyAttr] = win;
 
+  // highlight pinned if present
   document.querySelector(`[data-app="${keyAttr}"]`)?.classList.add("active");
 
   makeWindowDraggable(win);
@@ -419,8 +342,10 @@ function toggleWindow(key, title, url) {
   adjustTaskbarScale();
 }
 
+/* window controls */
 function closeWindow(btn) {
   const win = btn.closest(".window");
+  if (!win) return;
   const key = win.dataset.appKey;
   document.querySelector(`[data-app="${key}"]`)?.classList.remove("active");
   delete openedApps[key];
@@ -430,6 +355,7 @@ function closeWindow(btn) {
 
 function minimizeWindow(btn) {
   const win = btn.closest(".window");
+  if (!win) return;
   win.style.display = "none";
   document.querySelector(`[data-app="${win.dataset.appKey}"]`)?.classList.remove("active");
   adjustTaskbarScale();
@@ -437,6 +363,7 @@ function minimizeWindow(btn) {
 
 function toggleFullscreen(btn) {
   const win = btn.closest(".window");
+  if (!win) return;
   if (!win.dataset.fullscreen) {
     win.dataset.prev = JSON.stringify({
       left: win.style.left,
@@ -459,6 +386,7 @@ function toggleFullscreen(btn) {
   }
 }
 
+/* draggable windows */
 function makeWindowDraggable(win) {
   const header = win.querySelector(".window-header");
   let dragging = false, offsetX = 0, offsetY = 0;
@@ -480,6 +408,7 @@ function makeWindowDraggable(win) {
   document.addEventListener("mouseup", () => dragging = false);
 }
 
+/* resizable windows */
 function makeWindowResizable(win) {
   const h = win.querySelector(".resize-handle");
   let resizing = false, sx, sy, sw, sh;
@@ -500,11 +429,13 @@ function makeWindowResizable(win) {
   document.addEventListener("mouseup", () => resizing = false);
 }
 
+/* start menu toggle */
 function toggleStartMenu() {
   startMenu.classList.toggle('active');
   trayMenu.classList.remove('active');
 }
 
+/* global click handling */
 document.addEventListener('click', (e) => {
   if (!startMenu.contains(e.target) && !document.getElementById('btn-start').contains(e.target)) {
     startMenu.classList.remove('active');
@@ -512,8 +443,12 @@ document.addEventListener('click', (e) => {
   if (!startPower.contains(e.target) && !startPowerMenu.contains(e.target)) {
     startPowerMenu.classList.add('hidden');
   }
+  if (!trayMenu.contains(e.target) && !trayClock.contains(e.target)) {
+    trayMenu.classList.remove('active');
+  }
 });
 
+/* start power menu toggle */
 startPower.addEventListener('click', (e) => {
   e.stopPropagation();
   startPowerMenu.classList.toggle('hidden');
@@ -523,11 +458,11 @@ function fakeAction(name){
   alert(name + ' (action de démo)');
 }
 
+/* taskbar scaling logic */
 function adjustTaskbarScale(){
   requestAnimationFrame(() => {
     const center = document.querySelector('.taskbar-center');
     const pinned = pinnedStrip;
-    const centerStyle = getComputedStyle(center);
     const available = center.clientWidth - 48;
 
     const icons = Array.from(pinned.children);
@@ -610,6 +545,7 @@ observer.observe(pinnedStrip, { childList: true, subtree: false });
 
 adjustTaskbarScale();
 
+/* clock */
 function updateClock(){
   const now = new Date();
   const optsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Europe/Paris' };
@@ -632,18 +568,14 @@ function toggleTrayMenu(){
   startMenu.classList.remove('active');
 }
 
-document.addEventListener('click', (e) => {
-  if (!trayMenu.contains(e.target) && !trayClock.contains(e.target)) {
-    trayMenu.classList.remove('active');
-  }
-});
-
+/* search */
 function searchFromTaskbar(){
   const q = document.getElementById("searchTask").value.trim();
   if (!q) return;
   toggleWindow("Searx", "Searx", "https://metasearx.com//?q=" + encodeURIComponent(q));
 }
 
+/* keyboard interactions */
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     startMenu.classList.remove('active');
@@ -653,18 +585,94 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-function pinApp(src, key, title){
+/* pin app helper */
+function pinApp(src, key, title, appObj){
+  // check if already pinned
+  if (Array.from(pinnedStrip.children).some(n => n.dataset.app === key)) return;
   const btn = document.createElement('button');
   btn.className = 'taskbar-button';
   btn.dataset.app = key;
   btn.title = title || key;
   btn.innerHTML = `<img src="${src}" alt="${title || key}">`;
-  btn.onclick = () => toggleWindow(key, title || key, '/');
+  btn.onclick = () => toggleWindow(key, title || key, appObj?.url || '/');
   pinnedStrip.appendChild(btn);
   adjustTaskbarScale();
 }
 
+/* selection rectangle logic on desktop */
+let selecting = false;
+let selStartX=0, selStartY=0;
 
+function clearSelection(){
+  document.querySelectorAll('.desktop-icon.selected').forEach(el => el.classList.remove('selected'));
+}
+
+desktop.addEventListener('mousedown', (e) => {
+  // only left button and not on an icon
+  if (e.button !== 0) return;
+  if (e.target.closest('.desktop-icon')) return;
+  selecting = true;
+  selStartX = e.clientX;
+  selStartY = e.clientY;
+  selectionBox.style.left = selStartX + 'px';
+  selectionBox.style.top = selStartY + 'px';
+  selectionBox.style.width = '0px';
+  selectionBox.style.height = '0px';
+  selectionBox.style.display = 'block';
+  clearSelection();
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (!selecting) return;
+  const x = Math.min(e.clientX, selStartX);
+  const y = Math.min(e.clientY, selStartY);
+  const w = Math.abs(e.clientX - selStartX);
+  const h = Math.abs(e.clientY - selStartY);
+  selectionBox.style.left = x + 'px';
+  selectionBox.style.top = y + 'px';
+  selectionBox.style.width = w + 'px';
+  selectionBox.style.height = h + 'px';
+
+  // check intersection with desktop icons
+  const rect = { left: x, top: y, right: x + w, bottom: y + h };
+  document.querySelectorAll('.desktop-icon').forEach(ic => {
+    const r = ic.getBoundingClientRect();
+    const intersect = !(r.right < rect.left || r.left > rect.right || r.bottom < rect.top || r.top > rect.bottom);
+    if (intersect) ic.classList.add('selected'); else ic.classList.remove('selected');
+  });
+});
+
+window.addEventListener('mouseup', (e) => {
+  if (selecting) {
+    selecting = false;
+    selectionBox.style.display = 'none';
+  }
+});
+
+/* click on desktop to clear selection */
+desktop.addEventListener('click', (e) => {
+  if (e.target === desktop || e.target === document.querySelector('.wallpaper')) {
+    clearSelection();
+  }
+});
+
+/* make icons droppable into pinned strip (quick pin by drag onto taskbar) */
+desktop.addEventListener('dragstart', (e) => {});
+// Note: full DnD complex behavior omitted for brevity - simple right-click pin supported.
+
+/* startup: load apps */
+loadApps();
+
+/* handle window resize re-render desktop layout */
+window.addEventListener('resize', () => {
+  renderDesktopIcons();
+  adjustTaskbarScale();
+});
+
+/* Developer helper: expose appsList on window for debug */
+window._shadowos = { appsList };
+
+/* End of script */
 </script>
 
 </body>
