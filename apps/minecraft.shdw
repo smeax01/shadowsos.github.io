@@ -1,0 +1,11 @@
+{
+  "name": "Minecraft Web",
+  "description": "Version web intégrée dans ShadowOS",
+  "icon": "https://example.com/icons/minecraft.png",
+  "path": "https://example.com/apps/minecraft/index.html",
+  "version": "1.0.0",
+  "permissions": {
+    "fullscreen": true,
+    "network": true
+  }
+}

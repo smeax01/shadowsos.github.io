@@ -1,0 +1,8 @@
+{
+  "name": "File Explorer",
+  "description": "Gestionnaire de fichiers ShadowOS",
+  "icon": "system/icons/explorer.png",
+  "path": "system/apps/explorer/index.html",
+  "version": "2.0.0",
+  "permissions": {}
+}
