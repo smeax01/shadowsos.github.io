@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>SmeaxOS - Explorateur de fichiers</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+:root {
+    --bg: #0d111e;
+    --panel: #181c25;
+    --hover: rgba(255,255,255,0.06);
+}
+html,body { height:100%; }
+body {
+    background: var(--bg);
+    height: 100vh;
+    overflow: hidden;
+    color: white;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+.app {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 16px;
+    height: calc(100vh - 32px);
+    padding: 16px;
+}
+
+.sidebar {
+    background: linear-gradient(180deg, rgba(24,28,37,0.9), rgba(24,28,37,0.85));
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 12px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    overflow:auto;
+}
+.side-section { border-top:1px solid rgba(255,255,255,0.02); padding-top:10px; }
+.side-item {
+    display:flex; align-items:center; gap:10px; padding:8px; border-radius:8px; cursor:pointer;
+}
+.side-item:hover { background: var(--hover); }
+.side-item.active { background: rgba(79,70,229,0.12); }
+
+.main {
+    display:flex; flex-direction:column; gap:12px;
+}
+
+.topbar {
+    display:flex; align-items:center; justify-content:space-between;
+    background: rgba(24,28,37,0.6);
+    padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.04);
+}
+
+.files-area {
+    background: linear-gradient(180deg, rgba(24,28,37,0.25), rgba(24,28,37,0.12));
+    border-radius:12px;
+    padding:16px;
+    border:1px solid rgba(255,255,255,0.04);
+    overflow:auto;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap:14px;
+    height: calc(100% - 80px);
+}
+
+.item {
+    background: rgba(255,255,255,0.02);
+    padding:12px;
+    border-radius:10px;
+    text-align:center;
+    cursor:pointer;
+    user-select:none;
+}
+.item .name { margin-top:8px; font-size:13px; word-break:break-word; }
+
+.files-area.dragover { outline: 3px dashed rgba(79,70,229,0.6); outline-offset: -6px; }
+
+.modal-bg { backdrop-filter: blur(10px); background: rgba(0,0,0,0.6); }
+
+#editor { background: #0b0f17; border: 1px solid rgba(255,255,255,0.06); color: white; resize: none; }
+.preview-image { max-width:100%; max-height:60vh; border-radius:8px; }
+
+.small { font-size:13px; color:#cbd5e1; }
+.btn { padding:8px 10px; border-radius:8px; background:#0f1724; }
+.input-file { display:none; }
+
+</style>
+</head>
+<body>
+
+<div class="app">
+    <aside class="sidebar" id="sidebar">
+        <div class="flex items-center gap-3">
+            <img src="/assets/img/logo.png" alt="logo" class="w-10 h-10 rounded-md">
+            <div>
+                <div class="text-sm font-semibold">Smeax File Explorer</div>
+                <div class="small">Stockage local (Web)</div>
+            </div>
+        </div>
+
+        <div class="side-section">
+            <div class="text-xs text-gray-400 mb-2">Ce PC</div>
+            <div class="side-item" data-path="/" onclick="navigateTo('/')">
+                <i class="bi bi-desktop"></i><div>Ce PC</div>
+            </div>
+            <div class="side-item" data-path="/Downloads/" onclick="navigateTo('/Downloads/')">
+                <i class="bi bi-download"></i><div>Téléchargements</div>
+            </div>
+            <div class="side-item" data-path="/Documents/" onclick="navigateTo('/Documents/')">
+                <i class="bi bi-file-earmark-text"></i><div>Documents</div>
+            </div>
+            <div class="side-item" data-path="/Pictures/" onclick="navigateTo('/Pictures/')">
+                <i class="bi bi-image"></i><div>Images</div>
+            </div>
+            <div class="side-item" data-path="/Music/" onclick="navigateTo('/Music/')">
+                <i class="bi bi-music-note"></i><div>Musique</div>
+            </div>
+        </div>
+
+        <div class="side-section">
+            <div class="text-xs text-gray-400 mb-2">Actions</div>
+            <div class="side-item" onclick="downloadAllZip()"><i class="bi bi-cloud-download"></i><div>Télécharger tout (.zip)</div></div>
+            <div class="side-item" onclick="emptyTrash()"><i class="bi bi-trash"></i><div>Vider dossier temporaire</div></div>
+        </div>
+
+        <div class="side-section">
+            <div class="text-xs text-gray-400 mb-2">Drag files</div>
+            <div class="small">Glisse un fichier depuis ton PC dans la zone principale pour l'uploader.</div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div class="flex items-center gap-3">
+                <button class="btn" onclick="createFolder()"><i class="bi bi-folder-plus"></i> Nouveau dossier</button>
+                <button class="btn" onclick="createFile()"><i class="bi bi-file-earmark-plus"></i> Nouveau fichier</button>
+                <label class="btn cursor-pointer">
+                    <i class="bi bi-upload"></i> Upload
+                    <input id="fileInput" class="input-file" type="file" multiple onchange="handleFilesInput(this.files)">
+                </label>
+                <button class="btn" onclick="pasteItem()" id="pasteBtn" style="display:none;"><i class="bi bi-clipboard2-plus"></i> Coller</button>
+                <div class="small ml-4" id="currentPath">/</div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <input id="searchInput" class="px-3 py-2 rounded-lg bg-[#0f1724] text-white" placeholder="Rechercher..." oninput="render()">
+                <div class="small">Storage: <span id="storageInfo">0 KB</span></div>
+            </div>
+        </div>
+
+        <div id="filesArea" class="files-area" ondrop="onDrop(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)">
+        </div>
+    </main>
+</div>
+
+<div id="renameModal" class="fixed inset-0 hidden modal-bg flex items-center justify-center">
+    <div class="bg-[#181c25] p-6 rounded-xl border border-white/10 w-80">
+        <h2 class="text-lg mb-3">Renommer</h2>
+        <input id="renameInput" class="w-full px-3 py-2 bg-[#11151f] rounded-lg mb-4 outline-none">
+        <div class="flex justify-end gap-3">
+            <button onclick="closeRename()" class="text-gray-300">Annuler</button>
+            <button onclick="confirmRename()" class="bg-blue-600 px-4 py-2 rounded-lg">OK</button>
+        </div>
+    </div>
+</div>
+
+<div id="viewerModal" class="fixed inset-0 hidden modal-bg flex items-center justify-center p-6">
+    <div class="bg-[#181c25] p-4 rounded-xl border border-white/10 w-full max-w-3xl max-h-[90vh] overflow-auto">
+        <div class="flex justify-between items-center mb-3">
+            <h3 id="viewerTitle" class="text-lg"></h3>
+            <div class="flex gap-2">
+                <button class="btn" onclick="downloadCurrent()"><i class="bi bi-download"></i> Télécharger</button>
+                <button class="btn" onclick="closeViewer()"><i class="bi bi-x-lg"></i></button>
+            </div>
+        </div>
+        <div id="viewerContent"></div>
+    </div>
+</div>
+
+<script>
+const STORAGE_KEY = "smeax_fs_v2";
+let fs = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+    "/": { type: "folder", content: {
+        "Downloads": { type: "folder", content: {} },
+        "Documents": { type: "folder", content: {} },
+        "Pictures": { type: "folder", content: {} },
+        "Music": { type: "folder", content: {} }
+    } }
+};
+
+let currentPath = "/";
+let clip = null;
+let renameTarget = null;
+let viewerFilePath = null;
+
+function saveFS(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(fs)); updateStorageInfo(); }
+function resolve(path){
+    if (!path) path = "/";
+    const parts = path.split("/").filter(Boolean);
+    let node = fs["/"];
+    for (const p of parts) {
+        node = node.content[p];
+        if (!node) throw new Error("Path not found: " + path);
+    }
+    return node;
+}
+function ensureTrailing(path){ return path.endsWith("/") ? path : path + "/"; }
+
+function updateStorageInfo(){
+    let raw = JSON.stringify(fs);
+    let kb = Math.round(raw.length/1024);
+    document.getElementById("storageInfo").innerText = kb + " KB";
+}
+updateStorageInfo();
+
+function render(){
+    const area = document.getElementById("filesArea");
+    area.innerHTML = "";
+    const folder = resolve(currentPath);
+    document.getElementById("currentPath").innerText = currentPath;
+
+    const q = (document.getElementById("searchInput").value||"").toLowerCase();
+
+    for (const name in folder.content) {
+        if (q && !name.toLowerCase().includes(q)) continue;
+        const item = folder.content[name];
+        const el = document.createElement("div");
+        el.className = "item";
+        el.draggable = true;
+        el.ondragstart = (ev)=>onItemDragStart(ev, name);
+        el.ondrop = (ev)=>{ ev.preventDefault(); };
+
+        if (item.type === "folder") {
+            el.innerHTML = `<div class="text-4xl"><i class="bi bi-folder-fill"></i></div><div class="name">${name}</div>`;
+            el.onclick = ()=>{ navigateTo(ensureTrailing(currentPath)+name+"/"); };
+            el.oncontextmenu = (e)=>{ e.preventDefault(); showContextMenu(e,name,'folder'); };
+            el.ondragover = (ev)=>ev.preventDefault();
+            el.ondrop = (ev)=>{ ev.preventDefault(); handleDropOnFolder(ev, name); };
+        } else {
+            const mime = item.mime || "";
+            let icon = 'bi-file-earmark-text';
+            if (mime.startsWith("image/")) icon = 'bi-file-earmark-image';
+            else if (mime.startsWith("audio/")) icon = 'bi-file-earmark-music';
+            else if (mime === "application/zip") icon = 'bi-file-earmark-zip';
+            else if (mime.startsWith("text/")) icon = 'bi-file-earmark-text';
+            else icon = 'bi-file-earmark';
+
+            el.innerHTML = `<div class="text-4xl"><i class="bi ${icon}"></i></div><div class="name">${name}</div>`;
+            el.onclick = ()=>openFile(name);
+            el.oncontextmenu = (e)=>{ e.preventDefault(); showContextMenu(e,name,'file'); };
+        }
+
+        area.appendChild(el);
+    }
+}
+render();
+
+function navigateTo(path){
+    if (!path.startsWith("/")) path = currentPath + path;
+    if (!path.endsWith("/")) path = path + "/";
+    try {
+        resolve(path);
+        currentPath = path;
+    } catch(e){
+        console.warn(e);
+        return;
+    }
+    highlightSidebar(path);
+    render();
+}
+
+function highlightSidebar(path){
+    document.querySelectorAll('.side-item').forEach(s=>{
+        s.classList.remove('active');
+        if (s.dataset.path && ensureTrailing(s.dataset.path) === ensureTrailing(path)) s.classList.add('active');
+    });
+}
+highlightSidebar(currentPath);
+
+function createFolder(){
+    const folder = resolve(currentPath);
+    let i=1; while(folder.content["Nouveau dossier "+i]) i++;
+    folder.content["Nouveau dossier "+i] = { type:'folder', content:{} };
+    saveFS(); render();
+}
+
+function createFile(){
+    const folder = resolve(currentPath);
+    let i=1; while(folder.content["Nouveau fichier "+i+".txt"]) i++;
+    folder.content["Nouveau fichier "+i+".txt"] = { type:'file', content:'', mime:'text/plain', size:0 };
+    saveFS(); render();
+}
+
+let ctx;
+function showContextMenu(e,name,type){
+    if (ctx) ctx.remove();
+    ctx = document.createElement('div');
+    ctx.style.position='absolute';
+    ctx.style.left = e.pageX+'px';
+    ctx.style.top = e.pageY+'px';
+    ctx.style.background = '#13161b';
+    ctx.style.padding = '8px';
+    ctx.style.border = '1px solid rgba(255,255,255,0.04)';
+    ctx.style.borderRadius = '8px';
+    ctx.style.zIndex = 99999;
+    ctx.innerHTML = `
+        <div style="padding:6px; cursor:pointer" onclick="startRename('${name}')">Renommer</div>
+        <div style="padding:6px; cursor:pointer" onclick="deleteItem('${name}')">Supprimer</div>
+        <div style="padding:6px; cursor:pointer" onclick="copyItem('${name}')">Copier</div>
+        <div style="padding:6px; cursor:pointer" onclick="moveItemPrompt('${name}')">Déplacer...</div>
+    `;
+    document.body.appendChild(ctx);
+    document.addEventListener('click', ()=>{ if (ctx) ctx.remove(); }, { once:true });
+}
+
+function startRename(name){
+    renameTarget = name;
+    document.getElementById('renameInput').value = name;
+    document.getElementById('renameModal').classList.remove('hidden');
+}
+function closeRename(){ renameTarget=null; document.getElementById('renameModal').classList.add('hidden'); }
+function confirmRename(){
+    const newName = document.getElementById('renameInput').value.trim();
+    if (!newName) return;
+    const folder = resolve(currentPath);
+    if (folder.content[newName]) { alert('Nom déjà utilisé'); return; }
+    folder.content[newName] = folder.content[renameTarget];
+    delete folder.content[renameTarget];
+    saveFS(); closeRename(); render();
+}
+
+function deleteItem(name){
+    if (!confirm("Supprimer '"+name+"' ?")) return;
+    const folder = resolve(currentPath);
+    delete folder.content[name];
+    saveFS(); render();
+}
+
+function copyItem(name){
+    const folder = resolve(currentPath);
+    clip = JSON.parse(JSON.stringify(folder.content[name]));
+    document.getElementById('pasteBtn').style.display = 'inline-block';
+}
+
+function moveItemPrompt(name){
+    const dest = prompt("Chemin de destination (ex: /Documents/ ou /Downloads/ ) :", currentPath);
+    if (!dest) return;
+    try{
+        const folder = resolve(currentPath);
+        const node = folder.content[name];
+        const destFolder = resolve(dest);
+        if (destFolder.content[name]) { alert('Fichier existant au destin.'); return; }
+        destFolder.content[name] = node;
+        delete folder.content[name];
+        saveFS(); render();
+    }catch(e){ alert("Destination invalide"); }
+}
+
+function pasteItem(){
+    if (!clip) return;
+    const folder = resolve(currentPath);
+    let baseName = clip.type === 'folder' ? 'Copie dossier' : 'Copie fichier.txt';
+    let i=1; while(folder.content[baseName+' '+i]) i++;
+    folder.content[baseName+' '+i] = clip;
+    clip = null;
+    document.getElementById('pasteBtn').style.display = 'none';
+    saveFS(); render();
+}
+
+function openFile(name){
+    const path = ensureTrailing(currentPath) + name;
+    const file = resolve(path);
+    viewerFilePath = path;
+    const viewer = document.getElementById('viewerContent');
+    document.getElementById('viewerTitle').innerText = name;
+    viewer.innerHTML = '';
+
+    if (file.mime && file.mime.startsWith('image/')) {
+        const img = document.createElement('img');
+        img.src = file.content;
+        img.className = 'preview-image';
+        viewer.appendChild(img);
+        document.getElementById('viewerModal').classList.remove('hidden');
+        return;
+    }
+
+    if (file.mime && file.mime.startsWith('text/')) {
+        const ta = document.createElement('textarea');
+        ta.id = 'fileEditor';
+        ta.style.width = '100%';
+        ta.style.height = '60vh';
+        ta.value = file.content;
+        ta.style.background = '#0b0f17';
+        ta.style.color = 'white';
+        ta.style.border = '1px solid rgba(255,255,255,0.04)';
+        viewer.appendChild(ta);
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'btn mt-3';
+        saveBtn.innerText = 'Enregistrer';
+        saveBtn.onclick = ()=>{
+            file.content = ta.value;
+            file.size = new Blob([ta.value]).size;
+            saveFS();
+            alert('Enregistré');
+        };
+        viewer.appendChild(saveBtn);
+        document.getElementById('viewerModal').classList.remove('hidden');
+        return;
+    }
+
+    const info = document.createElement('div');
+    info.innerHTML = `<div class="small mb-2">Type: ${file.mime || 'unknown'} — Taille: ${Math.round(file.size/1024)} KB</div>`;
+    const dl = document.createElement('button');
+    dl.className = 'btn';
+    dl.innerHTML = '<i class="bi bi-download"></i> Télécharger';
+    dl.onclick = ()=>downloadBlobFromBase64(file.content, file.mime || 'application/octet-stream', name);
+    viewer.appendChild(info);
+    viewer.appendChild(dl);
+    document.getElementById('viewerModal').classList.remove('hidden');
+}
+
+function closeViewer(){
+    viewerFilePath = null;
+    document.getElementById('viewerModal').classList.add('hidden');
+}
+
+function downloadCurrent(){
+    if (!viewerFilePath) return;
+    const path = viewerFilePath;
+    const name = path.split('/').pop();
+    const file = resolve(path);
+    downloadBlobFromBase64(file.content, file.mime || 'application/octet-stream', name);
+}
+function downloadBlobFromBase64(dataUrl, mime, filename){
+    if (dataUrl.startsWith('data:')) {
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = filename;
+        a.click();
+        return;
+    }
+    const byteString = atob(dataUrl.split(',').pop());
+    const ia = new Uint8Array(byteString.length);
+    for (let i=0;i<byteString.length;i++) ia[i]=byteString.charCodeAt(i);
+    const blob = new Blob([ia], {type:mime});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+}
+
+function handleFilesInput(files){
+    handleFiles(files);
+    document.getElementById('fileInput').value = '';
+}
+function handleFiles(files){
+    const folder = resolve(currentPath);
+    for (const file of files) {
+        const reader = new FileReader();
+        reader.onload = (e)=>{
+            const data = e.target.result;
+            folder.content[file.name] = {
+                type: 'file',
+                content: data,
+                mime: file.type || guessMimeFromName(file.name),
+                size: file.size
+            };
+            saveFS(); render();
+        };
+        if (file.type.startsWith('text/')) reader.readAsText(file);
+        else reader.readAsDataURL(file);
+    }
+}
+
+function onDragOver(e){
+    e.preventDefault();
+    document.getElementById('filesArea').classList.add('dragover');
+}
+function onDragLeave(e){
+    document.getElementById('filesArea').classList.remove('dragover');
+}
+function onDrop(e){
+    e.preventDefault();
+    document.getElementById('filesArea').classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files && files.length) handleFiles(files);
+    else {
+        const src = e.dataTransfer.getData('text/smeax-path');
+        if (src) {
+            moveInternal(src, currentPath);
+        }
+    }
+}
+
+function onItemDragStart(ev, name){
+    const srcPath = ensureTrailing(currentPath) + name;
+    ev.dataTransfer.setData('text/smeax-path', srcPath);
+}
+
+function handleDropOnFolder(ev, folderName){
+    const src = ev.dataTransfer.getData('text/smeax-path');
+    if (!src) return;
+    const base = src.split('/').filter(Boolean);
+    const name = base.pop();
+    const srcParent = '/' + base.join('/') + (base.length ? '/' : '');
+    const dest = ensureTrailing(srcParent) === ensureTrailing(currentPath) && folderName ? ensureTrailing(currentPath)+folderName+'/' : ensureTrailing(currentPath)+folderName+'/';
+    moveInternal(src, dest);
+}
+
+function moveInternal(srcPath, destFolderPath){
+    try{
+        if (!destFolderPath.endsWith('/')) destFolderPath += '/';
+        const parts = srcPath.split('/').filter(Boolean);
+        const name = parts.pop();
+        const parentPath = parts.length ? '/'+parts.join('/')+'/' : '/';
+        const parent = resolve(parentPath);
+        const node = parent.content[name];
+        const dest = resolve(destFolderPath);
+        if (dest.content[name]) {
+            let i=1; let newName = name;
+            while(dest.content[newName]) { newName = name + ' ('+i+')'; i++; }
+            dest.content[newName] = node;
+        } else dest.content[name] = node;
+        delete parent.content[name];
+        saveFS(); render();
+    }catch(e){ console.error(e); alert('Erreur de déplacement'); }
+}
+
+function guessMimeFromName(name){
+    const ext = name.split('.').pop().toLowerCase();
+    const map = { png:'image/png', jpg:'image/jpeg', jpeg:'image/jpeg', gif:'image/gif', mp3:'audio/mpeg', wav:'audio/wav', zip:'application/zip', txt:'text/plain', md:'text/markdown', pdf:'application/pdf' };
+    return map[ext] || '';
+}
+
+function downloadAllZip(){
+    const data = JSON.stringify(fs);
+    const blob = new Blob([data], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'smeax_fs_export.json'; a.click();
+    URL.revokeObjectURL(url);
+}
+
+function emptyTrash(){
+    if (!confirm('Vider tout le contenu (attention) ?')) return;
+    fs = { "/": { type: "folder", content: {} } };
+    saveFS(); render();
+}
+
+document.querySelectorAll('.side-item').forEach(el=>{
+    el.ondragover = (e)=>e.preventDefault();
+    el.ondrop = (e)=>{
+        e.preventDefault();
+        const src = e.dataTransfer.getData('text/smeax-path');
+        if (!src) return;
+        const dest = el.dataset.path || '/';
+        moveInternal(src, dest);
+    };
+});
+
+saveFS();
+render();
+</script>
+
+</body>
+</html>

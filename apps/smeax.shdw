@@ -1,0 +1,7 @@
+{
+  "name": "Smeax portfolio",
+  "description": "Site web portfolio du fondateur du projet, smeax.",
+  "icon": "https://media.discordapp.net/attachments/1191059562166501550/1434168393019166820/image-removebg-preview.png?ex=693188e6&is=69303766&hm=6c9417e1552afd72212dbbbfc2b73723389931c1f34167a64b1de42b4ca4553a&=&format=png&quality=lossless",
+  "path": "smeax.html",
+  "version": "1.0.0"
+}
