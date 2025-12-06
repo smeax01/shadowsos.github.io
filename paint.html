@@ -1,485 +1,154 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ShadowOS — Tableau Blanc</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  /* petit style pour le curseur circulaire du pinceau */
-  #cursor-preview {
-    position: fixed;
-    pointer-events: none;
-    transform: translate(-50%, -50%);
-    z-index: 60;
-    border-radius: 9999px;
-    border: 2px solid rgba(255,255,255,0.8);
-    background: rgba(255,255,255,0.06);
-    mix-blend-mode: normal;
-    display: none;
-  }
-  /* canvas full area */
-  #board-wrap { position: absolute; inset: 0; overflow: hidden; }
-  canvas { display: block; touch-action: none; }
+    <meta charset="UTF-8">
+    <title>Tableau Blanc Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  /* small helpers */
-  .toolbar-btn { @apply inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-transparent hover:bg-white/5 active:translate-y-0.5; }
-</style>
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        /* Quadrillage pointillé style cahier pro */
+        #board {
+            background-size: 25px 25px;
+            background-image:
+                radial-gradient(circle, rgba(255,255,255,0.15) 2px, transparent 2px);
+        }
+    </style>
 </head>
-<body class="bg-[#0b0f14] text-white h-screen relative selection:none">
 
-  <!-- Toolbar -->
-  <div class="w-full bg-[#0f1317] border-b border-white/5 p-3 flex gap-3 items-center z-50">
-    <div class="flex items-center gap-3">
-      <div class="text-sm font-semibold">Tableau blanc</div>
-      <button id="btn-undo" title="Annuler (Ctrl+Z)" class="toolbar-btn bg-white/3" aria-label="Annuler">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M15 3v4a2 2 0 0 0 2 2h4M9 21H5a2 2 0 0 1-2-2v-4M21 21l-6-6"/></svg>
-        Annuler
-      </button>
-      <button id="btn-redo" title="Refaire (Ctrl+Y)" class="toolbar-btn bg-white/3" aria-label="Refaire">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M9 3v4a2 2 0 0 1-2 2H3M21 21h-4a2 2 0 0 1-2-2v-4M3 3l6 6"/></svg>
-        Refaire
-      </button>
+<body class="bg-gray-900 text-white h-screen overflow-hidden">
 
-      <button id="btn-erase" class="toolbar-btn" title="Gomme (E)" aria-pressed="false">Gomme</button>
+    <!-- Barre outils -->
+    <div class="fixed left-0 top-0 h-full w-20 bg-gray-800 border-r border-gray-700 flex flex-col items-center py-4 space-y-4 z-50">
 
-      <button id="btn-clear" class="toolbar-btn" title="Effacer tout">Effacer tout</button>
+        <!-- Pinceau -->
+        <button id="tool-pencil"
+            class="w-12 h-12 bg-gray-700 hover:bg-gray-600 rounded flex items-center justify-center">
+            ✏️
+        </button>
 
-      <button id="btn-grid" class="toolbar-btn" title="Afficher / masquer grille">Grille</button>
+        <!-- Gomme -->
+        <button id="tool-eraser"
+            class="w-12 h-12 bg-gray-700 hover:bg-gray-600 rounded flex items-center justify-center">
+            🧽
+        </button>
 
-      <button id="btn-fill" class="toolbar-btn" title="Remplir fond">Remplir fond</button>
+        <!-- Tailles -->
+        <input id="size" type="range" min="1" max="40" value="5"
+               class="w-14 rotate-90 mt-4 accent-blue-500">
+
+        <!-- Couleurs -->
+        <div class="flex flex-col space-y-2 mt-4">
+            <button class="color w-8 h-8 rounded-full bg-white" data-color="#ffffff"></button>
+            <button class="color w-8 h-8 rounded-full bg-red-500" data-color="#ef4444"></button>
+            <button class="color w-8 h-8 rounded-full bg-blue-500" data-color="#3b82f6"></button>
+            <button class="color w-8 h-8 rounded-full bg-green-500" data-color="#10b981"></button>
+            <button class="color w-8 h-8 rounded-full bg-yellow-500" data-color="#facc15"></button>
+        </div>
+
+        <!-- Tout effacer -->
+        <button id="clear"
+            class="w-12 h-12 mt-auto bg-red-600 hover:bg-red-500 rounded flex items-center justify-center">
+            ❌
+        </button>
+
     </div>
 
-    <!-- spacer -->
-    <div class="flex-1"></div>
+    <!-- Canvas -->
+    <canvas id="board" class="absolute left-20 top-0 w-[calc(100%-5rem)] h-full"></canvas>
 
-    <!-- color + size -->
-    <div class="flex items-center gap-3">
-      <div class="flex items-center gap-2">
-        <input id="color" type="color" class="w-10 h-10 p-0 rounded-md border border-white/5" title="Couleur du pinceau">
-      </div>
+    <script>
+        const canvas = document.getElementById("board");
+        const ctx = canvas.getContext("2d");
 
-      <div class="flex items-center gap-2">
-        <label for="size" class="text-xs text-gray-300">Taille</label>
-        <input id="size" type="range" min="1" max="100" value="6" class="w-36">
-      </div>
+        // resize canvas to screen
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
 
-      <div class="flex items-center gap-2">
-        <button id="btn-save" class="toolbar-btn bg-green-600 hover:bg-green-700">Enregistrer PNG</button>
-        <button id="btn-full" class="toolbar-btn bg-white/3">Plein écran</button>
-      </div>
-    </div>
-  </div>
+        // tools
+        let drawing = false;
+        let color = "#ffffff";
+        let size = 5;
+        let erasing = false;
 
-  <!-- Canvas area -->
-  <div id="board-wrap" class="pt-0">
-    <canvas id="canvas"></canvas>
-    <div id="cursor-preview"></div>
-  </div>
+        const startDraw = (x, y) => {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        };
 
-<script>
-/* Whiteboard / Paint Implementation
-   - pointer events supported (mouse + touch + pen)
-   - undo/redo using snapshots (dataURL) (limit stack)
-   - grid overlay toggle
-   - eraser mode uses composite operation clear
-   - save as PNG
-   - responsive & hi-dpi scaling
-*/
+        const draw = (x, y) => {
+            if (!drawing) return;
 
-// Elements
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d', { alpha: true });
-const colorInput = document.getElementById('color');
-const sizeInput = document.getElementById('size');
-const btnUndo = document.getElementById('btn-undo');
-const btnRedo = document.getElementById('btn-redo');
-const btnErase = document.getElementById('btn-erase');
-const btnClear = document.getElementById('btn-clear');
-const btnSave = document.getElementById('btn-save');
-const btnFull = document.getElementById('btn-full');
-const btnGrid = document.getElementById('btn-grid');
-const btnFill = document.getElementById('btn-fill');
-const cursorPreview = document.getElementById('cursor-preview');
+            ctx.lineWidth = size;
+            ctx.lineCap = "round";
+            ctx.strokeStyle = erasing ? "#ffffff00" : color;
+            ctx.globalCompositeOperation = erasing ? "destination-out" : "source-over";
 
-let drawing = false;
-let last = { x: 0, y: 0 };
-let brushColor = '#ffffff';
-let brushSize = 6;
-let eraser = false;
-let grid = false;
-let undoStack = [];
-let redoStack = [];
-const MAX_STACK = 30;
+            ctx.lineTo(x, y);
+            ctx.stroke();
+        };
 
-// Setup defaults
-colorInput.value = '#ffffff';
-brushColor = colorInput.value;
-sizeInput.value = 6;
-brushSize = parseInt(sizeInput.value, 10);
+        const stopDraw = () => {
+            drawing = false;
+            ctx.closePath();
+        };
 
-function resizeCanvas(){
-  const wrap = document.getElementById('board-wrap');
-  const w = wrap.clientWidth;
-  const h = window.innerHeight - document.querySelector('div[role-toolbar] ? 0 : 0'); // fallback
-  const dpr = Math.max(window.devicePixelRatio || 1, 1);
-  const width = window.innerWidth;
-  const height = window.innerHeight - document.querySelector('header')?.offsetHeight || window.innerHeight;
+        // Souris
+        canvas.addEventListener("mousedown", e => startDraw(e.offsetX, e.offsetY));
+        canvas.addEventListener("mousemove", e => draw(e.offsetX, e.offsetY));
+        window.addEventListener("mouseup", stopDraw);
 
-  canvas.style.width = width + 'px';
-  canvas.style.height = height + 'px';
-  canvas.width = Math.floor(width * dpr);
-  canvas.height = Math.floor(height * dpr);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // scale drawing commands for high-dpi
-  redrawBackgroundGrid(); // redraw grid if active
-  restoreFromSnapshot(); // ensure content kept after resize if we have a snapshot
-}
+        // Tablette / tactile
+        canvas.addEventListener("touchstart", e => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            startDraw(touch.clientX - rect.left, touch.clientY - rect.top);
+        });
 
-// Keep last drawn image around to restore after resize
-let lastSnapshotAfterResize = null;
-function takeSnapshot() {
-  try {
-    const data = canvas.toDataURL('image/png');
-    undoStack.push(data);
-    if (undoStack.length > MAX_STACK) undoStack.shift();
-    // clear redo on new action
-    redoStack = [];
-    updateButtons();
-  } catch (e) {
-    console.warn('snapshot error', e);
-  }
-}
+        canvas.addEventListener("touchmove", e => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            draw(touch.clientX - rect.left, touch.clientY - rect.top);
+        });
 
-function restoreFromSnapshot() {
-  // If lastSnapshotAfterResize present, draw it
-  if (lastSnapshotAfterResize) {
-    const img = new Image();
-    img.onload = () => {
-      // clear canvas
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
-      lastSnapshotAfterResize = null;
-    };
-    img.src = lastSnapshotAfterResize;
-  }
-}
+        canvas.addEventListener("touchend", stopDraw);
 
-function pushSnapshotForResize(){
-  try {
-    lastSnapshotAfterResize = canvas.toDataURL('image/png');
-  } catch(e){}
-}
+        // Boutons outils
+        document.getElementById("tool-pencil").onclick = () => {
+            erasing = false;
+        };
 
-function updateButtons(){
-  btnUndo.disabled = undoStack.length === 0;
-  btnRedo.disabled = redoStack.length === 0;
-}
+        document.getElementById("tool-eraser").onclick = () => {
+            erasing = true;
+        };
 
-// Drawing helpers
-function getPointerPos(e) {
-  const rect = canvas.getBoundingClientRect();
-  const x = (e.clientX - rect.left);
-  const y = (e.clientY - rect.top);
-  return { x, y };
-}
+        // Tailles
+        document.getElementById("size").oninput = e => {
+            size = e.target.value;
+        };
 
-function beginStroke(e){
-  e.preventDefault();
-  drawing = true;
-  const p = getPointerPos(e);
-  last.x = p.x;
-  last.y = p.y;
-  // snapshot BEFORE change for undo (so undo => previous state)
-  takeSnapshot();
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.lineWidth = brushSize;
-  ctx.strokeStyle = brushColor;
-  if (eraser) {
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.lineWidth = brushSize;
-  } else {
-    ctx.globalCompositeOperation = 'source-over';
-  }
-  // draw initial dot for click-only strokes
-  ctx.beginPath();
-  ctx.moveTo(last.x, last.y);
-  ctx.lineTo(last.x + 0.01, last.y + 0.01);
-  ctx.stroke();
-  showCursor(true);
-}
+        // Couleurs
+        document.querySelectorAll(".color").forEach(btn => {
+            btn.onclick = () => {
+                color = btn.dataset.color;
+                erasing = false;
+            };
+        });
 
-function moveStroke(e){
-  if (!drawing) {
-    // just update cursor preview
-    updateCursorPreview(e);
-    return;
-  }
-  const p = getPointerPos(e);
-  ctx.beginPath();
-  ctx.moveTo(last.x, last.y);
-  ctx.lineTo(p.x, p.y);
-  ctx.stroke();
-  last.x = p.x;
-  last.y = p.y;
-}
+        // Effacer tout
+        document.getElementById("clear").onclick = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        };
+    </script>
 
-function endStroke(e){
-  if (!drawing) return;
-  drawing = false;
-  // finalize
-  ctx.closePath();
-  // after finishing, allow redo clear
-  redoStack = [];
-  updateButtons();
-  showCursor(false);
-  pushSnapshotForResize();
-}
-
-function enableEraser(on){
-  eraser = !!on;
-  btnErase.setAttribute('aria-pressed', eraser ? 'true' : 'false');
-  if (eraser) btnErase.classList.add('bg-white/10'); else btnErase.classList.remove('bg-white/10');
-}
-
-// Grid rendering
-function redrawBackgroundGrid() {
-  // we draw grid as a pattern on a temporary canvas then draw onto main canvas bottom
-  // But since canvas is the drawable itself, we'll draw grid under current content only when toggled and when clearing.
-  // Simpler: draw a visible grid overlay by drawing lines on an offscreen canvas and then composite it behind.
-  if (!grid) return;
-  // draw small grid overlay directly on canvas behind current content by shifting current content to an offscreen canvas
-  const w = canvas.width / (window.devicePixelRatio || 1);
-  const h = canvas.height / (window.devicePixelRatio || 1);
-
-  // Save current content
-  const imgData = canvas.toDataURL();
-
-  // clear and draw grid
-  ctx.save();
-  ctx.clearRect(0, 0, w, h);
-  const step = 24;
-  ctx.globalCompositeOperation = 'destination-over'; // draw behind existing
-  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < w; x += step) {
-    ctx.beginPath(); ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, h); ctx.stroke();
-  }
-  for (let y = 0; y < h; y += step) {
-    ctx.beginPath(); ctx.moveTo(0, y + 0.5); ctx.lineTo(w, y + 0.5); ctx.stroke();
-  }
-  ctx.restore();
-
-  // restore content by drawing image over grid
-  const img = new Image();
-  img.onload = () => {
-    ctx.drawImage(img, 0, 0, w, h);
-  };
-  img.src = imgData;
-}
-
-// Clear canvas
-function clearCanvas(keepGrid = false) {
-  ctx.save();
-  ctx.setTransform(1,0,0,1,0,0); // reset transform to clear full pixel area
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.restore();
-  // push snapshot so user can undo clear
-  takeSnapshot();
-  if (grid) redrawBackgroundGrid();
-}
-
-// Fill background with current color (not brush color) — asks for confirmation
-function fillBackground() {
-  const should = confirm('Remplir le fond avec la couleur du pinceau ? Cela recouvrira tout ce qui est dessiné.'); 
-  if (!should) return;
-  // take snapshot first (already handled by takeSnapshot when starting a stroke, but here we do explicit)
-  takeSnapshot();
-  ctx.save();
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.fillStyle = brushColor;
-  ctx.fillRect(0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
-  ctx.restore();
-  pushSnapshotForResize();
-  updateButtons();
-}
-
-// Undo / Redo
-function undo(){
-  if (undoStack.length === 0) return;
-  const lastState = undoStack.pop();
-  redoStack.push(canvas.toDataURL());
-  restoreDataUrlOnCanvas(lastState);
-  updateButtons();
-}
-
-function redo(){
-  if (redoStack.length === 0) return;
-  const state = redoStack.pop();
-  undoStack.push(canvas.toDataURL());
-  restoreDataUrlOnCanvas(state);
-  updateButtons();
-}
-
-function restoreDataUrlOnCanvas(dataUrl){
-  const img = new Image();
-  img.onload = () => {
-    clearCanvas();
-    ctx.drawImage(img, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
-  };
-  img.src = dataUrl;
-}
-
-// Save PNG
-function savePNG(){
-  const a = document.createElement('a');
-  a.download = 'shadowos-board-' + new Date().toISOString().replace(/[:.]/g,'-') + '.png';
-  a.href = canvas.toDataURL('image/png');
-  a.click();
-}
-
-// Cursor preview
-function updateCursorPreview(e){
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX;
-  const y = e.clientY;
-  cursorPreview.style.left = x + 'px';
-  cursorPreview.style.top = y + 'px';
-  cursorPreview.style.width = (brushSize) + 'px';
-  cursorPreview.style.height = (brushSize) + 'px';
-  cursorPreview.style.display = 'block';
-}
-
-// show/hide cursor preview and set style
-function showCursor(show){
-  if (show) {
-    cursorPreview.style.display = 'block';
-  } else {
-    cursorPreview.style.display = 'none';
-  }
-}
-
-// Events wiring
-window.addEventListener('resize', () => {
-  // save content then resize then restore
-  pushSnapshotForResize();
-  resizeCanvas();
-});
-
-canvas.addEventListener('pointerdown', (e) => {
-  // only left or pen or touch
-  if (e.button !== 0 && e.pointerType === 'mouse') return;
-  canvas.setPointerCapture(e.pointerId);
-  beginStroke(e);
-});
-
-canvas.addEventListener('pointermove', (e) => {
-  updateCursorPreview(e);
-  moveStroke(e);
-});
-
-canvas.addEventListener('pointerup', (e) => {
-  canvas.releasePointerCapture(e.pointerId);
-  endStroke(e);
-});
-
-canvas.addEventListener('pointercancel', (e) => {
-  canvas.releasePointerCapture(e.pointerId);
-  endStroke(e);
-});
-
-// toolbar interactions
-colorInput.addEventListener('input', (e) => {
-  brushColor = e.target.value;
-  if (!eraser) ctx.strokeStyle = brushColor;
-});
-
-sizeInput.addEventListener('input', (e) => {
-  brushSize = parseInt(e.target.value, 10) || 1;
-  ctx.lineWidth = brushSize;
-});
-
-btnErase.addEventListener('click', () => {
-  enableEraser(!eraser);
-});
-
-btnClear.addEventListener('click', () => {
-  if (!confirm('Effacer tout le tableau ?')) return;
-  takeSnapshot(); // snapshot previous state before wipe
-  clearCanvas();
-});
-
-btnSave.addEventListener('click', savePNG);
-
-btnFull.addEventListener('click', () => {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(()=>{});
-  } else {
-    document.exitFullscreen().catch(()=>{});
-  }
-});
-
-btnGrid.addEventListener('click', () => {
-  grid = !grid;
-  btnGrid.classList.toggle('bg-white/10', grid);
-  if (grid) redrawBackgroundGrid(); else {
-    // to remove grid we need to re-render last snapshot (grid was destination-over)
-    if (undoStack.length) restoreDataUrlOnCanvas(undoStack[undoStack.length - 1]);
-    else clearCanvas();
-  }
-});
-
-btnFill.addEventListener('click', fillBackground);
-
-btnUndo.addEventListener('click', undo);
-btnRedo.addEventListener('click', redo);
-
-// keyboard shortcuts
-window.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-    e.preventDefault();
-    undo();
-  }
-  if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
-    e.preventDefault();
-    redo();
-  }
-  if (e.key.toLowerCase() === 'e') { enableEraser(!eraser); }
-  if (e.key === 'Escape') {
-    // exit fullscreen if any
-    if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
-  }
-});
-
-// initial canvas setup
-function init(){
-  // prepare canvas sizing
-  resizeCanvas();
-
-  // initial blank snapshot to allow undo to previous empty state
-  try {
-    const blank = canvas.toDataURL();
-    undoStack = [blank];
-    redoStack = [];
-    updateButtons();
-  } catch(e){}
-
-  // hide native cursor to show custom preview
-  canvas.style.cursor = 'none';
-  // initial color
-  ctx.strokeStyle = brushColor;
-  ctx.lineWidth = brushSize;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-}
-
-// Utility: prevent scrolling on touch inside canvas
-document.body.addEventListener('touchmove', function(e){
-  if (e.target === canvas || canvas.contains(e.target)) e.preventDefault();
-}, { passive: false });
-
-init();
-
-</script>
 </body>
 </html>
