@@ -1,209 +1,200 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Tableau Blanc Pro</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Tailwind -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <style>
-        /* Fond quadrillage pointillé */
-        #board {
-            background-size: 20px 20px;
-            background-image: radial-gradient(circle, rgba(255,255,255,0.12) 1.5px, transparent 1.5px);
-        }
-
-        /* Effet verre / blur */
-        .glass {
-            backdrop-filter: blur(12px);
-            background: rgba(40,40,40,0.45);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShadowOS Paint</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  canvas { touch-action: none; }
+  .glass {
+    backdrop-filter: blur(14px);
+    background: rgba(255,255,255,0.08);
+  }
+</style>
 </head>
+<body class="bg-[#0a0a0a] text-white overflow-hidden">
 
-<body class="bg-gray-900 text-white h-screen overflow-hidden flex flex-col">
+<!-- HEADER -->
+<div class="fixed top-0 left-0 w-full h-14 glass border-b border-white/10 flex items-center px-4 justify-between z-50">
+  <div class="flex items-center gap-3">
+    <span class="text-lg font-semibold">ShadowOS Paint</span>
+  </div>
 
-    <!-- HEADER (fichiers) -->
-    <header class="glass w-full p-3 border-b border-gray-700 flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-            <button id="newFile" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-md">Nouveau</button>
-            <button id="openFile" class="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-md">Ouvrir image</button>
-            <input id="fileInput" type="file" accept="image/*" class="hidden">
-            <button id="saveFile" class="px-3 py-2 bg-green-600 hover:bg-green-700 rounded-md">Exporter PNG</button>
-        </div>
+  <div class="flex items-center gap-3">
+    <button id="importImage"
+      class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-md transition">Importer une image</button>
 
-        <span class="opacity-50 text-sm">Whiteboard Smeax</span>
-    </header>
+    <button id="clearCanvas"
+      class="px-3 py-1.5 bg-red-500/70 hover:bg-red-500 rounded-md transition">Effacer</button>
+  </div>
+</div>
 
-    <div class="flex flex-1">
+<!-- SIDEBAR GAUCHE -->
+<div class="fixed left-0 top-14 w-16 h-[calc(100vh-3.5rem)] glass border-r border-white/10 flex flex-col items-center py-4 gap-4 z-40">
 
-        <!-- BARRE À GAUCHE (outils) -->
-        <aside class="glass w-20 h-full border-r border-gray-700 flex flex-col items-center py-4 space-y-4">
+  <!-- Couleur -->
+  <input type="color" id="colorPicker"
+    class="w-10 h-10 rounded-md p-0 border-0 cursor-pointer">
 
-            <!-- Pinceau -->
-            <button id="tool-pencil"
-                class="tool w-12 h-12 glass rounded-lg flex items-center justify-center">
-                ✏️
-            </button>
+  <!-- Opacité -->
+  <input type="range" id="opacityPicker" min="0.1" max="1" step="0.01" value="1"
+    class="w-12 h-2 rotate-[-90deg] accent-purple-500">
 
-            <!-- Gomme -->
-            <button id="tool-eraser"
-                class="tool w-12 h-12 glass rounded-lg flex items-center justify-center">
-                🧽
-            </button>
+  <!-- Taille -->
+  <input type="range" id="sizePicker" min="1" max="50" value="8"
+    class="w-12 h-2 rotate-[-90deg] accent-blue-500">
 
-            <!-- Couleur -->
-            <input id="colorPicker" type="color"
-                   class="w-12 h-12 rounded-lg border-0 bg-transparent cursor-pointer">
+  <!-- Gomme -->
+  <button id="eraserBtn"
+    class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-md">
+    🧹
+  </button>
 
-            <!-- Opacité -->
-            <input id="opacity" type="range" min="0.1" max="1" step="0.05" value="1"
-                   class="w-16 rotate-90 accent-blue-500">
+  <!-- Zoom -->
+  <input type="range" id="zoomPicker" min="0.5" max="3" step="0.01" value="1"
+    class="w-12 h-2 rotate-[-90deg] accent-green-500">
 
-            <!-- Taille -->
-            <input id="size" type="range" min="1" max="40" value="5"
-                   class="w-16 rotate-90 accent-blue-500">
+</div>
 
-            <!-- Effacer -->
-            <button id="clear"
-                class="w-12 h-12 mt-auto bg-red-600 hover:bg-red-500 rounded-lg flex items-center justify-center">
-                ❌
-            </button>
+<!-- CONTAINER -->
+<div class="absolute left-16 top-14 w-[calc(100vw-4rem)] h-[calc(100vh-3.5rem)] overflow-hidden">
 
-        </aside>
+  <div id="canvasWrapper"
+    class="w-full h-full overflow-scroll bg-white rounded-lg shadow-xl">
 
-        <!-- CANVAS -->
-        <canvas id="board" class="flex-1 h-full"></canvas>
+    <canvas id="canvas" class="bg-white block mx-auto"></canvas>
 
-    </div>
+  </div>
+</div>
 
 <script>
-    const canvas = document.getElementById("board");
-    const ctx = canvas.getContext("2d");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const wrapper = document.getElementById("canvasWrapper");
 
-    function resizeCanvas() {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        loadAutoSave();
-    }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
+let drawing = false;
+let color = "#000000";
+let size = 8;
+let opacity = 1;
+let erasing = false;
+let zoom = 1;
 
-    let drawing = false;
-    let tool = "pencil";
-    let color = "#ffffff";
-    let opacity = 1;
-    let size = 5;
+function resizeCanvas() {
+  canvas.width = 2000;
+  canvas.height = 1200;
 
-    function startDraw(x, y) {
-        drawing = true;
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-    }
+  loadAutoSave();
+}
 
-    function draw(x, y) {
-        if (!drawing) return;
+resizeCanvas();
 
-        ctx.lineWidth = size;
-        ctx.lineCap = "round";
-        ctx.strokeStyle = color;
-        ctx.globalAlpha = opacity;
+/* ---- OUTILS ---- */
+document.getElementById("colorPicker").addEventListener("input", e => {
+  color = e.target.value;
+  erasing = false;
+});
 
-        ctx.globalCompositeOperation = tool === "eraser" ? "destination-out" : "source-over";
-        ctx.lineTo(x, y);
-        ctx.stroke();
+document.getElementById("sizePicker").addEventListener("input", e => {
+  size = e.target.value;
+});
 
-        autoSave();
-    }
+document.getElementById("opacityPicker").addEventListener("input", e => {
+  opacity = e.target.value;
+});
 
-    function stopDraw() {
-        drawing = false;
-        ctx.closePath();
-        autoSave();
-    }
+document.getElementById("eraserBtn").addEventListener("click", () => {
+  erasing = !erasing;
+});
 
-    // Souris
-    canvas.addEventListener("mousedown", e => startDraw(e.offsetX, e.offsetY));
-    canvas.addEventListener("mousemove", e => draw(e.offsetX, e.offsetY));
-    window.addEventListener("mouseup", stopDraw);
+document.getElementById("zoomPicker").addEventListener("input", e => {
+  zoom = e.target.value;
+  canvas.style.transform = `scale(${zoom})`;
+  canvas.style.transformOrigin = "top left";
+});
 
-    // Tactile
-    canvas.addEventListener("touchstart", e => {
-        e.preventDefault();
-        const t = e.touches[0];
-        const r = canvas.getBoundingClientRect();
-        startDraw(t.clientX - r.left, t.clientY - r.top);
-    });
+/* ---- CLEAR ---- */
+document.getElementById("clearCanvas").addEventListener("click", () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  saveAuto();
+});
 
-    canvas.addEventListener("touchmove", e => {
-        e.preventDefault();
-        const t = e.touches[0];
-        const r = canvas.getBoundingClientRect();
-        draw(t.clientX - r.left, t.clientY - r.top);
-    });
+/* ---- IMPORT IMAGE ---- */
+document.getElementById("importImage").addEventListener("click", () => {
+  let input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.onchange = e => {
+    let file = e.target.files[0];
+    let img = new Image();
+    img.onload = () => ctx.drawImage(img, 0, 0);
+    img.src = URL.createObjectURL(file);
+  };
+  input.click();
+});
 
-    canvas.addEventListener("touchend", stopDraw);
+/* ---- DESSIN ---- */
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - rect.left) / zoom,
+    y: (e.clientY - rect.top) / zoom
+  };
+}
 
-    // OUTILS
-    document.getElementById("tool-pencil").onclick = () => tool = "pencil";
-    document.getElementById("tool-eraser").onclick = () => tool = "eraser";
+function start(e) {
+  drawing = true;
+  draw(e);
+}
 
-    document.getElementById("colorPicker").oninput = e => {
-        color = e.target.value;
-        tool = "pencil";
-    };
+function stop() {
+  drawing = false;
+  ctx.beginPath();
+  saveAuto();
+}
 
-    document.getElementById("size").oninput = e => size = e.target.value;
-    document.getElementById("opacity").oninput = e => opacity = e.target.value;
+function draw(e) {
+  if (!drawing) return;
 
-    // Effacer tout
-    document.getElementById("clear").onclick = () => {
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        autoSave();
-    };
+  const pos = getPos(e);
 
-    // SAUVEGARDE AUTO
-    function autoSave() {
-        localStorage.setItem("whiteboard_smeax", canvas.toDataURL());
-    }
+  ctx.lineWidth = size;
+  ctx.lineCap = "round";
+  ctx.globalAlpha = opacity;
+  ctx.strokeStyle = erasing ? "white" : color;
 
-    function loadAutoSave() {
-        const save = localStorage.getItem("whiteboard_smeax");
-        if (!save) return;
-        const img = new Image();
-        img.src = save;
-        img.onload = () => ctx.drawImage(img, 0, 0);
-    }
+  ctx.lineTo(pos.x, pos.y);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(pos.x, pos.y);
+}
 
-    // EXPORT PNG
-    document.getElementById("saveFile").onclick = () => {
-        const link = document.createElement("a");
-        link.download = "whiteboard.png";
-        link.href = canvas.toDataURL();
-        link.click();
-    };
+/* Souris */
+canvas.addEventListener("mousedown", start);
+canvas.addEventListener("mouseup", stop);
+canvas.addEventListener("mousemove", draw);
 
-    // NOUVEAU
-    document.getElementById("newFile").onclick = () => {
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        localStorage.removeItem("whiteboard_smeax");
-    };
+/* Touch */
+canvas.addEventListener("touchstart", e => start(e.touches[0]));
+canvas.addEventListener("touchend", stop);
+canvas.addEventListener("touchmove", e => {
+  e.preventDefault();
+  draw(e.touches[0]);
+});
 
-    // OUVERTURE IMAGE
-    document.getElementById("openFile").onclick = () =>
-        document.getElementById("fileInput").click();
+/* ---- AUTOSAVE ---- */
+function saveAuto() {
+  localStorage.setItem("shadowos_paint", canvas.toDataURL());
+}
 
-    document.getElementById("fileInput").onchange = e => {
-        const file = e.target.files[0];
-        const img = new Image();
-        img.src = URL.createObjectURL(file);
-        img.onload = () => {
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            autoSave();
-        };
-    };
+function loadAutoSave() {
+  const data = localStorage.getItem("shadowos_paint");
+  if (!data) return;
+
+  let img = new Image();
+  img.onload = () => ctx.drawImage(img, 0, 0);
+  img.src = data;
+}
 
 </script>
 
