@@ -1,766 +1,210 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Whiteboard Pro — ShadowOS</title>
+    <meta charset="UTF-8">
+    <title>Tableau Blanc Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Tailwind CDN -->
-<script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-<style>
-  :root{
-    --accent: #6366f1;
-    --bg: #0d111e;
-    --panel: rgba(12,14,16,0.55);
-    --panel-border: rgba(255,255,255,0.06);
-  }
+    <style>
+        /* Fond quadrillage pointillé */
+        #board {
+            background-size: 20px 20px;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.12) 1.5px, transparent 1.5px);
+        }
 
-  html,body { height: 100%; background: var(--bg); color: #e6eef8; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial; -webkit-font-smoothing:antialiased; }
-
-  /* board background dotted grid */
-  #board-wrap {
-    background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
-    background-size: 20px 20px;
-    touch-action: none;
-  }
-
-  /* canvas sizing */
-  #board-canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display:block; }
-
-  /* Left toolbar — modern square buttons */
-  #leftbar {
-    position: fixed;
-    left: 16px;
-    top: 16px;
-    width: 96px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border: 1px solid var(--panel-border);
-    backdrop-filter: blur(8px);
-    padding: 10px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(2,6,23,0.7);
-    z-index: 9999;
-  }
-
-  .tool-btn {
-    width: 64px;
-    height: 64px;
-    background: rgba(255,255,255,0.03);
-    border-radius: 10px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
-    border: 1px solid rgba(255,255,255,0.03);
-  }
-  .tool-btn:hover { transform: translateY(-6px); background: rgba(255,255,255,0.045); box-shadow: 0 10px 20px rgba(99,102,241,0.08); }
-  .tool-btn.active { outline: 3px solid rgba(99,102,241,0.95); outline-offset: 2px; box-shadow: 0 12px 30px rgba(99,102,241,0.12); }
-
-  /* control panel */
-  #panel {
-    position: fixed;
-    right: 16px;
-    top: 16px;
-    width: 320px;
-    max-width: calc(100% - 160px);
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border: 1px solid var(--panel-border);
-    padding: 12px;
-    border-radius: 12px;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 14px 40px rgba(0,0,0,0.6);
-    z-index: 9999;
-  }
-
-  .panel-row { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
-  .label { font-size:13px; color:#cfe1ff; }
-
-  /* color presets */
-  .preset { width:34px; height:34px; border-radius:8px; cursor:pointer; border: 1px solid rgba(255,255,255,0.04); box-shadow: inset 0 -2px 6px rgba(0,0,0,0.25); }
-
-  /* gallery modal */
-  #galleryModal { position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:10010; }
-  #galleryModal.active { display:flex; }
-  #galleryBox {
-    width: min(1100px, 95%);
-    max-height: 85%;
-    overflow:auto;
-    background: rgba(12,14,16,0.92);
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.04);
-    padding: 12px;
-    box-shadow: 0 40px 120px rgba(0,0,0,0.7);
-  }
-
-  /* small helper */
-  .muted { color: #9fb0d6; font-size:13px; }
-  input[type="color"] { padding:0; border:none; width:42px; height:42px; background:transparent; }
-
-  @media (max-width:900px) {
-    #leftbar { left: 10px; top: auto; bottom: 16px; width: 80px; padding:8px; display:flex; gap:8px; }
-    #panel { right: 10px; top: auto; bottom: 16px; width: calc(100% - 160px); max-width: none; padding:10px; }
-  }
-</style>
+        /* Effet verre / blur */
+        .glass {
+            backdrop-filter: blur(12px);
+            background: rgba(40,40,40,0.45);
+        }
+    </style>
 </head>
-<body>
 
-<!-- Board wrapper and canvas -->
-<div id="board-wrap" class="absolute inset-0 left-0 top-0">
-  <canvas id="board-canvas"></canvas>
-</div>
+<body class="bg-gray-900 text-white h-screen overflow-hidden flex flex-col">
 
-<!-- Left toolbar (tools) -->
-<div id="leftbar" class="flex flex-col items-center gap-3">
-  <div id="pencilBtn" class="tool-btn" title="Pinceau">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M3 21l3-1 11-11 1-3-3 1L4 18l-1 3z" stroke="#cfe1ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  </div>
-
-  <div id="eraserBtn" class="tool-btn" title="Gomme">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M20 13l-7 7-9-9 7-7 9 9z" stroke="#cfe1ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  </div>
-
-  <div id="pickerBtn" class="tool-btn" title="Couleur avancée">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2v20" stroke="#cfe1ff" stroke-width="1.2" stroke-linecap="round"/></svg>
-  </div>
-
-  <div id="undoBtn" class="tool-btn" title="Annuler">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 17H5v-4" stroke="#cfe1ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  </div>
-
-  <div id="redoBtn" class="tool-btn" title="Rétablir">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 17h4v-4" stroke="#cfe1ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  </div>
-
-  <div id="saveSnapshotBtn" class="tool-btn" title="Sauvegarder snapshot">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="#cfe1ff" stroke-width="1.2"/></svg>
-  </div>
-</div>
-
-<!-- Right panel (controls) -->
-<div id="panel">
-  <div class="panel-row">
-    <div style="flex:1">
-      <div class="label">Couleur</div>
-      <div class="flex gap-2 items-center mt-2">
-        <input id="colorInput" type="color" value="#000000" class="rounded" />
-        <div class="flex gap-2 ml-2">
-          <!-- presets -->
-          <div class="preset" data-color="#000000" style="background:#000000"></div>
-          <div class="preset" data-color="#ffffff" style="background:#ffffff"></div>
-          <div class="preset" data-color="#ef4444" style="background:#ef4444"></div>
-          <div class="preset" data-color="#f59e0b" style="background:#f59e0b"></div>
-          <div class="preset" data-color="#10b981" style="background:#10b981"></div>
-          <div class="preset" data-color="#3b82f6" style="background:#3b82f6"></div>
+    <!-- HEADER (fichiers) -->
+    <header class="glass w-full p-3 border-b border-gray-700 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <button id="newFile" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-md">Nouveau</button>
+            <button id="openFile" class="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-md">Ouvrir image</button>
+            <input id="fileInput" type="file" accept="image/*" class="hidden">
+            <button id="saveFile" class="px-3 py-2 bg-green-600 hover:bg-green-700 rounded-md">Exporter PNG</button>
         </div>
-      </div>
+
+        <span class="opacity-50 text-sm">Whiteboard Smeax</span>
+    </header>
+
+    <div class="flex flex-1">
+
+        <!-- BARRE À GAUCHE (outils) -->
+        <aside class="glass w-20 h-full border-r border-gray-700 flex flex-col items-center py-4 space-y-4">
+
+            <!-- Pinceau -->
+            <button id="tool-pencil"
+                class="tool w-12 h-12 glass rounded-lg flex items-center justify-center">
+                ✏️
+            </button>
+
+            <!-- Gomme -->
+            <button id="tool-eraser"
+                class="tool w-12 h-12 glass rounded-lg flex items-center justify-center">
+                🧽
+            </button>
+
+            <!-- Couleur -->
+            <input id="colorPicker" type="color"
+                   class="w-12 h-12 rounded-lg border-0 bg-transparent cursor-pointer">
+
+            <!-- Opacité -->
+            <input id="opacity" type="range" min="0.1" max="1" step="0.05" value="1"
+                   class="w-16 rotate-90 accent-blue-500">
+
+            <!-- Taille -->
+            <input id="size" type="range" min="1" max="40" value="5"
+                   class="w-16 rotate-90 accent-blue-500">
+
+            <!-- Effacer -->
+            <button id="clear"
+                class="w-12 h-12 mt-auto bg-red-600 hover:bg-red-500 rounded-lg flex items-center justify-center">
+                ❌
+            </button>
+
+        </aside>
+
+        <!-- CANVAS -->
+        <canvas id="board" class="flex-1 h-full"></canvas>
+
     </div>
-
-    <div style="width:110px">
-      <div class="label">Alpha</div>
-      <input id="alphaRange" type="range" min="0" max="1" step="0.01" value="1" class="w-full mt-2" />
-    </div>
-  </div>
-
-  <div class="panel-row">
-    <div style="flex:1">
-      <div class="label">Taille pinceau</div>
-      <input id="sizeRange" type="range" min="1" max="120" value="8" class="w-full mt-2" />
-    </div>
-
-    <div style="width:110px">
-      <div class="label">Mode</div>
-      <div id="modeIndicator" class="mt-2 muted text-sm">Pinceau</div>
-    </div>
-  </div>
-
-  <div class="panel-row">
-    <button id="clearBtn" class="w-full py-2 bg-red-600 hover:bg-red-500 rounded text-white">Effacer tout</button>
-    <button id="eraserToggle" class="w-32 py-2 bg-gray-700 hover:bg-gray-600 rounded text-white">Activer Gomme</button>
-  </div>
-
-  <div class="panel-row">
-    <button id="importImgBtn" class="w-full py-2 bg-gray-800 hover:bg-gray-700 rounded text-white">Importer image</button>
-    <input id="fileInput" type="file" accept="image/*" style="display:none" />
-  </div>
-
-  <div class="panel-row">
-    <button id="downloadBtn" class="w-full py-2 bg-green-600 hover:bg-green-500 rounded text-white">Télécharger PNG</button>
-    <button id="galleryBtn" class="w-32 py-2 bg-indigo-600 hover:bg-indigo-500 rounded text-white">Galerie</button>
-  </div>
-
-  <div class="panel-row">
-    <div class="label">Autosave</div>
-    <div class="muted text-sm ml-auto" id="autosaveStatus">Activé — 5s</div>
-  </div>
-</div>
-
-<!-- Gallery Modal -->
-<div id="galleryModal" aria-hidden="true">
-  <div id="galleryBox">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-semibold">Galerie — Snapshots sauvegardés</h3>
-      <div>
-        <button id="closeGallery" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded mr-2">Fermer</button>
-        <button id="clearGallery" class="px-3 py-1 bg-red-600 hover:bg-red-500 rounded">Supprimer tout</button>
-      </div>
-    </div>
-
-    <div id="galleryList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
-  </div>
-</div>
 
 <script>
-/* Whiteboard Pro v1.0 — Smeax style
-   Features:
-   - pointer events (mouse / touch / pen)
-   - strokes stack with undo/redo
-   - eraser (destination-out)
-   - color with alpha
-   - autosave to localStorage (strokes + bg image)
-   - gallery (snapshots stored in localStorage)
-   - import image as background
-   - modern UI
-*/
+    const canvas = document.getElementById("board");
+    const ctx = canvas.getContext("2d");
 
-/* ---------- Setup canvas & hi-dpi ---------- */
-const canvas = document.getElementById('board-canvas');
-const wrap = document.getElementById('board-wrap');
-const ctx = canvas.getContext('2d', { alpha: true });
-
-let DPR = window.devicePixelRatio || 1;
-
-function resizeCanvas() {
-  const rect = wrap.getBoundingClientRect();
-  const cssW = Math.max(1, Math.floor(rect.width));
-  const cssH = Math.max(1, Math.floor(rect.height));
-  canvas.style.width = cssW + 'px';
-  canvas.style.height = cssH + 'px';
-  canvas.width = Math.floor(cssW * DPR);
-  canvas.height = Math.floor(cssH * DPR);
-  // transform so drawing uses CSS pixels
-  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  redrawAll();
-}
-window.addEventListener('resize', () => { DPR = window.devicePixelRatio || 1; resizeCanvas(); });
-resizeCanvas();
-
-/* ---------- State ---------- */
-let strokes = []; // each stroke: {points:[{x,y,size}], color, composite}
-let undone = [];
-let drawing = false;
-let currentStroke = null;
-let bgImage = null; // background image (drawn beneath strokes)
-
-const state = {
-  color: '#000000',
-  alpha: 1,
-  size: 8,
-  tool: 'pencil' // 'pencil' or 'eraser'
-};
-
-/* ---------- UI elements ---------- */
-const pencilBtn = document.getElementById('pencilBtn');
-const eraserBtn = document.getElementById('eraserBtn');
-const pickerBtn = document.getElementById('pickerBtn');
-const undoBtn = document.getElementById('undoBtn');
-const redoBtn = document.getElementById('redoBtn');
-const saveSnapshotBtn = document.getElementById('saveSnapshotBtn');
-
-const colorInput = document.getElementById('colorInput');
-const alphaRange = document.getElementById('alphaRange');
-const sizeRange = document.getElementById('sizeRange');
-const presets = document.querySelectorAll('.preset');
-
-const modeIndicator = document.getElementById('modeIndicator');
-const clearBtn = document.getElementById('clearBtn');
-const eraserToggle = document.getElementById('eraserToggle');
-const importImgBtn = document.getElementById('importImgBtn');
-const fileInput = document.getElementById('fileInput');
-const downloadBtn = document.getElementById('downloadBtn');
-const galleryBtn = document.getElementById('galleryBtn');
-
-const galleryModal = document.getElementById('galleryModal');
-const galleryList = document.getElementById('galleryList');
-const closeGallery = document.getElementById('closeGallery');
-const clearGallery = document.getElementById('clearGallery');
-const autosaveStatus = document.getElementById('autosaveStatus');
-
-/* ---------- Utilities ---------- */
-function getCanvasPoint(clientX, clientY) {
-  const rect = canvas.getBoundingClientRect();
-  return { x: (clientX - rect.left), y: (clientY - rect.top) };
-}
-
-/* ---------- Drawing functions ---------- */
-function drawStroke(ctx, stroke) {
-  if (!stroke || !stroke.points || stroke.points.length === 0) return;
-  ctx.save();
-  ctx.globalCompositeOperation = stroke.composite || 'source-over';
-  ctx.lineJoin = 'round';
-  ctx.lineCap = 'round';
-  ctx.strokeStyle = stroke.color;
-  // Use simple segment drawing: set lineWidth by point.size
-  ctx.beginPath();
-  const pts = stroke.points;
-  ctx.moveTo(pts[0].x, pts[0].y);
-  for (let i = 1; i < pts.length; i++) {
-    ctx.lineWidth = pts[i].size;
-    ctx.lineTo(pts[i].x, pts[i].y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(pts[i].x, pts[i].y);
-  }
-  ctx.restore();
-}
-
-function redrawAll() {
-  // clear
-  ctx.clearRect(0, 0, canvas.width / DPR, canvas.height / DPR);
-  // draw bg image if exists (fit to canvas)
-  if (bgImage) {
-    try {
-      const iw = bgImage.width;
-      const ih = bgImage.height;
-      const cw = canvas.width / DPR;
-      const ch = canvas.height / DPR;
-      // draw covering while preserving aspect ratio (centered)
-      const scale = Math.max(cw / iw, ch / ih);
-      const w = iw * scale;
-      const h = ih * scale;
-      const x = (cw - w) / 2;
-      const y = (ch - h) / 2;
-      ctx.drawImage(bgImage, x, y, w, h);
-    } catch (err) { console.warn('bg draw error', err); }
-  }
-  // draw strokes
-  for (const st of strokes) drawStroke(ctx, st);
-  // current stroke (if live)
-  if (currentStroke) drawStroke(ctx, currentStroke);
-}
-
-/* ---------- Pointer handling ---------- */
-function startStroke(x, y, pressure = 0.5) {
-  drawing = true;
-  undone = []; // clear redo on new action
-  currentStroke = {
-    points: [{ x, y, size: state.size * (pressure || 1) }],
-    color: hexWithAlpha(state.color, state.alpha),
-    composite: state.tool === 'eraser' ? 'destination-out' : 'source-over'
-  };
-  redrawAll();
-}
-
-function moveStroke(x, y, pressure = 0.5) {
-  if (!drawing || !currentStroke) return;
-  currentStroke.points.push({ x, y, size: state.size * (pressure || 1) });
-  // incremental draw for smoother UX
-  drawStroke(ctx, currentStroke);
-}
-
-function endStroke() {
-  if (!drawing) return;
-  if (currentStroke && currentStroke.points.length > 0) strokes.push(currentStroke);
-  currentStroke = null;
-  drawing = false;
-  saveAutosaveDebounced();
-}
-
-canvas.addEventListener('pointerdown', (e) => {
-  if (e.pointerType === 'mouse' && e.button !== 0) return;
-  canvas.setPointerCapture(e.pointerId);
-  const p = getCanvasPoint(e.clientX, e.clientY);
-  const pressure = e.pressure && e.pressure > 0 ? e.pressure : 1;
-  startStroke(p.x, p.y, pressure);
-  e.preventDefault();
-});
-
-canvas.addEventListener('pointermove', (e) => {
-  if (!drawing) return;
-  const p = getCanvasPoint(e.clientX, e.clientY);
-  const pressure = e.pressure && e.pressure > 0 ? e.pressure : 1;
-  moveStroke(p.x, p.y, pressure);
-  e.preventDefault();
-});
-
-canvas.addEventListener('pointerup', (e) => {
-  try { canvas.releasePointerCapture(e.pointerId); } catch(_) {}
-  endStroke();
-  e.preventDefault();
-});
-
-canvas.addEventListener('pointercancel', (e) => {
-  try { canvas.releasePointerCapture(e.pointerId); } catch(_) {}
-  endStroke();
-});
-
-/* ---------- helpers ---------- */
-function hexWithAlpha(hex, alpha) {
-  // convert hex (#rrggbb) and alpha 0..1 to rgba string
-  if (!hex) hex = '#000000';
-  const h = hex.replace('#','');
-  const r = parseInt(h.substring(0,2),16);
-  const g = parseInt(h.substring(2,4),16);
-  const b = parseInt(h.substring(4,6),16);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
-
-/* ---------- UI wiring ---------- */
-// tool buttons
-function setTool(tool) {
-  state.tool = tool;
-  if (tool === 'pencil') {
-    pencilBtn.classList.add('active');
-    eraserBtn.classList.remove('active');
-    eraserToggle.textContent = 'Activer Gomme';
-    modeIndicator.textContent = 'Pinceau';
-  } else {
-    eraserBtn.classList.add('active');
-    pencilBtn.classList.remove('active');
-    eraserToggle.textContent = 'Désactiver Gomme';
-    modeIndicator.textContent = 'Gomme';
-  }
-}
-pencilBtn.addEventListener('click', () => setTool('pencil'));
-eraserBtn.addEventListener('click', () => setTool('eraser'));
-eraserToggle.addEventListener('click', () => {
-  setTool(state.tool === 'pencil' ? 'eraser' : 'pencil');
-});
-
-// color & alpha
-colorInput.addEventListener('input', (e) => {
-  state.color = e.target.value;
-  saveAutosaveDebounced();
-});
-alphaRange.addEventListener('input', (e) => {
-  state.alpha = Number(e.target.value);
-  saveAutosaveDebounced();
-});
-presets.forEach(p => {
-  p.addEventListener('click', () => {
-    const c = p.dataset.color;
-    colorInput.value = c;
-    state.color = c;
-    // briefly highlight
-    p.animate([{ transform: 'scale(1.05)' }, { transform: 'scale(1)' }], { duration: 160 });
-    saveAutosaveDebounced();
-  });
-});
-
-// brush size
-sizeRange.addEventListener('input', (e) => {
-  state.size = Number(e.target.value);
-});
-
-// undo redo
-undoBtn.addEventListener('click', () => {
-  if (strokes.length === 0) return;
-  const s = strokes.pop();
-  undone.push(s);
-  redrawAll();
-  saveAutosaveDebounced();
-});
-
-redoBtn.addEventListener('click', () => {
-  if (undone.length === 0) return;
-  const s = undone.pop();
-  strokes.push(s);
-  redrawAll();
-  saveAutosaveDebounced();
-});
-
-// clear
-clearBtn.addEventListener('click', () => {
-  if (!confirm('Effacer tout le tableau ?')) return;
-  strokes = [];
-  undone = [];
-  bgImage = null;
-  redrawAll();
-  saveAutosaveDebounced();
-});
-
-// import image
-importImgBtn.addEventListener('click', () => fileInput.click());
-fileInput.addEventListener('change', async (e) => {
-  const f = e.target.files[0];
-  if (!f) return;
-  const url = URL.createObjectURL(f);
-  const img = new Image();
-  img.onload = () => {
-    bgImage = img;
-    redrawAll();
-    saveAutosaveDebounced();
-    URL.revokeObjectURL(url);
-  };
-  img.src = url;
-  fileInput.value = '';
-});
-
-// download PNG (merge bg and strokes)
-downloadBtn.addEventListener('click', () => {
-  // create temporary canvas to include background grid? currently includes bgImage + strokes
-  const tmp = document.createElement('canvas');
-  tmp.width = canvas.width;
-  tmp.height = canvas.height;
-  const tctx = tmp.getContext('2d');
-  // draw bg white (optional)
-  // tctx.fillStyle = '#ffffff'; tctx.fillRect(0,0,tmp.width,tmp.height);
-  // draw bgImage scaled (if exists)
-  if (bgImage) {
-    const iw = bgImage.width;
-    const ih = bgImage.height;
-    const cw = tmp.width / DPR;
-    const ch = tmp.height / DPR;
-    const scale = Math.max(cw / iw, ch / ih);
-    const w = iw * scale * DPR;
-    const h = ih * scale * DPR;
-    const x = (tmp.width - w) / 2;
-    const y = (tmp.height - h) / 2;
-    tctx.drawImage(bgImage, x, y, w, h);
-  }
-  // draw strokes (scale already in pixels)
-  // need to draw strokes scaled: our stroke coords are in CSS px; canvas tmp is in device px; transform accordingly
-  tctx.scale(DPR, DPR);
-  for (const st of strokes) {
-    tctx.save();
-    tctx.globalCompositeOperation = st.composite || 'source-over';
-    tctx.lineJoin = 'round';
-    tctx.lineCap = 'round';
-    tctx.strokeStyle = st.color;
-    tctx.beginPath();
-    const pts = st.points;
-    tctx.moveTo(pts[0].x, pts[0].y);
-    for (let i = 1; i < pts.length; i++) {
-      tctx.lineWidth = pts[i].size;
-      tctx.lineTo(pts[i].x, pts[i].y);
-      tctx.stroke();
-      tctx.beginPath();
-      tctx.moveTo(pts[i].x, pts[i].y);
+    function resizeCanvas() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        loadAutoSave();
     }
-    tctx.restore();
-  }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
 
-  const data = tmp.toDataURL('image/png');
-  const a = document.createElement('a');
-  a.href = data;
-  a.download = 'whiteboard.png';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-});
+    let drawing = false;
+    let tool = "pencil";
+    let color = "#ffffff";
+    let opacity = 1;
+    let size = 5;
 
-// snapshot save to gallery
-saveSnapshotBtn.addEventListener('click', () => {
-  const data = canvas.toDataURL('image/png');
-  saveSnapshotToGallery(data);
-});
+    function startDraw(x, y) {
+        drawing = true;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+    }
 
-// gallery
-galleryBtn.addEventListener('click', openGallery);
-closeGallery.addEventListener('click', () => galleryModal.classList.remove('active'));
-clearGallery.addEventListener('click', () => {
-  if (!confirm('Supprimer tous les snapshots de la galerie ?')) return;
-  localStorage.removeItem('wb_gallery');
-  renderGallery();
-});
+    function draw(x, y) {
+        if (!drawing) return;
 
-function openGallery() {
-  renderGallery();
-  galleryModal.classList.add('active');
-}
+        ctx.lineWidth = size;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = opacity;
 
-function saveSnapshotToGallery(dataURL) {
-  const key = 'wb_gallery';
-  const gallery = JSON.parse(localStorage.getItem(key) || '[]');
-  gallery.unshift({ id: Date.now(), data: dataURL });
-  // keep up to 50 snapshots
-  if (gallery.length > 50) gallery.length = 50;
-  localStorage.setItem(key, JSON.stringify(gallery));
-  alert('Snapshot sauvegardé dans la galerie');
-}
+        ctx.globalCompositeOperation = tool === "eraser" ? "destination-out" : "source-over";
+        ctx.lineTo(x, y);
+        ctx.stroke();
 
-/* render gallery */
-function renderGallery() {
-  galleryList.innerHTML = '';
-  const gallery = JSON.parse(localStorage.getItem('wb_gallery') || '[]');
-  if (!gallery.length) {
-    galleryList.innerHTML = '<div class="muted">Aucun snapshot enregistré</div>';
-    return;
-  }
-  for (const item of gallery) {
-    const el = document.createElement('div');
-    el.className = 'border rounded overflow-hidden bg-gray-900';
-    el.style.padding = '6px';
-    el.innerHTML = `<img src="${item.data}" style="width:100%;height:160px;object-fit:cover;display:block"><div class="flex gap-2 mt-2"><button class="px-2 py-1 bg-indigo-600 rounded text-white open">Ouvrir</button><button class="px-2 py-1 bg-red-600 rounded text-white del">Supprimer</button></div>`;
-    const btnOpen = el.querySelector('.open');
-    const btnDel = el.querySelector('.del');
-    btnOpen.addEventListener('click', () => {
-      // set as background image
-      const img = new Image();
-      img.onload = () => { bgImage = img; redrawAll(); saveAutosaveDebounced(); galleryModal.classList.remove('active'); };
-      img.src = item.data;
+        autoSave();
+    }
+
+    function stopDraw() {
+        drawing = false;
+        ctx.closePath();
+        autoSave();
+    }
+
+    // Souris
+    canvas.addEventListener("mousedown", e => startDraw(e.offsetX, e.offsetY));
+    canvas.addEventListener("mousemove", e => draw(e.offsetX, e.offsetY));
+    window.addEventListener("mouseup", stopDraw);
+
+    // Tactile
+    canvas.addEventListener("touchstart", e => {
+        e.preventDefault();
+        const t = e.touches[0];
+        const r = canvas.getBoundingClientRect();
+        startDraw(t.clientX - r.left, t.clientY - r.top);
     });
-    btnDel.addEventListener('click', () => {
-      const gallery2 = JSON.parse(localStorage.getItem('wb_gallery') || '[]').filter(g => g.id !== item.id);
-      localStorage.setItem('wb_gallery', JSON.stringify(gallery2));
-      renderGallery();
+
+    canvas.addEventListener("touchmove", e => {
+        e.preventDefault();
+        const t = e.touches[0];
+        const r = canvas.getBoundingClientRect();
+        draw(t.clientX - r.left, t.clientY - r.top);
     });
-    galleryList.appendChild(el);
-  }
-}
 
-/* ---------- Autosave to localStorage ---------- */
-const AUTOSAVE_KEY = 'wb_autosave_v1';
-let autosaveInterval = 5000; // 5s
-let autosaveTimer = null;
-let autosaveEnabled = true;
+    canvas.addEventListener("touchend", stopDraw);
 
-function saveAutosave() {
-  try {
-    const payload = {
-      strokes,
-      bg: (bgImage ? canvasToDataURLBG() : null),
-      state,
-      ts: Date.now()
+    // OUTILS
+    document.getElementById("tool-pencil").onclick = () => tool = "pencil";
+    document.getElementById("tool-eraser").onclick = () => tool = "eraser";
+
+    document.getElementById("colorPicker").oninput = e => {
+        color = e.target.value;
+        tool = "pencil";
     };
-    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(payload));
-    autosaveStatus.textContent = 'Sauvegardé ' + new Date().toLocaleTimeString();
-  } catch (err) {
-    console.warn('autosave failed', err);
-  }
-}
 
-function saveAutosaveDebounced() {
-  if (!autosaveEnabled) return;
-  if (autosaveTimer) clearTimeout(autosaveTimer);
-  autosaveTimer = setTimeout(saveAutosave, 600); // wait small time for batching
-}
+    document.getElementById("size").oninput = e => size = e.target.value;
+    document.getElementById("opacity").oninput = e => opacity = e.target.value;
 
-function canvasToDataURLBG() {
-  // produce dataURL of current canvas including bg drawn but excluding strokes (we draw bgImage stored separately)
-  // Simpler: if bgImage exists and we loaded it from file or snapshot, we can store the src if it's data URL.
-  // If bgImage is an Image with src dataURL, return it; else null.
-  try {
-    if (!bgImage) return null;
-    if (typeof bgImage.src === 'string' && bgImage.src.startsWith('data:')) return bgImage.src;
-    return null;
-  } catch (err) { return null; }
-}
+    // Effacer tout
+    document.getElementById("clear").onclick = () => {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        autoSave();
+    };
 
-function loadAutosave() {
-  try {
-    const raw = localStorage.getItem(AUTOSAVE_KEY);
-    if (!raw) return;
-    const payload = JSON.parse(raw);
-    if (payload.bg) {
-      const img = new Image();
-      img.onload = () => { bgImage = img; redrawAll(); };
-      img.src = payload.bg;
+    // SAUVEGARDE AUTO
+    function autoSave() {
+        localStorage.setItem("whiteboard_smeax", canvas.toDataURL());
     }
-    strokes = payload.strokes || [];
-    // restore state
-    if (payload.state) {
-      state.color = payload.state.color || state.color;
-      state.alpha = payload.state.alpha || state.alpha;
-      state.size = payload.state.size || state.size;
-      state.tool = payload.state.tool || state.tool;
-      // UI
-      colorInput.value = state.color;
-      alphaRange.value = state.alpha;
-      sizeRange.value = state.size;
-      setTool(state.tool);
+
+    function loadAutoSave() {
+        const save = localStorage.getItem("whiteboard_smeax");
+        if (!save) return;
+        const img = new Image();
+        img.src = save;
+        img.onload = () => ctx.drawImage(img, 0, 0);
     }
-    redrawAll();
-  } catch (err) {
-    console.warn('loadAutosave failed', err);
-  }
-}
 
-/* ---------- helpers for gallery/background saving ---------- */
-// If bgImage.src is a dataURL we keep it. If not, we don't include it in autosave (to avoid CORS issues).
-// To save full state including bg imported from local file we used dataURL (file input -> object URL -> image.src).
-// If image came from remote URL with CORS blocking, it may not be saved in localStorage.
+    // EXPORT PNG
+    document.getElementById("saveFile").onclick = () => {
+        const link = document.createElement("a");
+        link.download = "whiteboard.png";
+        link.href = canvas.toDataURL();
+        link.click();
+    };
 
-function canvasToDataURLAll() {
-  // full canvas PNG
-  const tmp = document.createElement('canvas');
-  tmp.width = canvas.width;
-  tmp.height = canvas.height;
-  const tctx = tmp.getContext('2d');
-  // draw background image if exist scaled (pixel dims)
-  if (bgImage) {
-    const iw = bgImage.width;
-    const ih = bgImage.height;
-    const cw = tmp.width / DPR;
-    const ch = tmp.height / DPR;
-    const scale = Math.max(cw / iw, ch / ih);
-    const w = iw * scale * DPR;
-    const h = ih * scale * DPR;
-    const x = (tmp.width - w) / 2;
-    const y = (tmp.height - h) / 2;
-    tctx.drawImage(bgImage, x, y, w, h);
-  }
-  // draw strokes scaled
-  tctx.scale(DPR, DPR);
-  for (const st of strokes) {
-    tctx.save();
-    tctx.globalCompositeOperation = st.composite || 'source-over';
-    tctx.lineJoin = 'round';
-    tctx.lineCap = 'round';
-    tctx.strokeStyle = st.color;
-    tctx.beginPath();
-    const pts = st.points;
-    tctx.moveTo(pts[0].x, pts[0].y);
-    for (let i = 1; i < pts.length; i++) {
-      tctx.lineWidth = pts[i].size;
-      tctx.lineTo(pts[i].x, pts[i].y);
-      tctx.stroke();
-      tctx.beginPath();
-      tctx.moveTo(pts[i].x, pts[i].y);
-    }
-    tctx.restore();
-  }
-  return tmp.toDataURL('image/png');
-}
+    // NOUVEAU
+    document.getElementById("newFile").onclick = () => {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        localStorage.removeItem("whiteboard_smeax");
+    };
 
-/* ---------- Initialize ---------- */
-setTool('pencil');
-colorInput.value = state.color;
-alphaRange.value = state.alpha;
-sizeRange.value = state.size;
+    // OUVERTURE IMAGE
+    document.getElementById("openFile").onclick = () =>
+        document.getElementById("fileInput").click();
 
-// load autosave if exists
-loadAutosave();
+    document.getElementById("fileInput").onchange = e => {
+        const file = e.target.files[0];
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            autoSave();
+        };
+    };
 
-// autosave interval
-setInterval(() => {
-  if (autosaveEnabled) saveAutosave();
-}, autosaveInterval);
-
-/* keyboard shortcuts */
-window.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undoBtn.click(); }
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); redoBtn.click(); }
-  if (e.key === 'e') setTool('eraser');
-  if (e.key === 'b') setTool('pencil');
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); saveSnapshotBtn.click(); }
-});
-
-/* small UI polish: toggle pickerBtn opens color input programmatically */
-pickerBtn.addEventListener('click', () => {
-  colorInput.click();
-});
-
-/* when color/alpha change update state */
-colorInput.addEventListener('input', (e) => state.color = e.target.value);
-alphaRange.addEventListener('input', (e) => state.alpha = Number(e.target.value));
-sizeRange.addEventListener('input', (e) => state.size = Number(e.target.value));
-
-/* when window hidden/unload save */
-window.addEventListener('beforeunload', () => saveAutosave());
-
-/* End of script */
 </script>
 
 </body>
