@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="theme-color" content="#0d111e" />
-<link rel="icon" href="/assets/img/shadowos-icon.png" />
+<link rel="icon" href="assets/img/shadowos-icon.png" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ShadowOS - Beta</title>
 
@@ -341,7 +341,7 @@ body {
 <div id="start-menu" aria-hidden="true">
   <div class="start-header">
     <div class="start-user">
-      <img src="/assets/img/shadowos-icon.png" alt="Avatar" />
+      <img src="assets/img/shadowos-icon.png" alt="Avatar" />
       <div>
         <div class="text-white font-semibold">Smeax</div>
         <div class="text-sm text-gray-300">Connecté</div>
@@ -371,7 +371,7 @@ body {
 <div id="taskbar" role="toolbar" aria-label="Barre des tâches">
   <div class="taskbar-left">
     <button id="btn-start" class="taskbar-button" title="Démarrer" onclick="toggleStartMenu()">
-      <img src="/assets/img/shadowos-icon.png" alt="Start" />
+      <img src="assets/img/shadowos-icon.png" alt="Start" />
     </button>
 
     <div class="relative hidden md:block">
@@ -419,7 +419,7 @@ body {
 
 <div id="tray-menu" aria-hidden="true">
   <div class="tray-user">
-    <img src="/assets/img/shadowos-icon.png" alt="Avatar" />
+    <img src="assets/img/shadowos-icon.png" alt="Avatar" />
     <div>
       <div class="text-white font-semibold">Smeax</div>
       <div class="text-sm text-gray-300">Europe/Paris</div>
@@ -498,7 +498,7 @@ async function loadApps(){
         name: data.name || f,
         version: data.version || '1.0',
         description: data.description || '',
-        icon: data.icon || '/assets/img/shadowos-icon.png',
+        icon: data.icon || 'assets/img/shadowos-icon.png',
         url: data.url || '/',
         target: data.target || 'iframe', // iframe or newtab
         file: f,
