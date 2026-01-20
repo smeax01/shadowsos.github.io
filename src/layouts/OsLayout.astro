@@ -25,7 +25,7 @@ const { title, description = "Smeax OS - Une expérience interactive cachée" } 
     <link
       rel="icon"
       type="image/png"
-      href={`${import.meta.env.BASE_URL}/icon.png`}
+      href={`${import.meta.env.BASE_URL}icon.png`}
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -33,7 +33,7 @@ const { title, description = "Smeax OS - Une expérience interactive cachée" } 
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    <link rel="manifest" href={`${import.meta.env.BASE_URL}/manifest.json`} />
+    <link rel="manifest" href={`${import.meta.env.BASE_URL}manifest.json`} />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
@@ -71,7 +71,7 @@ const { title, description = "Smeax OS - Une expérience interactive cachée" } 
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
-            .register(`${import.meta.env.BASE_URL}/sw.js`)
+            .register(`${import.meta.env.BASE_URL}sw.js`)
             .then((reg) => console.log("SW registered"))
             .catch((err) => console.log("SW error", err));
         });
