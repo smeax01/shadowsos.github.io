@@ -1,0 +1,9 @@
+{
+  "id": "browser",
+  "title": "Navigateur",
+  "icon": "globe",
+  "color": "text-sky-400",
+  "type": "iframe",
+  "url": "https://www.google.com/webhp?igu=1",
+  "description": "Navigateur web intégré"
+}

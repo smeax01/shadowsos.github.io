@@ -1,0 +1,8 @@
+{
+  "id": "projects",
+  "title": "Projets",
+  "icon": "folder-git-2",
+  "color": "text-green-400",
+  "type": "internal",
+  "description": "Mes réalisations"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "settings",
+  "title": "Paramètres",
+  "icon": "settings",
+  "color": "text-slate-400",
+  "type": "internal",
+  "description": "Configuration du système"
+}

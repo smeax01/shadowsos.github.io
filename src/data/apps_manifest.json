@@ -1,0 +1,61 @@
+[
+  {
+    "id": "about",
+    "title": "A Propos",
+    "icon": "user",
+    "color": "text-blue-400",
+    "type": "internal",
+    "description": "Informations sur Smeax"
+  },
+  {
+    "id": "browser",
+    "title": "Navigateur",
+    "icon": "globe",
+    "color": "text-sky-400",
+    "type": "iframe",
+    "url": "https://www.google.com/webhp?igu=1",
+    "description": "Navigateur web intégré"
+  },
+  {
+    "id": "projects",
+    "title": "Projets",
+    "icon": "folder-git-2",
+    "color": "text-green-400",
+    "type": "internal",
+    "description": "Mes réalisations"
+  },
+  {
+    "id": "settings",
+    "title": "Paramètres",
+    "icon": "settings",
+    "color": "text-slate-400",
+    "type": "internal",
+    "description": "Configuration du système"
+  },
+  {
+    "id": "shadow",
+    "title": "Shadow Cloud",
+    "icon": "/os-logo.png",
+    "color": "text-white",
+    "type": "iframe",
+    "url": "https://smeax01.github.io/smeax/",
+    "description": "Portail Cloud Shadow"
+  },
+  {
+    "id": "terminal",
+    "title": "Terminal",
+    "icon": "terminal",
+    "color": "text-purple-400",
+    "type": "internal",
+    "description": "Invite de commande SmeaxOS"
+  },
+  {
+    "id": "vscode",
+    "title": "VS Code",
+    "icon": "code-xml",
+    "color": "text-blue-500",
+    "type": "iframe",
+    "url": "https://github1s.com/smeax01/smeax",
+    "description": "Editeur de code en ligne"
+  }
+]

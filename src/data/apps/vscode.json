@@ -1,0 +1,9 @@
+{
+  "id": "vscode",
+  "title": "VS Code",
+  "icon": "code-xml",
+  "color": "text-blue-500",
+  "type": "iframe",
+  "url": "https://github1s.com/smeax01/smeax",
+  "description": "Editeur de code en ligne"
+}

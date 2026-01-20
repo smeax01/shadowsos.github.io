@@ -1,0 +1,8 @@
+{
+  "id": "terminal",
+  "title": "Terminal",
+  "icon": "terminal",
+  "color": "text-purple-400",
+  "type": "internal",
+  "description": "Invite de commande SmeaxOS"
+}
