@@ -2,18 +2,18 @@
   "name": "ShadowOS 3",
   "short_name": "ShadowOS",
   "description": "Système d'Exploitation Virtuel Interactif",
-  "start_url": "/shadow2/",
+  "start_url": "/shadowos/",
   "display": "standalone",
   "background_color": "#020617",
   "theme_color": "#020617",
   "icons": [
     {
-      "src": "/shadow2/os-logo.png",
+      "src": "/shadowos/os-logo.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/shadow2/os-logo.png",
+      "src": "/shadowos/os-logo.png",
       "sizes": "512x512",
       "type": "image/png"
     }
