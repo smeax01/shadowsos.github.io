@@ -1,0 +1,303 @@
+<div class="h-full flex flex-col bg-[#0a0a0a] text-zinc-300 font-sans overflow-hidden select-none border-t border-zinc-900" id="ide-app-container">
+  
+  <!-- Top Bar -->
+  <div class="h-9 bg-[#141414] border-b border-zinc-800/80 flex items-center px-4 shrink-0 flex-none z-10 relative">
+    <div class="flex gap-4 text-xs font-semibold text-zinc-400">
+      <span class="hover:text-white cursor-pointer transition-colors">Fichier</span>
+      <span class="hover:text-white cursor-pointer transition-colors">Édition</span>
+      <span class="hover:text-white cursor-pointer transition-colors">Sélection</span>
+      <span class="hover:text-white cursor-pointer transition-colors">Affichage</span>
+      <span class="hover:text-white cursor-pointer transition-colors">Aide</span>
+    </div>
+    <div class="ml-auto text-[10px] uppercase font-bold text-zinc-600 tracking-widest hidden sm:block" id="ide-status">
+      Smeax Code Engine
+    </div>
+  </div>
+
+  <div class="flex flex-1 overflow-hidden relative">
+    
+    <!-- Activity Bar (Left icon strip) -->
+    <div class="w-[50px] bg-[#111111] border-r border-zinc-900 flex flex-col items-center py-4 gap-6 shrink-0 z-10">
+      <div class="cursor-pointer text-white relative group" title="Explorateur">
+        <i data-lucide="files" class="w-6 h-6 mx-auto"></i>
+        <div class="absolute inset-y-0 left-0 w-0.5 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+      </div>
+      <div class="cursor-pointer text-zinc-600 hover:text-white transition-colors" title="Recherche">
+        <i data-lucide="search" class="w-6 h-6 mx-auto"></i>
+      </div>
+      <div class="cursor-pointer text-zinc-600 hover:text-white transition-colors" title="Contrôle de code source">
+        <i data-lucide="git-branch" class="w-6 h-6 mx-auto"></i>
+      </div>
+      <div class="cursor-pointer text-zinc-600 hover:text-white transition-colors" title="Débogage">
+        <i data-lucide="bug" class="w-6 h-6 mx-auto"></i>
+      </div>
+      <div class="cursor-pointer text-zinc-600 hover:text-white transition-colors" title="Extensions">
+        <i data-lucide="blocks" class="w-6 h-6 mx-auto"></i>
+      </div>
+      <div class="mt-auto cursor-pointer text-zinc-600 hover:text-white transition-colors" title="Paramètres">
+        <i data-lucide="settings" class="w-6 h-6 mx-auto"></i>
+      </div>
+    </div>
+
+    <!-- Sidebar Explorer -->
+    <div class="w-60 bg-[#161616] border-r border-zinc-900 flex flex-col shrink-0 shadow-lg relative z-0">
+      <div class="h-9 flex items-center px-4 text-[11px] font-bold tracking-widest text-zinc-400 uppercase">
+        Explorateur
+      </div>
+      
+      <!-- Project Folder Name -->
+      <div class="flex items-center justify-between px-2 py-1.5 cursor-pointer hover:bg-zinc-800/80 group">
+        <div class="flex items-center gap-1.5 font-bold text-xs text-zinc-300 uppercase tracking-wider">
+          <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-500"></i>
+          SHADOW_PROJECT
+        </div>
+        <div class="flex gap-2 pr-2">
+          <i data-lucide="file-plus" class="w-4 h-4 text-zinc-500 hover:text-white transition-colors" id="ide-new-file" title="Nouveau Fichier"></i>
+        </div>
+      </div>
+
+      <!-- File List -->
+      <div id="ide-file-list" class="flex-1 overflow-y-auto w-full pb-4">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Main Editor -->
+    <div class="flex-1 flex flex-col bg-[#0a0a0a] overflow-hidden relative shadow-inner">
+      <!-- Tabs -->
+      <div class="h-9 bg-[#141414] flex items-center overflow-x-auto shrink-0 border-b border-zinc-900 shadow-sm" id="ide-tabs-container">
+         <!-- Tabs rendered by JS -->
+      </div>
+      
+      <!-- Text Area (Code editor) -->
+      <div class="flex-1 relative flex font-mono" id="ide-editor-wrapper">
+         <!-- Line Numbers -->
+         <div class="w-12 bg-[#0e0e0e] border-r border-zinc-900/80 flex flex-col text-right text-zinc-600 text-xs py-2 pr-3 select-none" id="ide-line-numbers">
+           1
+         </div>
+         <textarea class="flex-1 bg-transparent border-none text-zinc-300 p-2 text-sm leading-6 resize-none outline-none whitespace-pre focus:ring-0 selection:bg-blue-500/30" id="ide-editor" spellcheck="false" wrap="off"></textarea>
+         
+         <!-- Empty State -->
+         <div id="ide-empty-state" class="absolute inset-0 bg-[#0a0a0a] flex flex-col items-center justify-center text-zinc-700 hidden select-none">
+            <i data-lucide="code" class="w-20 h-20 mb-6 drop-shadow-xl text-zinc-800"></i>
+            <div class="flex gap-4 mb-4">
+               <kbd class="px-2 py-1 bg-zinc-900 border border-zinc-800 rounded text-xs font-bold text-zinc-500 shadow-inner">Ctrl + N</kbd>
+               <span class="text-xs font-medium text-zinc-500 my-auto">Nouveau Fichier</span>
+            </div>
+            <div class="flex gap-4">
+               <kbd class="px-2 py-1 bg-zinc-900 border border-zinc-800 rounded text-xs font-bold text-zinc-500 shadow-inner">Ctrl + S</kbd>
+               <span class="text-xs font-medium text-zinc-500 my-auto">Sauvegarder</span>
+            </div>
+         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom StatusBar -->
+  <div class="h-6 bg-[#007acc] flex items-center px-3 justify-between text-[11px] text-white font-medium flex-none shrink-0 z-10 w-full relative shadow-[0_-2px_10px_rgba(0,122,204,0.2)]">
+    <div class="flex items-center gap-4">
+      <span class="flex items-center gap-1.5 cursor-pointer hover:bg-white/20 px-1.5 py-0.5 rounded transition-colors" title="Branche courante"><i data-lucide="git-branch" class="w-3.5 h-3.5"></i> main*</span>
+      <span class="flex items-center gap-1.5 cursor-pointer hover:bg-white/20 px-1.5 py-0.5 rounded transition-colors" title="Aucun problème"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> 0</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="cursor-pointer hover:bg-white/20 px-1.5 py-0.5 rounded transition-colors" id="ide-cursor-pos">Ln 1, Col 1</span>
+      <span class="cursor-pointer hover:bg-white/20 px-1.5 py-0.5 rounded transition-colors">Espaces: 2</span>
+      <span class="cursor-pointer hover:bg-white/20 px-1.5 py-0.5 rounded transition-colors text-white/80">UTF-8</span>
+      <span class="cursor-pointer hover:bg-white/20 px-1.5 py-0.5 rounded transition-colors font-bold text-white uppercase" id="ide-file-type">TEXTE</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const defaultFiles = [
+      { id: 'f1', name: 'index.astro', lang: 'ASTRO', content: '---\n// ShadowOS Core Kernel\nconst kernel_version = "3.2.0";\nconsole.log(`Booting ${kernel_version}`);\n---\n\n<html lang="fr">\n  <head><title>Kernel Boot</title></head>\n  <body class="bg-black text-white">\n    <h1>System Ready.</h1>\n  </body>\n</html>' },
+      { id: 'f2', name: 'main.js', lang: 'JAVASCRIPT', content: 'function bootOS() {\n  console.log("Loading modules...");\n  window.osMenu = new Menu();\n  window.osDock = new Dock();\n}\n\nbootOS();' },
+      { id: 'f3', name: 'globals.css', lang: 'CSS', content: 'body {\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n  background-color: #000;\n  color: #fff;\n}\n\n.window {\n  box-shadow: 0 10px 30px rgba(0,0,0,0.8);\n}' },
+    ];
+
+    let files = [...defaultFiles];
+    let activeFileId = 'f1';
+
+    const fileListEl = document.getElementById('ide-file-list');
+    const tabsContainer = document.getElementById('ide-tabs-container');
+    const editorEl = document.getElementById('ide-editor');
+    const lineNumbersEl = document.getElementById('ide-line-numbers');
+    const emptyStateEl = document.getElementById('ide-empty-state');
+    const newFileBtn = document.getElementById('ide-new-file');
+    const cursorPosEl = document.getElementById('ide-cursor-pos');
+    const fileTypeEl = document.getElementById('ide-file-type');
+
+    function getExt(name) {
+       const parts = name.split('.');
+       return parts.length > 1 ? parts.pop().toLowerCase() : 'txt';
+    }
+    
+    function getLangFromExt(ext) {
+       const map = { js:'JAVASCRIPT', ts:'TYPESCRIPT', astro:'ASTRO', css:'CSS', html:'HTML', json:'JSON' };
+       return map[ext] || 'TEXTE';
+    }
+
+    function getIconFromExt(ext) {
+       const map = { js:'file-json-2', ts:'file-json-2', astro:'file-code', css:'file-type', html:'layout', json:'braces' };
+       return map[ext] || 'file-text';
+    }
+
+    function getIconColor(ext) {
+       const map = { js:'text-yellow-400', astro:'text-orange-500', css:'text-blue-400', html:'text-rose-400', json:'text-green-400' };
+       return map[ext] || 'text-zinc-400';
+    }
+
+    function updateLineNumbers() {
+       const lines = editorEl.value.split('\n').length;
+       let html = '';
+       for(let i=1; i<=lines; i++) {
+          html += `<div>${i}</div>`;
+       }
+       lineNumbersEl.innerHTML = html;
+    }
+
+    function updateCursor() {
+      const pos = editorEl.selectionStart;
+      const textToCursor = editorEl.value.substring(0, pos);
+      const lines = textToCursor.split('\n');
+      const currentLineIndex = lines.length;
+      const currentCharIndex = lines[lines.length - 1].length + 1;
+      cursorPosEl.textContent = `Ln ${currentLineIndex}, Col ${currentCharIndex}`;
+    }
+
+    function renderFiles() {
+      fileListEl.innerHTML = files.map(f => {
+         const isActive = f.id === activeFileId;
+         const ext = getExt(f.name);
+         const icon = getIconFromExt(ext);
+         const color = getIconColor(ext);
+         
+         return `
+          <div class="flex items-center gap-2 px-6 py-1 cursor-pointer transition-colors group ${isActive ? 'bg-[#1e1e1e] text-white border-l-2 border-blue-500' : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200 border-l-2 border-transparent'}" onclick="window.ideSelect('${f.id}')">
+            <i data-lucide="${icon}" class="w-3.5 h-3.5 ${color}"></i>
+            <span class="text-sm truncate select-none">${f.name}</span>
+          </div>
+         `;
+      }).join('');
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function renderTabs() {
+      tabsContainer.innerHTML = files.map(f => {
+         const isActive = f.id === activeFileId;
+         const ext = getExt(f.name);
+         const icon = getIconFromExt(ext);
+         const color = getIconColor(ext);
+         
+         return `
+          <div class="h-full flex items-center justify-between gap-3 px-4 min-w-[120px] max-w-[200px] border-r border-zinc-900 cursor-pointer group ${isActive ? 'bg-[#0a0a0a] text-white shadow-[inset_0_2px_0_#3b82f6]' : 'bg-[#181818] text-zinc-500 hover:bg-[#1e1e1e] hover:text-zinc-300'}" onclick="window.ideSelect('${f.id}')">
+            <div class="flex items-center gap-2 truncate">
+              <i data-lucide="${icon}" class="w-3.5 h-3.5 ${isActive ? color : 'text-zinc-500 group-hover:text-zinc-400'}"></i>
+              <span class="text-xs ${isActive ? "font-semibold" : ""} truncate">${f.name}</span>
+            </div>
+            <i data-lucide="x" class="w-3.5 h-3.5 text-zinc-600 hover:bg-zinc-700 hover:text-white rounded p-0.5 opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation(); window.ideClose('${f.id}')"></i>
+          </div>
+         `;
+      }).join('');
+      
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function refreshActiveFile() {
+      if (!files.length) {
+         editorEl.style.display = 'none';
+         lineNumbersEl.style.display = 'none';
+         emptyStateEl.classList.remove('hidden');
+         fileTypeEl.textContent = 'TEXTE';
+         return;
+      }
+      editorEl.style.display = 'block';
+      lineNumbersEl.style.display = 'flex';
+      emptyStateEl.classList.add('hidden');
+
+      const file = files.find(f => f.id === activeFileId);
+      if (file) {
+        editorEl.value = file.content;
+        fileTypeEl.textContent = file.lang;
+        updateLineNumbers();
+        updateCursor();
+        editorEl.focus();
+      }
+    }
+
+    editorEl.addEventListener('input', () => {
+       const file = files.find(f => f.id === activeFileId);
+       if (file) {
+         file.content = editorEl.value;
+       }
+       updateLineNumbers();
+       updateCursor();
+    });
+
+    editorEl.addEventListener('keyup', updateCursor);
+    editorEl.addEventListener('click', updateCursor);
+    
+    // Auto scroll sync (primitive)
+    editorEl.addEventListener('scroll', () => {
+       lineNumbersEl.scrollTop = editorEl.scrollTop;
+    });
+
+    // Handle Tab Key
+    editorEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = editorEl.selectionStart;
+        const end = editorEl.selectionEnd;
+        editorEl.value = editorEl.value.substring(0, start) + "  " + editorEl.value.substring(end);
+        editorEl.selectionStart = editorEl.selectionEnd = start + 2;
+        editorEl.dispatchEvent(new Event('input'));
+      }
+      if (e.ctrlKey && e.key === 's') {
+         e.preventDefault(); // Simulate Save
+      }
+    });
+
+    // API
+    window.ideSelect = (id) => {
+      activeFileId = id;
+      renderFiles();
+      renderTabs();
+      refreshActiveFile();
+    };
+
+    window.ideClose = (id) => {
+      files = files.filter(f => f.id !== id);
+      if (activeFileId === id) {
+         activeFileId = files.length ? files[files.length-1].id : null;
+      }
+      renderFiles();
+      renderTabs();
+      refreshActiveFile();
+    };
+
+    newFileBtn.onclick = () => {
+       const name = prompt("Nom du fichier:", "nouveau.js");
+       if (name) {
+          const id = 'f' + Date.now();
+          const ext = getExt(name);
+          files.push({ id, name, lang: getLangFromExt(ext), content: '' });
+          window.ideSelect(id);
+       }
+    };
+
+    // Global Keybind Shortcuts across the main window
+    document.getElementById('ide-app-container').addEventListener('keydown', (e) => {
+       if (e.ctrlKey && e.key === 'n') {
+          e.preventDefault();
+          newFileBtn.onclick();
+       }
+    });
+
+    // Init
+    renderFiles();
+    renderTabs();
+    refreshActiveFile();
+
+  })();
+</script>

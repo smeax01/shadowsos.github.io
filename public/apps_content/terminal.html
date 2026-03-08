@@ -1,18 +1,108 @@
-<div class="font-mono text-sm p-5 text-slate-300 h-full overflow-y-auto select-text bg-[#0d1117]">
-  <div class="mb-4 text-emerald-400 font-bold">➜  ~  bash welcome.sh</div>
-  <div class="text-blue-400 leading-tight mb-6">
-    <pre>
-  ____  _   _    _    ____   _____        __
- / ___|| | | |  / \\  |  _ \\ / _ \\ \\      / /
- \\___ \\| |_| | / _ \\ | | | | | | \\ \\ /\\ / / 
-  ___) |  _  |/ ___ \\| |_| | |_| |\\ V  V /  
- |____/|_| |_/_/   \\_\\____/ \\___/  \\_/\\_/   2.0
-    </pre>
+<div 
+  class="p-4 h-full bg-[#0a0a0a] text-zinc-300 font-mono text-sm sm:text-base overflow-y-auto selection:bg-zinc-800 focus:outline-none"
+  id="terminal-container"
+  tabindex="0"
+>
+  <div class="mb-4 text-zinc-500 text-xs sm:text-sm">
+    <p>ShadowOS 3.2.0 (AMOLED Edition) GNU/Linux</p>
+    <p>Copyright (c) 2026 Smeax Corporation. Tous droits réservés.</p>
+    <br>
+    <p>Bienvenue sur Smeax Shell v1.0.</p>
+    <p>Tapez <span class="text-green-400">'help'</span> pour obtenir la liste des commandes disponibles.</p>
   </div>
-  <div class="space-y-1 mb-6 border-l-2 border-slate-700 pl-4">
-    <p><span class="text-slate-500">SYSTEM:</span> ShadowOS 2.1 Enterprise</p>
-    <p><span class="text-slate-500">KERNEL:</span> Web-V8 optimized</p>
-    <p><span class="text-slate-500">UPTIME:</span> Stable</p>
+  
+  <div id="terminal-output" class="mb-2 w-full flex flex-col gap-1 tracking-tight">
+    <!-- Output injected here -->
   </div>
-  <div class="text-emerald-400">➜  ~  <span class="animate-pulse text-white">_</span></div>
+
+  <div class="flex items-center group">
+    <span class="text-emerald-500 font-bold mr-2 whitespace-nowrap">smeax@shadow<span class="text-zinc-500">:</span><span class="text-blue-400">~</span><span class="text-white">$</span></span>
+    <input 
+      type="text" 
+      id="terminal-input" 
+      class="flex-1 bg-transparent border-none outline-none text-zinc-200 font-mono caret-white focus:ring-0" 
+      autocomplete="off"
+      spellcheck="false"
+      autofocus
+    >
+  </div>
 </div>
+
+<script>
+  (function() {
+    const input = document.getElementById('terminal-input');
+    const output = document.getElementById('terminal-output');
+    const container = document.getElementById('terminal-container');
+
+    // Auto-focus logic
+    container.addEventListener('click', () => {
+      input.focus();
+    });
+
+    const fileSystem = {
+      '~': ['Documents', 'Images', 'Downloads', 'Desktop', '.env', 'shadow_cli.sh'],
+    };
+
+    function processCommand(cmd) {
+      const args = cmd.trim().split(/\s+/);
+      const main = args[0].toLowerCase();
+
+      // Create command echo log
+      const logCmd = document.createElement('div');
+      logCmd.innerHTML = `<span class="text-emerald-500 font-bold mr-2">smeax@shadow<span class="text-zinc-500">:</span><span class="text-blue-400">~</span><span class="text-white">$</span></span><span class="text-zinc-300">${cmd}</span>`;
+      output.appendChild(logCmd);
+
+      if (!main) return;
+
+      const logRes = document.createElement('div');
+      logRes.className = "text-zinc-400 whitespace-pre-wrap mt-1 mb-2";
+
+      switch (main) {
+        case 'help':
+          logRes.innerHTML = `Commandes disponibles:\n  <span class="text-green-400">help</span>    - Affiche ce message\n  <span class="text-green-400">clear</span>   - Efface le terminal\n  <span class="text-green-400">echo</span>    - Affiche un message\n  <span class="text-green-400">whoami</span>  - Affiche l'utilisateur actuel\n  <span class="text-green-400">date</span>    - Affiche la date locale\n  <span class="text-green-400">ls</span>      - Liste les fichiers\n  <span class="text-green-400">neofetch</span>- Système d'info`;
+          break;
+        case 'clear':
+          output.innerHTML = '';
+          return;
+        case 'echo':
+          logRes.textContent = args.slice(1).join(' ');
+          break;
+        case 'whoami':
+          logRes.textContent = 'smeax';
+          break;
+        case 'date':
+          logRes.textContent = new Date().toString();
+          break;
+        case 'ls':
+          logRes.innerHTML = `<span class="text-blue-400 font-bold">Documents</span>   <span class="text-blue-400 font-bold">Images</span>   <span class="text-blue-400 font-bold">Downloads</span>   <span class="text-blue-400 font-bold">Desktop</span>   <span class="text-zinc-300">.env</span>   <span class="text-green-400 font-bold">shadow_cli.sh</span>`;
+          break;
+        case 'neofetch':
+          logRes.innerHTML = `
+<span class="text-blue-500 font-bold">       /\\</span>         <span class="text-emerald-500 font-bold">smeax</span>@<span class="text-blue-500 font-bold">shadow</span> 
+<span class="text-blue-500 font-bold">      /  \\</span>        <span class="text-zinc-500">------------</span>
+<span class="text-blue-500 font-bold">     /    \\</span>       <span class="text-zinc-300 font-bold">OS:</span> ShadowOS 3.2.0 (AMOLED)
+<span class="text-blue-500 font-bold">    /      \\</span>      <span class="text-zinc-300 font-bold">Host:</span> Smeax Virtual Machine
+<span class="text-blue-500 font-bold">   /________\\</span>     <span class="text-zinc-300 font-bold">Kernel:</span> Astro.js Engine
+<span class="text-blue-500 font-bold">  /          \\</span>    <span class="text-zinc-300 font-bold">Uptime:</span> Just started
+<span class="text-blue-500 font-bold"> /            \\</span>   <span class="text-zinc-300 font-bold">Shell:</span> bash 5.1.16
+<span class="text-blue-500 font-bold">/              \\</span>  <span class="text-zinc-300 font-bold">WM:</span> Shadow WM
+          `;
+          break;
+        default:
+          logRes.innerHTML = `<span class="text-rose-400">bash: ${main}: commande introuvable</span>`;
+      }
+
+      output.appendChild(logRes);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = input.value;
+        input.value = '';
+        processCommand(val);
+      }
+    });
+
+  })();
+</script>

@@ -1,16 +1,118 @@
-<div class="p-10 h-full text-slate-200 bg-[#0d1117]">
-  <h2 class="text-3xl font-black mb-10 flex items-center gap-4 tracking-tight">
-    <div class="p-3 rounded-xl bg-white/5"><i data-lucide="settings" class="w-8 h-8 text-blue-400"></i></div> Paramètres
-  </h2>
-  <div class="space-y-4 max-w-xl">
-    <div class="flex justify-between items-center p-5 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition-colors group cursor-pointer">
-       <div class="flex items-center gap-4">
-          <i data-lucide="moon" class="w-5 h-5 text-indigo-400"></i>
-          <span class="text-sm font-bold">Mode Sombre</span>
-       </div>
-       <div class="w-12 h-6 bg-blue-600 rounded-full relative shadow-inner">
-          <div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-lg transform group-active:scale-90 transition-transform"></div>
-       </div>
+<div class="h-full flex flex-col md:flex-row bg-[#121212] text-white font-sans overflow-hidden border-t border-zinc-900">
+  
+  <!-- Sidebar -->
+  <div class="w-full md:w-64 bg-[#181818] border-r border-zinc-800 flex flex-col overflow-y-auto shrink-0 transition-colors">
+    <div class="p-6 pb-2">
+      <h2 class="text-xl font-black text-white tracking-tight flex items-center gap-3">
+        <i data-lucide="settings" class="w-5 h-5 text-zinc-400"></i> Paramètres
+      </h2>
+    </div>
+    
+    <div class="p-4 flex flex-col gap-1 text-sm font-semibold">
+      <button class="settings-tab active flex items-center gap-3 w-full p-3 rounded-md bg-zinc-800/80 text-white transition-colors text-left group">
+        <i data-lucide="palette" class="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors"></i> Personnalisation
+      </button>
+      <button class="settings-tab flex items-center gap-3 w-full p-3 rounded-md hover:bg-zinc-800/40 text-zinc-400 hover:text-white transition-colors text-left group">
+        <i data-lucide="user-cog" class="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors"></i> Compte Utilisateur
+      </button>
+      <button class="settings-tab flex items-center gap-3 w-full p-3 rounded-md hover:bg-zinc-800/40 text-zinc-400 hover:text-white transition-colors text-left group">
+        <i data-lucide="languages" class="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors"></i> Langue & Région
+      </button>
+      <div class="h-[1px] bg-zinc-800 my-2 mx-2"></div>
+      <button class="settings-tab flex items-center gap-3 w-full p-3 rounded-md hover:bg-zinc-800/40 text-zinc-400 hover:text-white transition-colors text-left group">
+        <i data-lucide="info" class="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors"></i> Système
+      </button>
+    </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="flex-1 p-8 lg:p-12 overflow-y-auto bg-[#121212]">
+    
+    <div class="max-w-3xl">
+      <h3 class="text-2xl font-bold mb-8 text-white">Personnalisation (AMOLED)</h3>
+      
+      <!-- Setting Group -->
+      <div class="bg-[#1a1a1a] border border-zinc-800 rounded-md overflow-hidden mb-8 shadow-sm">
+        
+        <!-- Toggle Dark Mode -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 border-b border-zinc-800/50 hover:bg-[#202020] transition-colors cursor-pointer group">
+          <div class="flex items-start md:items-center gap-4 mb-4 sm:mb-0">
+            <div class="p-2.5 bg-zinc-900 border border-zinc-700 rounded-md shadow-inner">
+              <i data-lucide="moon-star" class="w-5 h-5 text-indigo-400"></i>
+            </div>
+            <div>
+              <p class="font-bold text-white leading-tight">Thème Sombre Absolu</p>
+              <p class="text-xs text-zinc-500 mt-1">Économise l'énergie sur écran OLED</p>
+            </div>
+          </div>
+          <!-- Switch -->
+          <div class="relative w-12 h-6 bg-indigo-600 rounded-full cursor-pointer shadow-inner shrink-0 group-active:scale-95 transition-transform">
+            <div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-md"></div>
+          </div>
+        </div>
+
+        <!-- Accent Colors -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 border-b border-zinc-800/50 hover:bg-[#202020] transition-colors cursor-pointer group">
+          <div class="flex items-start md:items-center gap-4 mb-4 sm:mb-0">
+            <div class="p-2.5 bg-zinc-900 border border-zinc-700 rounded-md shadow-inner">
+              <i data-lucide="paintbrush" class="w-5 h-5 text-pink-400"></i>
+            </div>
+            <div>
+              <p class="font-bold text-white leading-tight">Couleur d'accentuation</p>
+              <p class="text-xs text-zinc-500 mt-1">Couleur des boutons et sélections</p>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-blue-500 ring-2 ring-zinc-700 hover:scale-110 transition-transform cursor-pointer"></div>
+            <div class="w-6 h-6 rounded-full bg-rose-500 hover:scale-110 transition-transform cursor-pointer"></div>
+            <div class="w-6 h-6 rounded-full bg-emerald-500 hover:scale-110 transition-transform cursor-pointer"></div>
+            <div class="w-6 h-6 rounded-full bg-indigo-500 hover:scale-110 transition-transform cursor-pointer"></div>
+            <div class="w-6 h-6 rounded-full bg-zinc-400 ring-2 ring-white hover:scale-110 transition-transform cursor-pointer"></div>
+          </div>
+        </div>
+
+        <!-- Animation -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 hover:bg-[#202020] transition-colors cursor-pointer group">
+          <div class="flex items-start md:items-center gap-4 mb-4 sm:mb-0">
+            <div class="p-2.5 bg-zinc-900 border border-zinc-700 rounded-md shadow-inner">
+              <i data-lucide="film" class="w-5 h-5 text-emerald-400"></i>
+            </div>
+            <div>
+              <p class="font-bold text-white leading-tight">Animations d'interface</p>
+              <p class="text-xs text-zinc-500 mt-1">Réduire pour plus de vitesse</p>
+            </div>
+          </div>
+          <!-- Switch -->
+          <div class="relative w-12 h-6 bg-zinc-700 rounded-full cursor-pointer shadow-inner shrink-0 group-active:scale-95 transition-transform">
+            <div class="absolute left-1 top-1 w-4 h-4 bg-zinc-400 rounded-full shadow-md"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- User Settings Preview -->
+      <h3 class="text-2xl font-bold mb-8 text-white">Compte</h3>
+      <div class="bg-[#1a1a1a] border border-zinc-800 rounded-md p-6 flex items-center gap-6 shadow-sm">
+        <div class="w-20 h-20 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center text-3xl font-black text-zinc-500">
+          U
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center gap-3">
+             <input type="text" value="Smeax" class="bg-transparent border-none text-2xl font-black text-white focus:outline-none focus:border-b focus:border-zinc-500 w-full max-w-[200px]" readonly>
+             <i data-lucide="pencil" class="w-4 h-4 text-zinc-500 cursor-pointer hover:text-white transition-colors" title="Modifier"></i>
+          </div>
+          <p class="text-zinc-500 text-sm mt-1">Administrateur local</p>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
+<script>
+  (function() {
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  })();
+</script>

@@ -5,10 +5,8 @@ import apps_raw from "../data/apps_manifest.json";
 // Ensure assets are prefixed with BASE_URL if needed
 const apps = apps_raw.map((app) => ({
   ...app,
-  icon_path:
-    app.icon.startsWith("/") || app.icon.startsWith("http") ? app.icon : null,
-  lucide_icon:
-    !app.icon.startsWith("/") && !app.icon.startsWith("http") ? app.icon : null,
+  // Force Lucide icons for everything except if explicitly missing (fallback to 'circle')
+  lucide_icon: app.icon.startsWith("/") ? "cloud" : app.icon,
 }));
 ---
 
@@ -16,8 +14,8 @@ const apps = apps_raw.map((app) => ({
   <!-- Desktop Background -->
   <div
     id="desktop-surface"
-    class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat overflow-hidden select-none tap-highlight-transparent"
-    style={`background-image: url('${import.meta.env.BASE_URL}/wallpaper.png');`}
+    class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat overflow-hidden select-none tap-highlight-transparent grayscale"
+    style={`background-image: url('${import.meta.env.BASE_URL}/wallpaper.gif');`}
   >
     <!-- Overlay for better text readability -->
     <div class="absolute inset-0 bg-black/40 pointer-events-none"></div>
@@ -39,73 +37,73 @@ const apps = apps_raw.map((app) => ({
     <!-- Context Menu -->
     <div
       id="context-menu"
-      class="fixed z-[10000] w-56 bg-slate-900/90 backdrop-blur-3xl border border-white/10 rounded-xl shadow-2xl py-2 text-slate-200 hidden select-none p-1.5"
+      class="fixed z-[10000] w-56 bg-black/95 backdrop-blur-md border border-zinc-900 rounded-md shadow-2xl py-1.5 text-zinc-200 hidden select-none p-1"
     >
       <div
-        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-blue-600 hover:text-white cursor-pointer rounded-lg transition-colors group"
+        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-zinc-900 hover:text-white cursor-pointer rounded-sm transition-colors group"
         data-action="new-folder"
       >
         <div class="flex items-center gap-2.5">
           <i
             data-lucide="folder-plus"
-            class="w-4 h-4 text-blue-400 group-hover:text-white"></i>
+            class="w-4 h-4 text-zinc-400 group-hover:text-white"></i>
           <span class="text-sm font-medium">Nouveau dossier</span>
         </div>
       </div>
       <div
-        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-blue-600 hover:text-white cursor-pointer rounded-lg transition-colors group"
+        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-zinc-900 hover:text-white cursor-pointer rounded-sm transition-colors group"
         data-action="new-file"
       >
         <div class="flex items-center gap-2.5">
           <i
             data-lucide="file-plus"
-            class="w-4 h-4 text-emerald-400 group-hover:text-white"></i>
+            class="w-4 h-4 text-zinc-400 group-hover:text-white"></i>
           <span class="text-sm font-medium">Document texte</span>
         </div>
       </div>
-      <div class="h-[1px] bg-white/5 my-2 mx-1"></div>
+      <div class="h-[1px] bg-zinc-900 my-2 mx-1"></div>
       <div
-        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-blue-600 hover:text-white cursor-pointer rounded-lg transition-colors group"
+        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-zinc-900 hover:text-white cursor-pointer rounded-sm transition-colors group"
         data-action="rename"
       >
         <div class="flex items-center gap-2.5">
           <i
             data-lucide="edit-3"
-            class="w-4 h-4 text-amber-400 group-hover:text-white"></i>
+            class="w-4 h-4 text-zinc-400 group-hover:text-white"></i>
           <span class="text-sm font-medium">Renommer</span>
         </div>
       </div>
       <div
-        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-rose-600 hover:text-white cursor-pointer rounded-lg transition-colors group"
+        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-zinc-900 hover:text-rose-400 cursor-pointer rounded-sm transition-colors group"
         data-action="delete"
       >
         <div class="flex items-center gap-2.5">
           <i
             data-lucide="trash-2"
-            class="w-4 h-4 text-rose-500 group-hover:text-white"></i>
+            class="w-4 h-4 text-zinc-500 group-hover:text-rose-500"></i>
           <span class="text-sm font-medium">Supprimer</span>
         </div>
       </div>
-      <div class="h-[1px] bg-white/5 my-2 mx-1"></div>
+      <div class="h-[1px] bg-zinc-900 my-2 mx-1"></div>
       <div
-        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-blue-600 hover:text-white cursor-pointer rounded-lg transition-colors group"
+        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-zinc-900 hover:text-white cursor-pointer rounded-sm transition-colors group"
         data-action="copy"
       >
         <div class="flex items-center gap-2.5">
           <i
             data-lucide="copy"
-            class="w-4 h-4 text-slate-400 group-hover:text-white"></i>
+            class="w-4 h-4 text-zinc-400 group-hover:text-white"></i>
           <span class="text-sm font-medium">Copier</span>
         </div>
       </div>
       <div
-        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-blue-600 hover:text-white cursor-pointer rounded-lg transition-colors group"
+        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-zinc-900 hover:text-white cursor-pointer rounded-sm transition-colors group"
         data-action="paste"
       >
         <div class="flex items-center gap-2.5">
           <i
             data-lucide="clipboard-paste"
-            class="w-4 h-4 text-slate-400 group-hover:text-white"></i>
+            class="w-4 h-4 text-zinc-400 group-hover:text-white"></i>
           <span class="text-sm font-medium">Coller</span>
         </div>
       </div>
@@ -114,12 +112,13 @@ const apps = apps_raw.map((app) => ({
     <!-- Tray Menu -->
     <div
       id="tray-menu"
-      class="fixed right-6 bottom-20 z-[10001] w-72 bg-slate-900/90 backdrop-blur-3xl border border-white/10 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] hidden flex-col overflow-hidden p-6 transition-all scale-95 opacity-0"
+      class="fixed right-6 bottom-20 z-[10001] w-72 bg-slate-950/90 backdrop-blur-md border border-blue-900/50 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] hidden flex-col overflow-hidden p-6 transition-all scale-95 opacity-0"
     >
       <div class="flex flex-col gap-1 mb-6">
         <span
           id="tray-real-time"
-          class="text-5xl font-black text-white tracking-tight">00:00:00</span
+          class="text-5xl font-black text-blue-100 tracking-tight"
+          >00:00:00</span
         >
         <span
           id="tray-date"
@@ -129,20 +128,20 @@ const apps = apps_raw.map((app) => ({
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div
-          class="bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col gap-2"
+          class="bg-blue-950/30 p-4 rounded-xl border border-blue-900/50 flex flex-col gap-2"
         >
-          <i data-lucide="wifi" class="w-5 h-5 text-emerald-400"></i>
+          <i data-lucide="wifi" class="w-5 h-5 text-blue-300"></i>
           <span
-            class="text-xs font-bold text-slate-400 uppercase tracking-tighter"
+            class="text-xs font-bold text-blue-200/60 uppercase tracking-tighter"
             >Connecté</span
           >
         </div>
         <div
-          class="bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col gap-2"
+          class="bg-blue-950/30 p-4 rounded-xl border border-blue-900/50 flex flex-col gap-2"
         >
-          <i data-lucide="battery" class="w-5 h-5 text-amber-400"></i>
+          <i data-lucide="battery" class="w-5 h-5 text-blue-300"></i>
           <span
-            class="text-xs font-bold text-slate-400 uppercase tracking-tighter"
+            class="text-xs font-bold text-blue-200/60 uppercase tracking-tighter"
             >100% stable</span
           >
         </div>
@@ -152,7 +151,7 @@ const apps = apps_raw.map((app) => ({
     <!-- Selection Box -->
     <div
       id="selection-box"
-      class="fixed border border-blue-400/60 bg-blue-500/20 rounded-sm z-[9999] hidden pointer-events-none shadow-[0_0_15px_rgba(59,130,246,0.2)]"
+      class="fixed border border-white/20 bg-white/5 rounded-[1px] z-[9999] hidden pointer-events-none"
     >
     </div>
   </div>
@@ -169,62 +168,46 @@ const apps = apps_raw.map((app) => ({
     class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-auto w-full max-w-fit px-4 sm:px-0"
   >
     <div
-      class="taskbar h-14 bg-slate-900/60 backdrop-blur-3xl border border-white/10 rounded-xl flex items-center gap-1.5 px-3 shadow-[0_20px_50px_rgba(0,0,0,0.5)] mx-auto w-fit"
+      class="taskbar h-14 bg-black/95 backdrop-blur-md border border-zinc-900 rounded-lg flex items-center gap-1.5 px-3 shadow-2xl mx-auto w-fit"
     >
       <!-- Start Button -->
       <button
         id="start-btn"
-        class="w-11 h-11 flex items-center justify-center hover:bg-white/10 rounded-xl transition-all active:scale-95 group mr-1 relative overflow-hidden border border-white/10 bg-gradient-to-br from-slate-800 to-slate-900 shadow-xl p-1"
+        class="w-10 h-10 flex items-center justify-center hover:bg-zinc-900/80 rounded transition-colors active:scale-95 group mr-1 relative overflow-hidden border border-zinc-900 bg-zinc-950 shadow-sm"
       >
-        <div
-          class="absolute inset-0 bg-gradient-to-tr from-blue-500/30 to-purple-500/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        >
-        </div>
-        <img
-          src={`${import.meta.env.BASE_URL}/os-logo.png`}
-          alt="Logo"
-          class="w-7 h-7 relative z-10 brightness-200"
-        />
+        <i data-lucide="terminal" class="w-4 h-4 text-zinc-300"></i>
       </button>
 
-      <div class="h-7 w-[1px] bg-white/10 mx-0.5"></div>
+      <div class="h-6 w-[1px] bg-zinc-800 mx-1"></div>
 
       <!-- Dock Apps -->
       <div class="flex items-center gap-1.5" id="taskbar-apps">
         {
           apps.map((app) => (
             <button
-              class="app-btn w-11 h-11 flex items-center justify-center hover:bg-white/10 rounded-xl transition-all active:scale-95 group relative border border-transparent hover:border-white/10"
+              class="app-btn w-10 h-10 flex items-center justify-center hover:bg-zinc-900/80 rounded transition-colors active:scale-95 group relative border border-transparent hover:border-zinc-800"
               title={app.title}
               data-dock-id={app.id}
             >
-              <div class="relative w-7 h-7 flex items-center justify-center">
-                {app.icon_path ? (
-                  <img
-                    src={`${import.meta.env.BASE_URL}${app.icon_path}`}
-                    alt=""
-                    class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
-                  />
-                ) : (
-                  <i
-                    data-lucide={app.lucide_icon}
-                    class={`w-full h-full text-white/60 group-hover:${app.color || "text-white"} transition-all duration-300 group-hover:scale-110`}
-                  />
-                )}
+              <div class="relative w-5 h-5 flex items-center justify-center">
+                <i
+                  data-lucide={app.lucide_icon}
+                  class={`w-full h-full text-zinc-500 group-hover:text-zinc-200 transition-all duration-300`}
+                />
               </div>
 
-              <div class="indicator absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-blue-500 rounded-full opacity-0 scale-50 transition-all duration-500 shadow-[0_0_12px_rgba(59,130,246,1)] z-10" />
+              <div class="indicator absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full opacity-0 scale-50 transition-all duration-300 shadow-[0_0_8px_rgba(255,255,255,0.8)] z-10" />
             </button>
           ))
         }
       </div>
 
-      <div class="h-7 w-[1px] bg-white/10 mx-1"></div>
+      <div class="h-6 w-[1px] bg-zinc-800 mx-1"></div>
 
       <!-- Clock Tray -->
       <button
         id="clock-btn"
-        class="flex items-center gap-3 px-3 font-bold text-[13px] text-white/90 select-none min-w-[50px] justify-center bg-white/5 rounded-xl border border-white/5 h-10 hover:bg-white/10 active:scale-95 transition-all"
+        class="flex items-center gap-2 px-3 font-semibold text-[12px] text-zinc-400 select-none min-w-[50px] justify-center bg-zinc-950 rounded border border-zinc-900 h-9 hover:bg-zinc-900 hover:text-white hover:border-zinc-800 active:scale-95 transition-colors"
       >
         <span id="taskbar-time">00:00</span>
       </button>
@@ -285,11 +268,11 @@ const apps = apps_raw.map((app) => ({
     class ContextMenu {
       constructor() {
         this.menu = document.getElementById("context-menu");
-        this.surface = document.getElementById("desktop-surface");
+        this.container = document.getElementById("desktop-icons-container");
         this.init();
       }
       init() {
-        this.surface.oncontextmenu = (e) => {
+        this.container.oncontextmenu = (e) => {
           if (state.isMobile) return;
           e.preventDefault();
           const icon = e.target.closest(".desktop-icon");
@@ -384,9 +367,9 @@ const apps = apps_raw.map((app) => ({
 
       init() {
         this.render();
-        const surface = document.getElementById("desktop-surface");
-        surface.onmousedown = (e) => {
-          if (state.isMobile || e.button !== 0 || e.target !== surface) return;
+        this.container.onmousedown = (e) => {
+          if (state.isMobile || e.button !== 0 || e.target !== this.container)
+            return;
           this.startSelection(e);
         };
         document.onmousemove = (e) => {
@@ -407,7 +390,7 @@ const apps = apps_raw.map((app) => ({
           const icon = document.createElement("div");
           icon.dataset.appId = item.id;
           icon.className =
-            "desktop-icon relative sm:absolute flex flex-col items-center gap-1 p-2 rounded-xl transition-all sm:w-[90px] cursor-pointer hover:bg-white/10 group select-none active:scale-95 border border-transparent hover:border-white/5 active:bg-white/20";
+            "desktop-icon relative sm:absolute flex flex-col items-center gap-1 p-2 rounded-sm transition-all sm:w-[80px] cursor-pointer hover:bg-zinc-900/50 group select-none active:scale-95 border border-transparent hover:border-zinc-800 active:bg-zinc-900";
 
           if (!state.isMobile) {
             const col = Math.floor(index / rows);
@@ -418,25 +401,15 @@ const apps = apps_raw.map((app) => ({
 
           const iconInner = document.createElement("div");
           iconInner.className =
-            "w-14 h-14 rounded-xl flex items-center justify-center bg-gradient-to-br from-slate-800/80 to-slate-900/80 shadow-2xl border border-white/10 group-hover:border-blue-500/50 group-hover:scale-110 transition-all duration-300 text-white relative overflow-hidden backdrop-blur-sm";
+            "w-10 h-10 rounded flex items-center justify-center bg-black shadow border border-zinc-900 group-hover:border-zinc-700 group-hover:bg-zinc-900 transition-all duration-300 text-zinc-500 group-hover:text-zinc-200 relative overflow-hidden backdrop-blur-md";
 
-          let iconHtml = "";
-          const iconPath =
-            item.icon?.startsWith("/") || item.icon?.startsWith("http")
-              ? item.icon
-              : null;
-          const lucideIcon = !iconPath ? item.icon : null;
-
-          if (iconPath) {
-            iconHtml = `<img src="${state.baseUrl}${iconPath}" class="w-9 h-9 object-contain pointer-events-none" />`;
-          } else {
-            iconHtml = `<i data-lucide="${lucideIcon || "file"}" class="w-7 h-7 ${item.color || "text-white"}"></i>`;
-          }
-          iconInner.innerHTML = `<div class="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>${iconHtml}`;
+          const lucideIcon = item.icon.startsWith("/") ? "cloud" : item.icon;
+          let iconHtml = `<i data-lucide="${lucideIcon}" class="w-5 h-5"></i>`;
+          iconInner.innerHTML = `${iconHtml}`;
 
           const label = document.createElement("span");
           label.className =
-            "text-[11px] font-semibold text-white/90 drop-shadow-lg text-center leading-tight bg-black/50 px-2.5 py-1 rounded-full backdrop-blur-md group-hover:bg-blue-600 transition-all border border-white/10 group-hover:border-blue-400/50 truncate w-full shadow-lg";
+            "text-[10px] font-medium text-zinc-400 text-center leading-tight bg-black px-2.5 py-1 rounded transition-colors border border-transparent group-hover:bg-zinc-900 group-hover:border-zinc-700 group-hover:text-white truncate w-full shadow-sm";
           label.textContent = item.title;
 
           icon.appendChild(iconInner);
@@ -462,9 +435,9 @@ const apps = apps_raw.map((app) => ({
         this.container
           .querySelectorAll(".desktop-icon")
           .forEach((i) =>
-            i.classList.remove("bg-white/20", "border-white/30", "selected"),
+            i.classList.remove("bg-zinc-900/60", "border-zinc-800", "selected"),
           );
-        icon.classList.add("bg-white/20", "border-white/30", "selected");
+        icon.classList.add("bg-zinc-900/60", "border-zinc-800", "selected");
       }
 
       addItem(type) {
@@ -578,7 +551,7 @@ const apps = apps_raw.map((app) => ({
         this.container
           .querySelectorAll(".desktop-icon")
           .forEach((i) =>
-            i.classList.remove("bg-white/20", "border-white/30", "selected"),
+            i.classList.remove("bg-zinc-900/60", "border-zinc-800", "selected"),
           );
       }
 
@@ -602,9 +575,13 @@ const apps = apps_raw.map((app) => ({
             t < rect.bottom &&
             t + h > rect.top
           ) {
-            icon.classList.add("bg-white/20", "border-white/30", "selected");
+            icon.classList.add("bg-zinc-900/60", "border-zinc-800", "selected");
           } else {
-            icon.classList.remove("bg-white/20", "border-white/30", "selected");
+            icon.classList.remove(
+              "bg-zinc-900/60",
+              "border-zinc-800",
+              "selected",
+            );
           }
         });
       }
@@ -637,7 +614,7 @@ const apps = apps_raw.map((app) => ({
         if (!app) return;
         const win = document.createElement("div");
         win.className =
-          "window absolute bg-slate-900/95 backdrop-blur-3xl flex flex-col overflow-hidden transition-all duration-300 pointer-events-auto border border-white/10 shadow-[0_30px_100px_rgba(0,0,0,0.6)] rounded-xl opacity-0 scale-95";
+          "window absolute bg-black/95 backdrop-blur-md flex flex-col overflow-hidden transition-all duration-300 pointer-events-auto border border-zinc-900 shadow-[0_30px_100px_rgba(0,0,0,1)] rounded-sm opacity-0 scale-95";
         win.id = `win-${id}`;
         win.style.zIndex = ++this.zIndex;
 
@@ -700,6 +677,18 @@ const apps = apps_raw.map((app) => ({
             if (response.ok) {
               const html = await response.text();
               win.querySelector(".window-content").innerHTML = html;
+
+              // Evluate innerHTML scripts
+              const scripts = win
+                .querySelector(".window-content")
+                .querySelectorAll("script");
+              scripts.forEach((oldScript) => {
+                const newScript = document.createElement("script");
+                if (oldScript.src) newScript.src = oldScript.src;
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+              });
+
               if (window.lucide) window.lucide.createIcons();
             } else {
               win.querySelector(".window-content").innerHTML =

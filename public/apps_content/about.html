@@ -1,23 +1,70 @@
-<div
-  class="p-10 h-full overflow-y-auto text-slate-200 flex flex-col items-center justify-center text-center bg-[#0d1117] selection:bg-blue-500/30"
->
-  <div
-    class="w-24 h-24 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-5xl font-black text-white shadow-2xl mb-8 transform hover:scale-105 transition-transform duration-500"
-  >
-    S
-  </div>
-  <h1 class="text-4xl font-black text-white mb-2 tracking-tight">ShadowOS 3</h1>
-  <p class="text-blue-400 font-bold mb-10 text-lg">
-    Système d'Exploitation Virtuel inspiré de linux et python
-  </p>
-  <div
-    class="bg-slate-900/50 p-6 rounded-xl border border-white/10 max-w-sm text-left font-mono text-sm backdrop-blur-md"
-  >
-    <p><span class="text-blue-400">OS</span>: ShadowOS 3.1.0</p>
-    <p>
-      <span class="text-blue-400">Smeax</span>:
-      <span class="text-green-400">"Online"</span>
+<div class="h-full flex flex-col bg-[#121212] text-white font-sans overflow-y-auto" id="about-app-container">
+  
+  <div class="flex-1 flex flex-col items-center justify-center p-12 text-center relative z-10">
+    <!-- OS Logo Area -->
+    <div class="relative w-32 h-32 mb-8 select-none flex items-center justify-center">
+      <div class="absolute inset-0 bg-zinc-800 rounded-2xl rotate-3 opacity-20"></div>
+      <div class="absolute inset-0 bg-zinc-900 rounded-2xl -rotate-3 border border-zinc-800 flex items-center justify-center shadow-2xl overflow-hidden backdrop-blur-md">
+        <img id="about-os-logo" alt="ShadowOS Logo" class="w-16 h-16 object-contain drop-shadow-md">
+      </div>
+    </div>
+
+    <!-- Title and Subtitle -->
+    <h1 class="text-5xl font-black tracking-tighter mb-2 text-transparent bg-clip-text bg-gradient-to-br from-white to-zinc-500">
+      ShadowOS
+    </h1>
+    <div class="text-sm font-bold tracking-widest uppercase text-zinc-500 mb-10 px-4 py-1 border border-zinc-800 rounded-md bg-zinc-900/50 inline-block">
+      Version 3.2.0 (AMOLED Edition)
+    </div>
+
+    <p class="text-zinc-400 font-medium max-w-md mx-auto mb-10 text-lg leading-relaxed">
+      Un système d'exploitation virtuel conçu pour repousser les limites de l'intégration web, propulsé par Astro.
     </p>
-    <p><span class="text-blue-400">Status</span>: Ready for Dev</p>
+
+    <!-- Specs Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-4xl text-left">
+      <div class="bg-[#1a1a1a] border border-zinc-800 rounded-md p-5 hover:border-zinc-600 hover:bg-[#222] transition-colors group">
+        <i data-lucide="cpu" class="w-6 h-6 text-zinc-400 mb-3 group-hover:text-white transition-colors"></i>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1">Architecture</h3>
+        <p class="text-sm font-semibold text-white">Smeax Engine 64-bit</p>
+      </div>
+      <div class="bg-[#1a1a1a] border border-zinc-800 rounded-md p-5 hover:border-zinc-600 hover:bg-[#222] transition-colors group">
+        <i data-lucide="memory-stick" class="w-6 h-6 text-zinc-400 mb-3 group-hover:text-white transition-colors"></i>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1">Mémoire</h3>
+        <p class="text-sm font-semibold text-white">Virtuelle Illimitée</p>
+      </div>
+      <div class="bg-[#1a1a1a] border border-zinc-800 rounded-md p-5 hover:border-zinc-600 hover:bg-[#222] transition-colors group">
+        <i data-lucide="app-window" class="w-6 h-6 text-zinc-400 mb-3 group-hover:text-white transition-colors"></i>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1">Gestionnaire</h3>
+        <p class="text-sm font-semibold text-white">Shadow WM</p>
+      </div>
+      <div class="bg-[#1a1a1a] border border-zinc-800 rounded-md p-5 hover:border-zinc-600 hover:bg-[#222] transition-colors group">
+        <i data-lucide="shield-check" class="w-6 h-6 text-zinc-400 mb-3 group-hover:text-white transition-colors"></i>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1">Sécurité</h3>
+        <p class="text-sm font-semibold text-green-400">Sandbox Isolation</p>
+      </div>
+    </div>
+    
+  </div>
+  
+  <div class="py-4 text-center text-xs text-zinc-600 font-mono border-t border-zinc-900 bg-black/50">
+    © 2026 Smeax Corporation. Tous droits réservés.
   </div>
 </div>
+
+<script>
+  (function() {
+    const logoEl = document.getElementById('about-os-logo');
+    let osBaseUrl = window.location.pathname.replace(/\/$/, "");
+    if (osBaseUrl.endsWith(".html")) {
+      osBaseUrl = osBaseUrl.substring(0, osBaseUrl.lastIndexOf("/"));
+    }
+    
+    logoEl.src = `${osBaseUrl}/os-logo.png`;
+    logoEl.onerror = () => { logoEl.src = './os-logo.png'; };
+
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  })();
+</script>

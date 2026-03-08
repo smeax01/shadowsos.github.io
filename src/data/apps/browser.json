@@ -1,9 +1,8 @@
 {
   "id": "browser",
-  "title": "Navigateur",
-  "icon": "globe",
+  "title": "Recherche",
+  "icon": "search",
   "color": "text-sky-400",
-  "type": "iframe",
-  "url": "https://www.google.com/webhp?igu=1",
-  "description": "Navigateur web intégré"
+  "type": "internal",
+  "description": "Moteur de recherche Smeax"
 }

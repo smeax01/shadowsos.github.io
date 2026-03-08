@@ -1,0 +1,139 @@
+<div class="h-full flex flex-col bg-[#121212] text-white font-sans overflow-hidden" id="search-app-container">
+  
+  <!-- Navigation Top Bar -->
+  <div class="flex items-center gap-4 px-4 py-3 bg-[#181818] border-b border-zinc-800 shrink-0">
+    <button id="search-home-btn" class="p-2 hover:bg-zinc-800 rounded-full transition-colors hidden text-zinc-400 hover:text-white" title="Accueil">
+      <i data-lucide="home" class="w-5 h-5"></i>
+    </button>
+    <form id="search-nav-form" class="flex-1 flex hidden">
+      <div class="flex items-center bg-[#2b2b2b] rounded-md px-4 py-1.5 w-full max-w-2xl border border-transparent focus-within:border-zinc-700 transition-colors">
+        <i data-lucide="search" class="w-4 h-4 text-zinc-400 mr-2"></i>
+        <input type="text" id="search-nav-input" placeholder="Rechercher..." class="bg-transparent border-none outline-none text-white w-full text-sm" autocomplete="off">
+        <button type="submit" class="hidden"></button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Main Search Home -->
+  <div id="search-home-view" class="flex-1 flex flex-col items-center justify-center p-8 overflow-y-auto">
+    <!-- Custom Logo from /search-logo.png -->
+    <div class="mb-8 select-none">
+      <img id="custom-search-logo" alt="Search Logo" class="h-24 object-contain pointer-events-none drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+    </div>
+
+    <!-- Search Bar -->
+    <form id="search-main-form" class="w-full max-w-xl flex flex-col items-center gap-6">
+      <div class="w-full relative group">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <i data-lucide="search" class="w-5 h-5 text-zinc-400 group-focus-within:text-white transition-colors"></i>
+        </div>
+        <input 
+          type="text" 
+          id="search-main-input" 
+          class="w-full bg-[#1e1e1e] border border-zinc-700 text-white rounded-md py-3.5 pl-12 pr-4 shadow-[0_4px_12px_rgba(0,0,0,0.5)] focus:outline-none focus:border-zinc-500 focus:bg-[#252525] focus:shadow-[0_4px_20px_rgba(0,0,0,0.8)] transition-all text-lg"
+          placeholder="Effectuer une recherche..."
+          autocomplete="off"
+          autofocus
+        >
+      </div>
+      <div class="flex gap-4">
+        <button type="submit" class="px-6 py-2.5 bg-[#2b2b2b] hover:bg-[#3b3b3b] border border-[#2b2b2b] hover:border-zinc-600 rounded-md text-sm font-medium transition-colors">
+          Recherche Google
+        </button>
+        <button type="button" class="px-6 py-2.5 bg-[#2b2b2b] hover:bg-[#3b3b3b] border border-[#2b2b2b] hover:border-zinc-600 rounded-md text-sm font-medium transition-colors">
+          J'ai de la chance
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Results View (Iframe) -->
+  <div id="search-results-view" class="flex-1 w-full hidden relative bg-[#121212]">
+    <!-- Using Google with igu=1 allowing iframe embedding, and CSS filter to fake Dark Mode -->
+    <iframe id="search-iframe" src="" class="absolute inset-0 w-full h-full border-none bg-white" style="filter: invert(1) hue-rotate(180deg); color-scheme: light;"></iframe>
+    <div id="search-loading" class="absolute inset-0 bg-[#121212] flex flex-col items-center justify-center gap-4 hidden z-10">
+       <div class="w-8 h-8 rounded-full border-t-2 border-r-2 border-transparent border-t-white animate-spin"></div>
+       <span class="text-zinc-400 font-mono text-sm">Récupération des résultats...</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  (function() {
+    const homeView = document.getElementById('search-home-view');
+    const resultsView = document.getElementById('search-results-view');
+    const mainForm = document.getElementById('search-main-form');
+    const mainInput = document.getElementById('search-main-input');
+    const navForm = document.getElementById('search-nav-form');
+    const navInput = document.getElementById('search-nav-input');
+    const homeBtn = document.getElementById('search-home-btn');
+    const iframe = document.getElementById('search-iframe');
+    const loading = document.getElementById('search-loading');
+    const customLogo = document.getElementById('custom-search-logo');
+
+    // Dynamically calculate the baseUrl according to wherever the OS is deployed
+    let osBaseUrl = window.location.pathname.replace(/\/$/, "");
+    if (osBaseUrl.endsWith(".html")) {
+      osBaseUrl = osBaseUrl.substring(0, osBaseUrl.lastIndexOf("/"));
+    }
+    
+    customLogo.src = `${osBaseUrl}/search-logo.png`;
+    customLogo.onerror = () => { customLogo.src = `${osBaseUrl}/os-logo.png`; };
+
+    function performSearch(query) {
+      if (!query.trim()) return;
+      
+      // Update Inputs
+      mainInput.value = query;
+      navInput.value = query;
+
+      // Switch View
+      homeView.classList.add('hidden');
+      resultsView.classList.remove('hidden');
+      navForm.classList.remove('hidden');
+      homeBtn.classList.remove('hidden');
+
+      // Load Iframe
+      loading.classList.remove('hidden');
+      iframe.classList.add('opacity-0');
+      
+      // Using google search iframe hack
+      iframe.src = `https://www.google.com/search?q=${encodeURIComponent(query)}&igu=1`;
+
+      iframe.onload = () => {
+         loading.classList.add('hidden');
+         iframe.classList.remove('opacity-0');
+      };
+    }
+
+    function goHome() {
+      mainInput.value = '';
+      navInput.value = '';
+      iframe.src = 'about:blank';
+      
+      homeView.classList.remove('hidden');
+      resultsView.classList.add('hidden');
+      navForm.classList.add('hidden');
+      homeBtn.classList.add('hidden');
+      
+      mainInput.focus();
+    }
+
+    mainForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      performSearch(mainInput.value);
+    });
+
+    navForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      performSearch(navInput.value);
+    });
+
+    homeBtn.addEventListener('click', goHome);
+
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  })();
+</script>
