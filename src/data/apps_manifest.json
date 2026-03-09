@@ -24,6 +24,14 @@
     "description": "Mes réalisations"
   },
   {
+    "id": "explorer",
+    "title": "Explorateur",
+    "icon": "folder",
+    "color": "text-amber-400",
+    "type": "internal",
+    "description": "Explorateur de fichiers"
+  },
+  {
     "id": "settings",
     "title": "Paramètres",
     "icon": "settings",
@@ -55,5 +63,32 @@
     "color": "text-blue-500",
     "type": "internal",
     "description": "Mini IDE natif"
+  },
+  {
+    "id": "editor",
+    "title": "Bloc-notes",
+    "icon": "file-text",
+    "color": "text-zinc-200",
+    "type": "internal",
+    "description": "Editeur de texte",
+    "hidden": true
+  },
+  {
+    "id": "viewer",
+    "title": "Images",
+    "icon": "image",
+    "color": "text-rose-400",
+    "type": "internal",
+    "description": "Visionneuse",
+    "hidden": true
+  },
+  {
+    "id": "video",
+    "title": "Vidéos",
+    "icon": "film",
+    "color": "text-purple-400",
+    "type": "internal",
+    "description": "Lecteur Vidéo",
+    "hidden": true
   }
 ]

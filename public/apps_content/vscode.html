@@ -1,303 +1,311 @@
-<div class="h-full flex flex-col bg-[#0a0a0a] text-zinc-300 font-sans overflow-hidden select-none border-t border-zinc-900" id="ide-app-container">
+<div class="h-full flex flex-col bg-[#0d0d0d] text-zinc-300 font-sans overflow-hidden select-none" id="ide-app-${__winId}">
   
   <!-- Top Bar -->
-  <div class="h-9 bg-[#141414] border-b border-zinc-800/80 flex items-center px-4 shrink-0 flex-none z-10 relative">
-    <div class="flex gap-4 text-xs font-semibold text-zinc-400">
-      <span class="hover:text-white cursor-pointer transition-colors">Fichier</span>
-      <span class="hover:text-white cursor-pointer transition-colors">Édition</span>
-      <span class="hover:text-white cursor-pointer transition-colors">Sélection</span>
-      <span class="hover:text-white cursor-pointer transition-colors">Affichage</span>
-      <span class="hover:text-white cursor-pointer transition-colors">Aide</span>
+  <div class="h-9 bg-[#1a1a1a] border-b border-zinc-800/50 flex items-center px-4 shrink-0 z-20">
+    <div class="flex gap-4 text-[11px] font-medium text-zinc-400">
+      <div class="relative group">
+        <span class="hover:text-white cursor-pointer px-1 py-2">Fichier</span>
+        <div class="absolute left-0 top-full mt-0 w-48 bg-[#1e1e1e] border border-zinc-800 py-1 shadow-2xl hidden group-hover:block z-50 rounded-sm">
+          <div class="px-3 py-1.5 hover:bg-blue-600 hover:text-white cursor-pointer flex items-center justify-between" id="menu-new-file-${__winId}">
+            <span>Nouveau Fichier</span>
+            <span class="opacity-50 text-[9px]">Ctrl+N</span>
+          </div>
+          <div class="px-3 py-1.5 hover:bg-blue-600 hover:text-white cursor-pointer flex items-center justify-between" id="menu-new-folder-${__winId}">
+            <span>Nouveau Dossier</span>
+          </div>
+          <div class="h-[1px] bg-zinc-800 my-1"></div>
+          <div class="px-3 py-1.5 hover:bg-blue-600 hover:text-white cursor-pointer flex items-center justify-between" id="menu-save-${__winId}">
+            <span>Enregistrer</span>
+            <span class="opacity-50 text-[9px]">Ctrl+S</span>
+          </div>
+          <div class="h-[1px] bg-zinc-800 my-1"></div>
+          <div class="px-3 py-1.5 hover:bg-rose-600 hover:text-white cursor-pointer" onclick="window.wm.closeWindow('${__winId}')">
+            <span>Fermer l'Éditeur</span>
+          </div>
+        </div>
+      </div>
+      <span class="hover:text-white cursor-pointer px-1 py-2 opacity-50">Édition</span>
+      <span class="hover:text-white cursor-pointer px-1 py-2 opacity-50">Sélection</span>
+      <span class="hover:text-white cursor-pointer px-1 py-2 opacity-50">Affichage</span>
     </div>
-    <div class="ml-auto text-[10px] uppercase font-bold text-zinc-600 tracking-widest hidden sm:block" id="ide-status">
-      Smeax Code Engine
+    <div class="ml-auto flex items-center gap-3">
+        <button id="ide-run-${__winId}" class="flex items-center gap-1.5 px-3 py-1 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 rounded text-[10px] font-bold uppercase tracking-wider transition-all border border-emerald-500/20">
+            <i data-lucide="play" class="w-3 h-3"></i> Exécuter
+        </button>
     </div>
   </div>
 
-  <div class="flex flex-1 overflow-hidden relative">
+  <div class="flex flex-1 overflow-hidden">
     
-    <!-- Activity Bar (Left icon strip) -->
-    <div class="w-[50px] bg-[#111111] border-r border-zinc-900 flex flex-col items-center py-4 gap-6 shrink-0 z-10">
-      <div class="cursor-pointer text-white relative group" title="Explorateur">
-        <i data-lucide="files" class="w-6 h-6 mx-auto"></i>
-        <div class="absolute inset-y-0 left-0 w-0.5 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
-      </div>
-      <div class="cursor-pointer text-zinc-600 hover:text-white transition-colors" title="Recherche">
-        <i data-lucide="search" class="w-6 h-6 mx-auto"></i>
-      </div>
-      <div class="cursor-pointer text-zinc-600 hover:text-white transition-colors" title="Contrôle de code source">
-        <i data-lucide="git-branch" class="w-6 h-6 mx-auto"></i>
-      </div>
-      <div class="cursor-pointer text-zinc-600 hover:text-white transition-colors" title="Débogage">
-        <i data-lucide="bug" class="w-6 h-6 mx-auto"></i>
-      </div>
-      <div class="cursor-pointer text-zinc-600 hover:text-white transition-colors" title="Extensions">
-        <i data-lucide="blocks" class="w-6 h-6 mx-auto"></i>
-      </div>
-      <div class="mt-auto cursor-pointer text-zinc-600 hover:text-white transition-colors" title="Paramètres">
-        <i data-lucide="settings" class="w-6 h-6 mx-auto"></i>
-      </div>
-    </div>
-
     <!-- Sidebar Explorer -->
-    <div class="w-60 bg-[#161616] border-r border-zinc-900 flex flex-col shrink-0 shadow-lg relative z-0">
-      <div class="h-9 flex items-center px-4 text-[11px] font-bold tracking-widest text-zinc-400 uppercase">
+    <div class="w-64 bg-[#111111] border-r border-zinc-900 flex flex-col shrink-0 overflow-hidden">
+      <div class="h-9 flex items-center justify-between px-4 text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase border-b border-zinc-900">
         Explorateur
+        <div class="flex gap-2">
+            <i data-lucide="file-plus" class="w-3.5 h-3.5 hover:text-white cursor-pointer" id="side-new-file-${__winId}"></i>
+            <i data-lucide="folder-plus" class="w-3.5 h-3.5 hover:text-white cursor-pointer" id="side-new-folder-${__winId}"></i>
+        </div>
       </div>
       
-      <!-- Project Folder Name -->
-      <div class="flex items-center justify-between px-2 py-1.5 cursor-pointer hover:bg-zinc-800/80 group">
-        <div class="flex items-center gap-1.5 font-bold text-xs text-zinc-300 uppercase tracking-wider">
-          <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-500"></i>
-          SHADOW_PROJECT
-        </div>
-        <div class="flex gap-2 pr-2">
-          <i data-lucide="file-plus" class="w-4 h-4 text-zinc-500 hover:text-white transition-colors" id="ide-new-file" title="Nouveau Fichier"></i>
-        </div>
-      </div>
-
-      <!-- File List -->
-      <div id="ide-file-list" class="flex-1 overflow-y-auto w-full pb-4">
+      <div id="ide-file-list-${__winId}" class="flex-1 overflow-y-auto py-2">
         <!-- Rendered by JS -->
       </div>
     </div>
 
-    <!-- Main Editor -->
-    <div class="flex-1 flex flex-col bg-[#0a0a0a] overflow-hidden relative shadow-inner">
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col bg-[#050505] overflow-hidden">
       <!-- Tabs -->
-      <div class="h-9 bg-[#141414] flex items-center overflow-x-auto shrink-0 border-b border-zinc-900 shadow-sm" id="ide-tabs-container">
+      <div class="h-9 bg-[#111111] flex items-center overflow-x-auto shrink-0 border-b border-zinc-900" id="ide-tabs-${__winId}">
          <!-- Tabs rendered by JS -->
       </div>
       
-      <!-- Text Area (Code editor) -->
-      <div class="flex-1 relative flex font-mono" id="ide-editor-wrapper">
-         <!-- Line Numbers -->
-         <div class="w-12 bg-[#0e0e0e] border-r border-zinc-900/80 flex flex-col text-right text-zinc-600 text-xs py-2 pr-3 select-none" id="ide-line-numbers">
-           1
-         </div>
-         <textarea class="flex-1 bg-transparent border-none text-zinc-300 p-2 text-sm leading-6 resize-none outline-none whitespace-pre focus:ring-0 selection:bg-blue-500/30" id="ide-editor" spellcheck="false" wrap="off"></textarea>
-         
-         <!-- Empty State -->
-         <div id="ide-empty-state" class="absolute inset-0 bg-[#0a0a0a] flex flex-col items-center justify-center text-zinc-700 hidden select-none">
-            <i data-lucide="code" class="w-20 h-20 mb-6 drop-shadow-xl text-zinc-800"></i>
-            <div class="flex gap-4 mb-4">
-               <kbd class="px-2 py-1 bg-zinc-900 border border-zinc-800 rounded text-xs font-bold text-zinc-500 shadow-inner">Ctrl + N</kbd>
-               <span class="text-xs font-medium text-zinc-500 my-auto">Nouveau Fichier</span>
-            </div>
-            <div class="flex gap-4">
-               <kbd class="px-2 py-1 bg-zinc-900 border border-zinc-800 rounded text-xs font-bold text-zinc-500 shadow-inner">Ctrl + S</kbd>
-               <span class="text-xs font-medium text-zinc-500 my-auto">Sauvegarder</span>
-            </div>
-         </div>
-      </div>
-    </div>
-  </div>
+      <!-- Editor Area -->
+      <div class="flex-1 flex flex-col overflow-hidden relative">
+          <div class="flex-1 flex font-mono text-[13px] leading-relaxed relative" id="ide-editor-container-${__winId}">
+             <div class="w-12 bg-[#0d0d0d] border-r border-zinc-900 text-right text-zinc-600 py-4 pr-3 select-none flex flex-col gap-0.5 shrink-0 overflow-hidden" id="ide-gutters-${__winId}">
+               1
+             </div>
+             <textarea class="flex-1 bg-transparent border-none text-zinc-300 p-4 resize-none outline-none whitespace-pre focus:ring-0 selection:bg-blue-500/30 overflow-auto" id="ide-editor-${__winId}" spellcheck="false" wrap="off"></textarea>
+             
+             <!-- Empty State -->
+             <div id="ide-empty-${__winId}" class="absolute inset-0 bg-[#050505] flex flex-col items-center justify-center text-zinc-800 hidden">
+                <i data-lucide="code-2" class="w-16 h-16 mb-4 opacity-10"></i>
+                <span class="text-xs font-semibold tracking-widest text-zinc-600 uppercase">Aucun fichier ouvert</span>
+             </div>
+          </div>
 
-  <!-- Bottom StatusBar -->
-  <div class="h-6 bg-[#007acc] flex items-center px-3 justify-between text-[11px] text-white font-medium flex-none shrink-0 z-10 w-full relative shadow-[0_-2px_10px_rgba(0,122,204,0.2)]">
-    <div class="flex items-center gap-4">
-      <span class="flex items-center gap-1.5 cursor-pointer hover:bg-white/20 px-1.5 py-0.5 rounded transition-colors" title="Branche courante"><i data-lucide="git-branch" class="w-3.5 h-3.5"></i> main*</span>
-      <span class="flex items-center gap-1.5 cursor-pointer hover:bg-white/20 px-1.5 py-0.5 rounded transition-colors" title="Aucun problème"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> 0</span>
-    </div>
-    <div class="flex items-center gap-4">
-      <span class="cursor-pointer hover:bg-white/20 px-1.5 py-0.5 rounded transition-colors" id="ide-cursor-pos">Ln 1, Col 1</span>
-      <span class="cursor-pointer hover:bg-white/20 px-1.5 py-0.5 rounded transition-colors">Espaces: 2</span>
-      <span class="cursor-pointer hover:bg-white/20 px-1.5 py-0.5 rounded transition-colors text-white/80">UTF-8</span>
-      <span class="cursor-pointer hover:bg-white/20 px-1.5 py-0.5 rounded transition-colors font-bold text-white uppercase" id="ide-file-type">TEXTE</span>
+          <!-- Execution Panel (Hidden by default) -->
+          <div id="ide-output-panel-${__winId}" class="h-40 bg-[#0a0a0a] border-t border-zinc-800 flex flex-col hidden">
+              <div class="h-7 bg-[#141414] px-4 flex items-center justify-between border-b border-zinc-900">
+                  <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Sortie / Console</span>
+                  <button class="text-zinc-600 hover:text-white" id="ide-close-out-${__winId}"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+              </div>
+              <div id="ide-output-content-${__winId}" class="flex-1 overflow-y-auto p-3 font-mono text-xs text-zinc-400 whitespace-pre-wrap"></div>
+          </div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
   (function() {
-    const defaultFiles = [
-      { id: 'f1', name: 'index.astro', lang: 'ASTRO', content: '---\n// ShadowOS Core Kernel\nconst kernel_version = "3.2.0";\nconsole.log(`Booting ${kernel_version}`);\n---\n\n<html lang="fr">\n  <head><title>Kernel Boot</title></head>\n  <body class="bg-black text-white">\n    <h1>System Ready.</h1>\n  </body>\n</html>' },
-      { id: 'f2', name: 'main.js', lang: 'JAVASCRIPT', content: 'function bootOS() {\n  console.log("Loading modules...");\n  window.osMenu = new Menu();\n  window.osDock = new Dock();\n}\n\nbootOS();' },
-      { id: 'f3', name: 'globals.css', lang: 'CSS', content: 'body {\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n  background-color: #000;\n  color: #fff;\n}\n\n.window {\n  box-shadow: 0 10px 30px rgba(0,0,0,0.8);\n}' },
-    ];
-
-    let files = [...defaultFiles];
-    let activeFileId = 'f1';
-
-    const fileListEl = document.getElementById('ide-file-list');
-    const tabsContainer = document.getElementById('ide-tabs-container');
-    const editorEl = document.getElementById('ide-editor');
-    const lineNumbersEl = document.getElementById('ide-line-numbers');
-    const emptyStateEl = document.getElementById('ide-empty-state');
-    const newFileBtn = document.getElementById('ide-new-file');
-    const cursorPosEl = document.getElementById('ide-cursor-pos');
-    const fileTypeEl = document.getElementById('ide-file-type');
-
-    function getExt(name) {
-       const parts = name.split('.');
-       return parts.length > 1 ? parts.pop().toLowerCase() : 'txt';
-    }
+    const root = document.getElementById(`ide-app-${__winId}`);
+    const fileListEl = document.getElementById(`ide-file-list-${__winId}`);
+    const tabsEl = document.getElementById(`ide-tabs-${__winId}`);
+    const editorEl = document.getElementById(`ide-editor-${__winId}`);
+    const guttersEl = document.getElementById(`ide-gutters-${__winId}`);
+    const emptyEl = document.getElementById(`ide-empty-${__winId}`);
+    const runBtn = document.getElementById(`ide-run-${__winId}`);
+    const outPanel = document.getElementById(`ide-output-panel-${__winId}`);
+    const outContent = document.getElementById(`ide-output-content-${__winId}`);
     
-    function getLangFromExt(ext) {
-       const map = { js:'JAVASCRIPT', ts:'TYPESCRIPT', astro:'ASTRO', css:'CSS', html:'HTML', json:'JSON' };
-       return map[ext] || 'TEXTE';
+    let activeFileId = null;
+    let openFiles = [];
+    let currentFolderId = __contextId || 'documents';
+
+    function initIDE() {
+      if (!window.vfs) {
+        setTimeout(initIDE, 100);
+        return;
+      }
+      renderExplorer();
+      
+      // Setup listeners (avoid onclick attribute)
+      document.getElementById(`side-new-file-${__winId}`).onclick = promptNewFile;
+      document.getElementById(`side-new-folder-${__winId}`).onclick = promptNewFolder;
+      document.getElementById(`menu-new-file-${__winId}`).onclick = promptNewFile;
+      document.getElementById(`menu-new-folder-${__winId}`).onclick = promptNewFolder;
+      document.getElementById(`menu-save-${__winId}`).onclick = saveCurrent;
+      document.getElementById(`ide-close-out-${__winId}`).onclick = () => outPanel.classList.add('hidden');
+      
+      // Keybinds
+      root.addEventListener('keydown', (e) => {
+          if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveCurrent(); }
+          if (e.ctrlKey && e.key === 'n') { e.preventDefault(); promptNewFile(); }
+      });
     }
 
-    function getIconFromExt(ext) {
-       const map = { js:'file-json-2', ts:'file-json-2', astro:'file-code', css:'file-type', html:'layout', json:'braces' };
-       return map[ext] || 'file-text';
-    }
+    function renderExplorer() {
+      const children = window.vfs.getChildren(currentFolderId);
+      const parent = window.vfs.getItem(currentFolderId);
+      
+      let html = '';
+      if (parent && parent.parentId) {
+          html += `
+            <div class="flex items-center gap-2 px-4 py-1 hover:bg-zinc-800/40 cursor-pointer text-zinc-500 italic mb-1 navigate-up">
+                <i data-lucide="arrow-up-left" class="w-3.5 h-3.5"></i>
+                <span class="text-xs">..</span>
+            </div>
+          `;
+      }
 
-    function getIconColor(ext) {
-       const map = { js:'text-yellow-400', astro:'text-orange-500', css:'text-blue-400', html:'text-rose-400', json:'text-green-400' };
-       return map[ext] || 'text-zinc-400';
-    }
-
-    function updateLineNumbers() {
-       const lines = editorEl.value.split('\n').length;
-       let html = '';
-       for(let i=1; i<=lines; i++) {
-          html += `<div>${i}</div>`;
-       }
-       lineNumbersEl.innerHTML = html;
-    }
-
-    function updateCursor() {
-      const pos = editorEl.selectionStart;
-      const textToCursor = editorEl.value.substring(0, pos);
-      const lines = textToCursor.split('\n');
-      const currentLineIndex = lines.length;
-      const currentCharIndex = lines[lines.length - 1].length + 1;
-      cursorPosEl.textContent = `Ln ${currentLineIndex}, Col ${currentCharIndex}`;
-    }
-
-    function renderFiles() {
-      fileListEl.innerHTML = files.map(f => {
-         const isActive = f.id === activeFileId;
-         const ext = getExt(f.name);
-         const icon = getIconFromExt(ext);
-         const color = getIconColor(ext);
-         
-         return `
-          <div class="flex items-center gap-2 px-6 py-1 cursor-pointer transition-colors group ${isActive ? 'bg-[#1e1e1e] text-white border-l-2 border-blue-500' : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200 border-l-2 border-transparent'}" onclick="window.ideSelect('${f.id}')">
-            <i data-lucide="${icon}" class="w-3.5 h-3.5 ${color}"></i>
-            <span class="text-sm truncate select-none">${f.name}</span>
+      children.sort((a,b) => (a.type === 'folder' ? -1 : 1)).forEach(item => {
+        const icon = window.vfs.getIconForFile(item);
+        const isOpen = activeFileId === item.id;
+        html += `
+          <div class="flex items-center gap-2 px-4 py-1 hover:bg-zinc-800/40 cursor-pointer group item-row ${isOpen ? 'bg-zinc-800 text-white' : 'text-zinc-400'}" 
+               data-id="${item.id}" data-type="${item.type}">
+            <i data-lucide="${icon}" class="w-3.5 h-3.5 ${item.type === 'folder' ? 'text-amber-400' : 'text-zinc-500'}"></i>
+            <span class="text-xs truncate transition-colors">${item.name}</span>
           </div>
-         `;
-      }).join('');
-      if (window.lucide) window.lucide.createIcons();
+        `;
+      });
+      
+      fileListEl.innerHTML = html;
+      if (window.lucide) window.lucide.createIcons({ root });
+      
+      // Add event delegation
+      fileListEl.querySelectorAll('.navigate-up').forEach(el => {
+          el.onclick = () => { currentFolderId = parent.parentId; renderExplorer(); };
+      });
+      fileListEl.querySelectorAll('.item-row').forEach(el => {
+          el.onclick = () => {
+              const { id, type } = el.dataset;
+              if (type === 'folder') { currentFolderId = id; renderExplorer(); }
+              else { openFile(id); }
+          };
+      });
+    }
+
+    function openFile(id) {
+        const item = window.vfs.getItem(id);
+        if (!item || item.type !== 'file') return;
+        if (!openFiles.includes(id)) openFiles.push(id);
+        activeFileId = id;
+        renderTabs();
+        loadActiveFile();
+    }
+
+    function closeFile(id) {
+        openFiles = openFiles.filter(f => f !== id);
+        if (activeFileId === id) activeFileId = openFiles[openFiles.length - 1] || null;
+        renderTabs();
+        loadActiveFile();
     }
 
     function renderTabs() {
-      tabsContainer.innerHTML = files.map(f => {
-         const isActive = f.id === activeFileId;
-         const ext = getExt(f.name);
-         const icon = getIconFromExt(ext);
-         const color = getIconColor(ext);
-         
-         return `
-          <div class="h-full flex items-center justify-between gap-3 px-4 min-w-[120px] max-w-[200px] border-r border-zinc-900 cursor-pointer group ${isActive ? 'bg-[#0a0a0a] text-white shadow-[inset_0_2px_0_#3b82f6]' : 'bg-[#181818] text-zinc-500 hover:bg-[#1e1e1e] hover:text-zinc-300'}" onclick="window.ideSelect('${f.id}')">
-            <div class="flex items-center gap-2 truncate">
-              <i data-lucide="${icon}" class="w-3.5 h-3.5 ${isActive ? color : 'text-zinc-500 group-hover:text-zinc-400'}"></i>
-              <span class="text-xs ${isActive ? "font-semibold" : ""} truncate">${f.name}</span>
-            </div>
-            <i data-lucide="x" class="w-3.5 h-3.5 text-zinc-600 hover:bg-zinc-700 hover:text-white rounded p-0.5 opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation(); window.ideClose('${f.id}')"></i>
-          </div>
-         `;
-      }).join('');
-      
-      if (window.lucide) window.lucide.createIcons();
+        tabsEl.innerHTML = openFiles.map(id => {
+            const item = window.vfs.getItem(id);
+            const isActive = activeFileId === id;
+            return `
+                <div class="h-full flex items-center gap-2 px-3 border-r border-zinc-900 cursor-pointer group transition-all tab-item ${isActive ? 'bg-[#050505] text-white border-t-2 border-t-blue-500' : 'bg-[#111111] text-zinc-500 hover:text-zinc-300'}" 
+                     data-id="${id}">
+                    <span class="text-[11px] font-medium truncate max-w-[120px]">${item ? item.name : 'Inconnu'}</span>
+                    <i data-lucide="x" class="w-3 h-3 text-zinc-600 hover:text-white rounded-sm p-0.5 opacity-0 group-hover:opacity-100 tab-close" data-id="${id}"></i>
+                </div>
+            `;
+        }).join('');
+        if (window.lucide) window.lucide.createIcons({ root });
+        
+        tabsEl.querySelectorAll('.tab-item').forEach(el => {
+            el.onclick = () => openFile(el.dataset.id);
+        });
+        tabsEl.querySelectorAll('.tab-close').forEach(el => {
+            el.onclick = (e) => { e.stopPropagation(); closeFile(el.dataset.id); };
+        });
     }
 
-    function refreshActiveFile() {
-      if (!files.length) {
-         editorEl.style.display = 'none';
-         lineNumbersEl.style.display = 'none';
-         emptyStateEl.classList.remove('hidden');
-         fileTypeEl.textContent = 'TEXTE';
-         return;
-      }
-      editorEl.style.display = 'block';
-      lineNumbersEl.style.display = 'flex';
-      emptyStateEl.classList.add('hidden');
-
-      const file = files.find(f => f.id === activeFileId);
-      if (file) {
-        editorEl.value = file.content;
-        fileTypeEl.textContent = file.lang;
-        updateLineNumbers();
-        updateCursor();
+    function loadActiveFile() {
+        if (!activeFileId) {
+            emptyEl.classList.remove('hidden');
+            editorEl.value = '';
+            updateLines();
+            return;
+        }
+        emptyEl.classList.add('hidden');
+        const item = window.vfs.getItem(activeFileId);
+        editorEl.value = item.content || '';
+        updateLines();
         editorEl.focus();
-      }
+    }
+
+    function updateLines() {
+        const lines = editorEl.value.split('\n').length;
+        guttersEl.innerHTML = Array.from({length: lines}, (_, i) => `<div>${i+1}</div>`).join('');
+        guttersEl.scrollTop = editorEl.scrollTop;
+    }
+
+    function saveCurrent() {
+        if (activeFileId) {
+            window.vfs.updateContent(activeFileId, editorEl.value);
+            console.log("VFS: Saved " + activeFileId);
+        }
     }
 
     editorEl.addEventListener('input', () => {
-       const file = files.find(f => f.id === activeFileId);
-       if (file) {
-         file.content = editorEl.value;
-       }
-       updateLineNumbers();
-       updateCursor();
+        if (activeFileId) {
+            window.vfs.updateContent(activeFileId, editorEl.value);
+            updateLines();
+        }
     });
 
-    editorEl.addEventListener('keyup', updateCursor);
-    editorEl.addEventListener('click', updateCursor);
-    
-    // Auto scroll sync (primitive)
-    editorEl.addEventListener('scroll', () => {
-       lineNumbersEl.scrollTop = editorEl.scrollTop;
-    });
+    editorEl.addEventListener('scroll', () => { guttersEl.scrollTop = editorEl.scrollTop; });
 
-    // Handle Tab Key
     editorEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        e.preventDefault();
-        const start = editorEl.selectionStart;
-        const end = editorEl.selectionEnd;
-        editorEl.value = editorEl.value.substring(0, start) + "  " + editorEl.value.substring(end);
-        editorEl.selectionStart = editorEl.selectionEnd = start + 2;
-        editorEl.dispatchEvent(new Event('input'));
-      }
-      if (e.ctrlKey && e.key === 's') {
-         e.preventDefault(); // Simulate Save
-      }
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const start = editorEl.selectionStart;
+            editorEl.value = editorEl.value.substring(0, start) + '  ' + editorEl.value.substring(editorEl.selectionEnd);
+            editorEl.selectionStart = editorEl.selectionEnd = start + 2;
+            editorEl.dispatchEvent(new Event('input'));
+        }
     });
 
-    // API
-    window.ideSelect = (id) => {
-      activeFileId = id;
-      renderFiles();
-      renderTabs();
-      refreshActiveFile();
+    runBtn.onclick = () => {
+        if (!activeFileId) return;
+        const item = window.vfs.getItem(activeFileId);
+        const ext = item.name.split('.').pop().toLowerCase();
+        outPanel.classList.remove('hidden');
+        outContent.innerHTML = '';
+        
+        if (ext === 'html') {
+            const winId = 'preview-' + activeFileId;
+            window.wm.openWindow(winId);
+            setTimeout(() => {
+                const winEl = document.getElementById(`window-element-${winId}`);
+                if (winEl) {
+                    const content = winEl.querySelector('.window-content');
+                    content.innerHTML = `<iframe srcdoc="${item.content.replace(/"/g, '&quot;')}" class="w-full h-full bg-white"></iframe>`;
+                }
+            }, 300);
+            log("Lancement de la prévisualisation HTML...");
+        } else if (ext === 'js') {
+            log("Exécution du script via Smeax Engine...");
+            try {
+                const fakeConsole = {
+                    log: (...args) => log(args.join(' ')),
+                    error: (...args) => log('ERR: ' + args.join(' '))
+                };
+                const fn = new Function('console', item.content);
+                fn(fakeConsole);
+                log("\n--- Terminé avec succès ---");
+            } catch (err) { log('CRASH: ' + err.message); }
+        } else { log("L'exécution n'est pas supportée pour ce type de fichier (" + ext + ")"); }
     };
 
-    window.ideClose = (id) => {
-      files = files.filter(f => f.id !== id);
-      if (activeFileId === id) {
-         activeFileId = files.length ? files[files.length-1].id : null;
-      }
-      renderFiles();
-      renderTabs();
-      refreshActiveFile();
-    };
+    function log(msg) {
+        outContent.innerHTML += msg + '\n';
+        outContent.scrollTop = outContent.scrollHeight;
+    }
 
-    newFileBtn.onclick = () => {
-       const name = prompt("Nom du fichier:", "nouveau.js");
-       if (name) {
-          const id = 'f' + Date.now();
-          const ext = getExt(name);
-          files.push({ id, name, lang: getLangFromExt(ext), content: '' });
-          window.ideSelect(id);
-       }
-    };
+    function promptNewFile() {
+        const name = prompt("Nom du fichier:");
+        if (name) { 
+            const id = window.vfs.createFile(name, 'file', '', currentFolderId);
+            renderExplorer();
+            openFile(id);
+        }
+    }
 
-    // Global Keybind Shortcuts across the main window
-    document.getElementById('ide-app-container').addEventListener('keydown', (e) => {
-       if (e.ctrlKey && e.key === 'n') {
-          e.preventDefault();
-          newFileBtn.onclick();
-       }
-    });
+    function promptNewFolder() {
+        const name = prompt("Nom du dossier:");
+        if (name) { 
+            window.vfs.createFolder(name, currentFolderId);
+            renderExplorer();
+        }
+    }
 
-    // Init
-    renderFiles();
-    renderTabs();
-    refreshActiveFile();
-
+    window.addEventListener('vfs-changed', renderExplorer);
+    initIDE();
   })();
 </script>

@@ -6,7 +6,7 @@ import node from "@astrojs/node";
 // https://astro.build/config
 export default defineConfig({
   site: "https://smeax01.github.io",
-  base: "/shadowos",
+  base: "/",
   output: "static",
   vite: {
     plugins: [tailwindcss()],

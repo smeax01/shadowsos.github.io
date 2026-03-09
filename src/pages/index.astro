@@ -14,8 +14,8 @@ const apps = apps_raw.map((app) => ({
   <!-- Desktop Background -->
   <div
     id="desktop-surface"
-    class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat overflow-hidden select-none tap-highlight-transparent grayscale"
-    style={`background-image: url('${import.meta.env.BASE_URL}/wallpaper.gif');`}
+    class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat overflow-hidden select-none tap-highlight-transparent"
+    style={`background-image: url('${import.meta.env.BASE_URL}wallpaper.gif');`}
   >
     <!-- Overlay for better text readability -->
     <div class="absolute inset-0 bg-black/40 pointer-events-none"></div>
@@ -39,6 +39,18 @@ const apps = apps_raw.map((app) => ({
       id="context-menu"
       class="fixed z-[10000] w-56 bg-black/95 backdrop-blur-md border border-zinc-900 rounded-md shadow-2xl py-1.5 text-zinc-200 hidden select-none p-1"
     >
+      <div
+        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-zinc-900 hover:text-white cursor-pointer rounded-sm transition-colors group"
+        data-action="refresh"
+      >
+        <div class="flex items-center gap-2.5">
+          <i
+            data-lucide="refresh-cw"
+            class="w-4 h-4 text-zinc-400 group-hover:text-white"></i>
+          <span class="text-sm font-medium">Rafraîchir</span>
+        </div>
+      </div>
+      <div class="h-[1px] bg-zinc-900 my-1 mx-1"></div>
       <div
         class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-zinc-900 hover:text-white cursor-pointer rounded-sm transition-colors group"
         data-action="new-folder"
@@ -107,44 +119,103 @@ const apps = apps_raw.map((app) => ({
           <span class="text-sm font-medium">Coller</span>
         </div>
       </div>
+      <div class="h-[1px] bg-zinc-900 my-1 mx-1"></div>
+      <div
+        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-zinc-900 hover:text-white cursor-pointer rounded-sm transition-colors group"
+        data-action="tile"
+      >
+        <div class="flex items-center gap-2.5">
+          <i
+            data-lucide="layout-grid"
+            class="w-4 h-4 text-emerald-500 group-hover:text-emerald-400"></i>
+          <span class="text-xs font-bold uppercase tracking-tighter"
+            >Mode Tiling Auto</span
+          >
+        </div>
+      </div>
+      <div
+        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-rose-950/30 hover:text-rose-400 cursor-pointer rounded-sm transition-colors group"
+        data-action="reset-vfs"
+      >
+        <div class="flex items-center gap-2.5">
+          <i
+            data-lucide="refresh-ccw"
+            class="w-4 h-4 text-zinc-500 group-hover:text-rose-400"></i>
+          <span class="text-xs font-bold uppercase tracking-tighter"
+            >Réparer le système</span
+          >
+        </div>
+      </div>
     </div>
 
     <!-- Tray Menu -->
     <div
       id="tray-menu"
-      class="fixed right-6 bottom-20 z-[10001] w-72 bg-slate-950/90 backdrop-blur-md border border-blue-900/50 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] hidden flex-col overflow-hidden p-6 transition-all scale-95 opacity-0"
+      class="fixed right-6 bottom-24 z-[10001] w-80 bg-zinc-950/90 backdrop-blur-xl border border-white/5 rounded-3xl shadow-[0_30px_90px_rgba(0,0,0,0.8)] hidden flex-col overflow-hidden p-7 transition-all scale-95 opacity-0 ring-1 ring-white/10"
     >
-      <div class="flex flex-col gap-1 mb-6">
+      <div class="flex flex-col gap-0.5 mb-8">
         <span
           id="tray-real-time"
-          class="text-5xl font-black text-blue-100 tracking-tight"
-          >00:00:00</span
+          class="text-5xl font-light text-white tracking-tighter">00:00:00</span
         >
         <span
           id="tray-date"
-          class="text-lg font-bold text-blue-400 uppercase tracking-widest"
+          class="text-xs font-semibold text-zinc-500 uppercase tracking-[0.2em] ml-1"
           >Lundi 1 Janvier</span
         >
       </div>
-      <div class="grid grid-cols-2 gap-3">
+
+      <div class="grid grid-cols-2 gap-4">
         <div
-          class="bg-blue-950/30 p-4 rounded-xl border border-blue-900/50 flex flex-col gap-2"
+          class="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col gap-3 hover:bg-white/10 transition-colors"
         >
-          <i data-lucide="wifi" class="w-5 h-5 text-blue-300"></i>
-          <span
-            class="text-xs font-bold text-blue-200/60 uppercase tracking-tighter"
-            >Connecté</span
+          <div
+            class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center"
           >
+            <i data-lucide="wifi" class="w-4 h-4 text-blue-400"></i>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-[10px] font-bold text-zinc-500 uppercase"
+              >Réseau</span
+            >
+            <span class="text-xs font-medium text-white">Connecté</span>
+          </div>
         </div>
+
         <div
-          class="bg-blue-950/30 p-4 rounded-xl border border-blue-900/50 flex flex-col gap-2"
+          class="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col gap-3 hover:bg-white/10 transition-colors"
         >
-          <i data-lucide="battery" class="w-5 h-5 text-blue-300"></i>
-          <span
-            class="text-xs font-bold text-blue-200/60 uppercase tracking-tighter"
-            >100% stable</span
+          <div
+            class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center"
           >
+            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-[10px] font-bold text-zinc-500 uppercase"
+              >Système</span
+            >
+            <span class="text-xs font-medium text-white">Sécurisé</span>
+          </div>
         </div>
+      </div>
+
+      <div
+        class="mt-6 pt-6 border-t border-white/5 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center border border-white/5"
+          >
+            <i data-lucide="user" class="w-5 h-5 text-zinc-400"></i>
+          </div>
+          <span class="text-xs font-bold text-zinc-100">Smeax</span>
+        </div>
+        <button
+          class="p-2.5 rounded-xl hover:bg-rose-500/20 text-zinc-500 hover:text-rose-400 transition-all border border-transparent hover:border-rose-500/20"
+          title="Éteindre"
+        >
+          <i data-lucide="power" class="w-4 h-4"></i>
+        </button>
       </div>
     </div>
 
@@ -183,22 +254,24 @@ const apps = apps_raw.map((app) => ({
       <!-- Dock Apps -->
       <div class="flex items-center gap-1.5" id="taskbar-apps">
         {
-          apps.map((app) => (
-            <button
-              class="app-btn w-10 h-10 flex items-center justify-center hover:bg-zinc-900/80 rounded transition-colors active:scale-95 group relative border border-transparent hover:border-zinc-800"
-              title={app.title}
-              data-dock-id={app.id}
-            >
-              <div class="relative w-5 h-5 flex items-center justify-center">
-                <i
-                  data-lucide={app.lucide_icon}
-                  class={`w-full h-full text-zinc-500 group-hover:text-zinc-200 transition-all duration-300`}
-                />
-              </div>
+          apps
+            .filter((a) => !a.hidden)
+            .map((app) => (
+              <button
+                class="app-btn w-10 h-10 flex items-center justify-center hover:bg-zinc-900/80 rounded transition-colors active:scale-95 group relative border border-transparent hover:border-zinc-800"
+                title={app.title}
+                data-dock-id={app.id}
+              >
+                <div class="relative w-5 h-5 flex items-center justify-center">
+                  <i
+                    data-lucide={app.lucide_icon}
+                    class={`w-full h-full text-zinc-500 group-hover:text-zinc-200 transition-all duration-300`}
+                  />
+                </div>
 
-              <div class="indicator absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full opacity-0 scale-50 transition-all duration-300 shadow-[0_0_8px_rgba(255,255,255,0.8)] z-10" />
-            </button>
-          ))
+                <div class="indicator absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full opacity-0 scale-50 transition-all duration-300 shadow-[0_0_8px_rgba(255,255,255,0.8)] z-10" />
+              </button>
+            ))
         }
       </div>
 
@@ -216,427 +289,633 @@ const apps = apps_raw.map((app) => ({
 </OsLayout>
 
 <script is:inline define:vars={{ apps }}>
-  (function () {
-    // Shared State
-    const state = {
-      activeWindows: new Set(),
-      focusedWindow: null,
-      clipboard: null,
-      baseUrl: window.location.pathname.replace(/\/$/, ""),
-      isMobile: window.innerWidth < 640,
-      desktopItems: [...apps.map((a, i) => ({ ...a }))],
-      selectedItemId: null,
-    };
+  // Shared State
+  const state = (window.state = {
+    activeWindows: new Set(),
+    focusedWindow: null,
+    clipboard: null,
+    baseUrl:
+      window.location.pathname === "/"
+        ? ""
+        : window.location.pathname.replace(/\/$/, ""),
+    isMobile: window.innerWidth < 640,
+    tilingEnabled: true, // New: Tiling by default
+    get desktopItems() {
+      if (!window.vfs) return [];
+      return window.vfs.getChildren("desktop").map((i) => ({
+        ...i,
+        title: i.name,
+        icon: window.vfs.getIconForFile(i),
+      }));
+    },
+    selectedItemId: null,
+  });
 
-    if (state.baseUrl.endsWith(".html"))
-      state.baseUrl = state.baseUrl.substring(
-        0,
-        state.baseUrl.lastIndexOf("/"),
-      );
+  // Generic error capture to show on screen
+  window.onerror = (m, u, l, c, e) => {
+    const err = document.createElement("div");
+    err.className =
+      "fixed top-0 left-0 bg-red-600 text-white z-[99999] text-[8px] p-0.5 font-mono";
+    err.innerText = "!! ERROR: " + m + " line " + l;
+    document.body.appendChild(err);
+  };
 
-    function updateTime() {
-      const now = new Date();
-      const timeEl = document.getElementById("taskbar-time");
-      const trayTimeEl = document.getElementById("tray-real-time");
-      const trayDateEl = document.getElementById("tray-date");
-      if (timeEl)
-        timeEl.textContent = now.toLocaleTimeString("fr-FR", {
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-      if (trayTimeEl)
-        trayTimeEl.textContent = now.toLocaleTimeString("fr-FR", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        });
-      if (trayDateEl)
-        trayDateEl.textContent = now.toLocaleDateString("fr-FR", {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-        });
+  function initVFS() {
+    if (!window.vfs) {
+      console.warn("VFS not ready, retrying...");
+      setTimeout(initVFS, 150);
+      return;
     }
-    setInterval(updateTime, 1000);
-    updateTime();
 
-    const appsDef = {};
-    apps.forEach((app) => {
-      appsDef[app.id] = { ...app };
+    console.log("OS: Booting VFS and Desktop...");
+
+    // Re-check apps on every boot to ensure they exist on desktop
+    if (typeof apps !== "undefined") {
+      try {
+        if (!window.vfs.fs["desktop"]) {
+          window.vfs.ensureDefaultFolders();
+        }
+        const currentDesktop = window.vfs.getChildren("desktop");
+        apps.forEach((app) => {
+          const exists = currentDesktop.find(
+            (i) => i.type === "app" && i.appId === app.id,
+          );
+          if (!exists) {
+            window.vfs.createAppShortcut(app.id, app.title, app.icon);
+          }
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    window.addEventListener("vfs-changed", () => {
+      if (window.dm) window.dm.render();
     });
 
-    class ContextMenu {
-      constructor() {
-        this.menu = document.getElementById("context-menu");
-        this.container = document.getElementById("desktop-icons-container");
-        this.init();
-      }
-      init() {
-        this.container.oncontextmenu = (e) => {
-          if (state.isMobile) return;
-          e.preventDefault();
-          const icon = e.target.closest(".desktop-icon");
-          state.selectedItemId = icon ? icon.dataset.appId : null;
-          this.show(e.clientX, e.clientY);
-        };
-        document.onclick = () => this.hide();
-        this.menu.onclick = (e) => e.stopPropagation();
-        this.menu.querySelectorAll(".menu-item").forEach((item) => {
-          item.onclick = (e) => {
-            const action = item.dataset.action;
-            this.handleAction(action);
-            this.hide();
-          };
-        });
-      }
-      handleAction(action) {
-        switch (action) {
-          case "new-folder":
-            window.dm.addItem("folder");
-            break;
-          case "new-file":
-            window.dm.addItem("file");
-            break;
-          case "rename":
-            window.dm.renameItem(state.selectedItemId);
-            break;
-          case "delete":
-            window.dm.deleteItem(state.selectedItemId);
-            break;
-          case "copy":
-            state.clipboard = state.selectedItemId;
-            break;
-          case "paste":
-            if (state.clipboard) window.dm.pasteItem(state.clipboard);
-            break;
-        }
-      }
-      show(x, y) {
-        this.menu.style.left = x + "px";
-        this.menu.style.top = y + "px";
-        this.menu.classList.remove("hidden");
-      }
-      hide() {
-        this.menu.classList.add("hidden");
-      }
+    if (window.dm) {
+      window.dm.render();
+    } else {
+      setTimeout(() => {
+        if (window.dm) window.dm.render();
+      }, 500);
     }
+  }
 
-    class TrayManager {
-      constructor() {
-        this.btn = document.getElementById("clock-btn");
-        this.menu = document.getElementById("tray-menu");
-        this.init();
-      }
-      init() {
-        this.btn.onclick = (e) => {
-          e.stopPropagation();
-          this.toggle();
-        };
-        document.addEventListener("click", () => this.hide());
-        this.menu.onclick = (e) => e.stopPropagation();
-      }
-      toggle() {
-        if (this.menu.classList.contains("hidden")) this.show();
-        else this.hide();
-      }
-      show() {
-        this.menu.classList.remove("hidden");
-        setTimeout(() => {
-          this.menu.classList.add("scale-100", "opacity-100");
-          this.menu.classList.remove("scale-95", "opacity-0");
-        }, 10);
-      }
-      hide() {
-        this.menu.classList.add("scale-95", "opacity-0");
-        this.menu.classList.remove("scale-100", "opacity-100");
-        setTimeout(() => this.menu.classList.add("hidden"), 200);
-      }
+  if (state.baseUrl.endsWith(".html"))
+    state.baseUrl = state.baseUrl.substring(0, state.baseUrl.lastIndexOf("/"));
+
+  function updateTime() {
+    const now = new Date();
+    const timeEl = document.getElementById("taskbar-time");
+    const trayTimeEl = document.getElementById("tray-real-time");
+    const trayDateEl = document.getElementById("tray-date");
+    if (timeEl)
+      timeEl.textContent = now.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    if (trayTimeEl)
+      trayTimeEl.textContent = now.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    if (trayDateEl)
+      trayDateEl.textContent = now.toLocaleDateString("fr-FR", {
+        weekday: "long",
+        day: "numeric",
+        month: "short",
+      });
+  }
+  setInterval(updateTime, 1000);
+  updateTime();
+
+  const appsDef = {};
+  apps.forEach((app) => {
+    appsDef[app.id] = { ...app };
+  });
+
+  class ContextMenu {
+    constructor() {
+      this.menu = document.getElementById("context-menu");
+      this.container = document.getElementById("desktop-icons-container");
+      this.init();
     }
-
-    class DesktopManager {
-      constructor() {
-        this.container = document.getElementById("desktop-icons-container");
-        this.selectionBox = document.getElementById("selection-box");
-        this.isDragging = false;
-        this.isSelecting = false;
-        this.draggedItem = null;
-        this.startPos = { x: 0, y: 0 };
-        this.gridSize = state.isMobile ? { w: 90, h: 100 } : { w: 100, h: 110 };
-        this.init();
-      }
-
-      init() {
-        this.render();
-        this.container.onmousedown = (e) => {
-          if (state.isMobile || e.button !== 0 || e.target !== this.container)
-            return;
-          this.startSelection(e);
+    init() {
+      this.container.oncontextmenu = (e) => {
+        if (state.isMobile) return;
+        e.preventDefault();
+        const icon = e.target.closest(".desktop-icon");
+        state.selectedItemId = icon ? icon.dataset.appId : null;
+        this.show(e.clientX, e.clientY);
+      };
+      document.onclick = () => this.hide();
+      this.menu.onclick = (e) => e.stopPropagation();
+      this.menu.querySelectorAll(".menu-item").forEach((item) => {
+        item.onclick = (e) => {
+          const action = item.dataset.action;
+          this.handleAction(action);
+          this.hide();
         };
-        document.onmousemove = (e) => {
-          if (this.isSelecting) this.updateSelection(e);
-          if (this.isDragging) this.updateDragging(e);
-        };
-        document.onmouseup = () => {
-          this.endSelection();
-          this.endDragging();
-        };
-      }
-
-      render() {
-        this.container.innerHTML = "";
-        const rows = Math.floor((window.innerHeight - 100) / this.gridSize.h);
-
-        state.desktopItems.forEach((item, index) => {
-          const icon = document.createElement("div");
-          icon.dataset.appId = item.id;
-          icon.className =
-            "desktop-icon relative sm:absolute flex flex-col items-center gap-1 p-2 rounded-sm transition-all sm:w-[80px] cursor-pointer hover:bg-zinc-900/50 group select-none active:scale-95 border border-transparent hover:border-zinc-800 active:bg-zinc-900";
-
-          if (!state.isMobile) {
-            const col = Math.floor(index / rows);
-            const row = index % rows;
-            icon.style.left = (item.x || 30 + col * this.gridSize.w) + "px";
-            icon.style.top = (item.y || 30 + row * this.gridSize.h) + "px";
+      });
+    }
+    handleAction(action) {
+      switch (action) {
+        case "refresh":
+          if (window.dm) window.dm.render();
+          break;
+        case "new-folder":
+          if (window.vfs) {
+            const id = window.vfs.createFolder("Nouveau dossier");
+            if (window.dm) window.dm.render();
           }
-
-          const iconInner = document.createElement("div");
-          iconInner.className =
-            "w-10 h-10 rounded flex items-center justify-center bg-black shadow border border-zinc-900 group-hover:border-zinc-700 group-hover:bg-zinc-900 transition-all duration-300 text-zinc-500 group-hover:text-zinc-200 relative overflow-hidden backdrop-blur-md";
-
-          const lucideIcon = item.icon.startsWith("/") ? "cloud" : item.icon;
-          let iconHtml = `<i data-lucide="${lucideIcon}" class="w-5 h-5"></i>`;
-          iconInner.innerHTML = `${iconHtml}`;
-
-          const label = document.createElement("span");
-          label.className =
-            "text-[10px] font-medium text-zinc-400 text-center leading-tight bg-black px-2.5 py-1 rounded transition-colors border border-transparent group-hover:bg-zinc-900 group-hover:border-zinc-700 group-hover:text-white truncate w-full shadow-sm";
-          label.textContent = item.title;
-
-          icon.appendChild(iconInner);
-          icon.appendChild(label);
-
-          if (!state.isMobile) this.makeDraggable(icon);
-          icon.ondblclick = () => window.wm.openWindow(item.id);
-          icon.onclick = (e) => {
-            e.stopPropagation();
-            this.selectIcon(icon);
-          };
-
-          if (state.isMobile) {
-            icon.ontouchend = () => window.wm.openWindow(item.id);
+          break;
+        case "new-file":
+          if (window.vfs) {
+            window.vfs.createFile("Nouveau document.txt", "file", "");
+            if (window.dm) window.dm.render();
           }
-
-          this.container.appendChild(icon);
-        });
-        if (window.lucide) window.lucide.createIcons();
-      }
-
-      selectIcon(icon) {
-        this.container
-          .querySelectorAll(".desktop-icon")
-          .forEach((i) =>
-            i.classList.remove("bg-zinc-900/60", "border-zinc-800", "selected"),
-          );
-        icon.classList.add("bg-zinc-900/60", "border-zinc-800", "selected");
-      }
-
-      addItem(type) {
-        const id = "new-" + Date.now();
-        const newItem = {
-          id,
-          title: type === "folder" ? "Nouveau dossier" : "Nouveau document.txt",
-          icon: type === "folder" ? "folder" : "file-text",
-          color: type === "folder" ? "text-blue-400" : "text-slate-300",
-          type: "internal",
-        };
-        state.desktopItems.push(newItem);
-        this.render();
-      }
-
-      deleteItem(id) {
-        if (!id) return;
-        state.desktopItems = state.desktopItems.filter((i) => i.id !== id);
-        this.render();
-      }
-
-      renameItem(id) {
-        if (!id) return;
-        const name = prompt("Entrez le nouveau nom :");
-        if (name) {
-          const item = state.desktopItems.find((i) => i.id === id);
-          if (item) item.title = name;
-          this.render();
-        }
-      }
-
-      pasteItem(id) {
-        const original =
-          state.desktopItems.find((i) => i.id === id) ||
-          apps.find((a) => a.id === id);
-        if (original) {
-          const copy = {
-            ...original,
-            id: original.id + "-copy-" + Date.now(),
-            title: original.title + " (Copie)",
-          };
-          state.desktopItems.push(copy);
-          this.render();
-        }
-      }
-
-      makeDraggable(icon) {
-        icon.onmousedown = (e) => {
-          if (e.button !== 0) return;
-          e.stopPropagation();
-          this.startDragging(icon, e.clientX, e.clientY);
-        };
-      }
-
-      startDragging(item, x, y) {
-        this.isDragging = true;
-        this.draggedItem = item;
-        this.startPos = { x: x - item.offsetLeft, y: y - item.offsetTop };
-        item.classList.add("z-50", "scale-105", "opacity-80");
-        item.style.transition = "none";
-      }
-
-      updateDragging(e) {
-        if (!this.isDragging || !this.draggedItem) return;
-        let nx = e.clientX - this.startPos.x;
-        let ny = e.clientY - this.startPos.y;
-        nx = Math.max(0, Math.min(window.innerWidth - 90, nx));
-        ny = Math.max(0, Math.min(window.innerHeight - 90, ny));
-        this.draggedItem.style.left = nx + "px";
-        this.draggedItem.style.top = ny + "px";
-      }
-
-      endDragging() {
-        if (!this.isDragging || !this.draggedItem) return;
-        const left = parseInt(this.draggedItem.style.left);
-        const top = parseInt(this.draggedItem.style.top);
-        const col = Math.round((left - 30) / this.gridSize.w);
-        const row = Math.round((top - 30) / this.gridSize.h);
-
-        const finalX = 30 + col * this.gridSize.w;
-        const finalY = 30 + row * this.gridSize.h;
-
-        this.draggedItem.style.transition =
-          "all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)";
-        this.draggedItem.style.left = finalX + "px";
-        this.draggedItem.style.top = finalY + "px";
-
-        const item = state.desktopItems.find(
-          (i) => i.id === this.draggedItem.dataset.appId,
-        );
-        if (item) {
-          item.x = finalX;
-          item.y = finalY;
-        }
-
-        this.draggedItem.classList.remove("z-50", "scale-105", "opacity-80");
-        this.isDragging = false;
-        this.draggedItem = null;
-      }
-
-      startSelection(e) {
-        this.isSelecting = true;
-        this.selectionStart = { x: e.clientX, y: e.clientY };
-        this.selectionBox.classList.remove("hidden");
-        this.selectionBox.style.left = e.clientX + "px";
-        this.selectionBox.style.top = e.clientY + "px";
-        this.selectionBox.style.width = "1px";
-        this.selectionBox.style.height = "1px";
-
-        // Unselect everything when starting a new selection on desktop background
-        this.container
-          .querySelectorAll(".desktop-icon")
-          .forEach((i) =>
-            i.classList.remove("bg-zinc-900/60", "border-zinc-800", "selected"),
-          );
-      }
-
-      updateSelection(e) {
-        const cx = e.clientX,
-          cy = e.clientY;
-        const w = Math.abs(cx - this.selectionStart.x);
-        const h = Math.abs(cy - this.selectionStart.y);
-        const l = Math.min(cx, this.selectionStart.x);
-        const t = Math.min(cy, this.selectionStart.y);
-        this.selectionBox.style.width = w + "px";
-        this.selectionBox.style.height = h + "px";
-        this.selectionBox.style.left = l + "px";
-        this.selectionBox.style.top = t + "px";
-
-        this.container.querySelectorAll(".desktop-icon").forEach((icon) => {
-          const rect = icon.getBoundingClientRect();
-          if (
-            l < rect.right &&
-            l + w > rect.left &&
-            t < rect.bottom &&
-            t + h > rect.top
-          ) {
-            icon.classList.add("bg-zinc-900/60", "border-zinc-800", "selected");
-          } else {
-            icon.classList.remove(
-              "bg-zinc-900/60",
-              "border-zinc-800",
-              "selected",
+          break;
+        case "rename":
+          if (window.vfs && state.selectedItemId) {
+            const name = prompt(
+              "Nouveau nom:",
+              window.vfs.getItem(state.selectedItemId)?.name || "",
             );
+            if (name) {
+              window.vfs.renameItem(state.selectedItemId, name);
+              if (window.dm) window.dm.render();
+            }
           }
-        });
+          break;
+        case "delete":
+          if (window.vfs && state.selectedItemId) {
+            window.vfs.deleteItem(state.selectedItemId);
+            if (window.dm) window.dm.render();
+          }
+          break;
+        case "copy":
+          state.clipboard = state.selectedItemId;
+          break;
+        case "paste":
+          if (window.vfs && state.clipboard) {
+            window.vfs.copyItem(state.clipboard, "desktop");
+            if (window.dm) window.dm.render();
+          }
+          break;
+        case "tile":
+          state.tilingEnabled = !state.tilingEnabled;
+          if (window.wm) window.wm.tileWindows();
+          break;
+        case "reset-vfs":
+          if (
+            confirm(
+              "Voulez-vous réinitialiser le bureau pour corriger les erreurs ?",
+            )
+          ) {
+            window.vfs.reset();
+          }
+          break;
       }
+    }
+    show(x, y) {
+      this.menu.style.left = x + "px";
+      this.menu.style.top = y + "px";
+      this.menu.classList.remove("hidden");
+    }
+    hide() {
+      this.menu.classList.add("hidden");
+    }
+  }
 
-      endSelection() {
-        this.isSelecting = false;
-        this.selectionBox.classList.add("hidden");
+  class TrayManager {
+    constructor() {
+      this.btn = document.getElementById("clock-btn");
+      this.menu = document.getElementById("tray-menu");
+      this.init();
+    }
+    init() {
+      this.btn.onclick = (e) => {
+        e.stopPropagation();
+        this.toggle();
+      };
+      document.addEventListener("click", () => this.hide());
+      this.menu.onclick = (e) => e.stopPropagation();
+    }
+    toggle() {
+      if (this.menu.classList.contains("hidden")) this.show();
+      else this.hide();
+    }
+    show() {
+      this.menu.classList.remove("hidden");
+      setTimeout(() => {
+        this.menu.classList.add("scale-100", "opacity-100");
+        this.menu.classList.remove("scale-95", "opacity-0");
+      }, 10);
+    }
+    hide() {
+      this.menu.classList.add("scale-95", "opacity-0");
+      this.menu.classList.remove("scale-100", "opacity-100");
+      setTimeout(() => this.menu.classList.add("hidden"), 200);
+    }
+  }
+
+  class DesktopManager {
+    constructor() {
+      this.container = document.getElementById("desktop-icons-container");
+      this.selectionBox = document.getElementById("selection-box");
+      this.isDragging = false;
+      this.isSelecting = false;
+      this.draggedItem = null;
+      this.startPos = { x: 0, y: 0 };
+      this.gridSize = state.isMobile ? { w: 90, h: 100 } : { w: 100, h: 110 };
+      this.init();
+    }
+
+    init() {
+      this.render();
+      this.container.onmousedown = (e) => {
+        if (state.isMobile || e.button !== 0 || e.target !== this.container)
+          return;
+        this.startSelection(e);
+      };
+      document.onmousemove = (e) => {
+        if (this.isSelecting) this.updateSelection(e);
+        if (this.isDragging) this.updateDragging(e);
+      };
+      document.onmouseup = () => {
+        this.endSelection();
+        this.endDragging();
+      };
+    }
+
+    render() {
+      if (!this.container || !window.vfs) {
+        console.warn(
+          "DesktopManager: Render aborted, container or VFS missing",
+        );
+        return;
+      }
+      this.container.innerHTML = "";
+
+      const items = state.desktopItems;
+      console.log("DesktopManager: Rendering", items.length, "items");
+
+      const rows = Math.max(
+        1,
+        Math.floor((window.innerHeight - 120) / this.gridSize.h),
+      );
+
+      items.forEach((item, index) => {
+        const icon = document.createElement("div");
+        icon.dataset.appId = item.id;
+        icon.className =
+          "desktop-icon relative sm:absolute flex flex-col items-center gap-1 p-2 rounded-sm transition-all sm:w-[80px] cursor-pointer hover:bg-zinc-900/50 group select-none active:scale-95 border border-transparent hover:border-zinc-800 active:bg-zinc-900";
+
+        if (!state.isMobile) {
+          const col = Math.floor(index / rows);
+          const row = index % rows;
+          icon.style.left = (item.x || 30 + col * this.gridSize.w) + "px";
+          icon.style.top = (item.y || 30 + row * this.gridSize.h) + "px";
+        }
+
+        const iconInner = document.createElement("div");
+        iconInner.className =
+          "w-10 h-10 rounded flex items-center justify-center bg-black shadow border border-zinc-900 group-hover:border-zinc-700 group-hover:bg-zinc-900 transition-all duration-300 text-zinc-500 group-hover:text-zinc-200 relative overflow-hidden backdrop-blur-md";
+
+        let lucideIcon = item.icon || "file";
+        if (item.type === "app") {
+          const appDef = appsDef[item.appId];
+          if (appDef && appDef.icon && appDef.icon.startsWith("/"))
+            lucideIcon = "cloud";
+        } else if (item.icon && item.icon.startsWith("/")) {
+          lucideIcon = "cloud";
+        }
+
+        let iconHtml = `<i data-lucide="${lucideIcon}" class="w-5 h-5"></i>`;
+        iconInner.innerHTML = `${iconHtml}`;
+
+        const label = document.createElement("span");
+        label.className =
+          "text-[10px] font-medium text-zinc-400 text-center leading-tight bg-black px-2.5 py-1 rounded transition-colors border border-transparent group-hover:bg-zinc-900 group-hover:border-zinc-700 group-hover:text-white truncate w-full shadow-sm";
+        label.textContent = item.title;
+
+        icon.appendChild(iconInner);
+        icon.appendChild(label);
+
+        if (!state.isMobile) this.makeDraggable(icon);
+
+        icon.onclick = (e) => {
+          e.stopPropagation();
+          if (state.isMobile) window.wm.openWindow(item.id);
+          else this.selectIcon(icon);
+        };
+
+        if (!state.isMobile) {
+          icon.ondblclick = (e) => {
+            e.stopPropagation();
+            window.wm.openWindow(item.id);
+          };
+        }
+
+        this.container.appendChild(icon);
+      });
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    selectIcon(icon) {
+      this.container
+        .querySelectorAll(".desktop-icon")
+        .forEach((i) =>
+          i.classList.remove("bg-zinc-900/60", "border-zinc-800", "selected"),
+        );
+      icon.classList.add("bg-zinc-900/60", "border-zinc-800", "selected");
+    }
+
+    addItem(type) {
+      if (!window.vfs) return;
+      if (type === "folder") {
+        window.vfs.createFolder("Nouveau dossier");
+      } else if (type === "file") {
+        window.vfs.createFile("Nouveau document.txt", "file", "");
+      }
+      this.render();
+    }
+
+    deleteItem(id) {
+      if (!id || !window.vfs) return;
+      window.vfs.deleteItem(id);
+      this.render();
+    }
+
+    renameItem(id) {
+      if (!id || !window.vfs) return;
+      const currentName = window.vfs.getItem(id)?.name || "";
+      const name = prompt("Entrez le nouveau nom :", currentName);
+      if (name) {
+        window.vfs.renameItem(id, name);
+        this.render();
       }
     }
 
-    class WindowManager {
-      constructor() {
-        this.container = document.getElementById("windows-container");
-        this.windows = new Map();
-        this.zIndex = 2000;
-        this.activeId = null;
-        this.init();
-      }
+    pasteItem(id) {
+      if (!id || !window.vfs) return;
+      window.vfs.copyItem(id, "desktop");
+      this.render();
+    }
 
-      init() {
-        document.querySelectorAll(".app-btn").forEach((btn) => {
-          btn.onclick = () => this.toggleWindow(btn.dataset.dockId);
-        });
-        const startBtn = document.getElementById("start-btn");
-        if (startBtn) startBtn.onclick = () => this.toggleWindow("about");
-      }
-
-      async createWindow(id) {
-        const app = appsDef[id] || state.desktopItems.find((i) => i.id === id);
-        if (!app) return;
-        const win = document.createElement("div");
-        win.className =
-          "window absolute bg-black/95 backdrop-blur-md flex flex-col overflow-hidden transition-all duration-300 pointer-events-auto border border-zinc-900 shadow-[0_30px_100px_rgba(0,0,0,1)] rounded-sm opacity-0 scale-95";
-        win.id = `win-${id}`;
-        win.style.zIndex = ++this.zIndex;
-
-        if (state.isMobile) {
-          win.style.width = "100%";
-          win.style.height = "calc(100% - 80px)";
-          win.style.left = "0px";
-          win.style.top = "0px";
-          win.classList.add("mobile-fullscreen");
-        } else {
-          const w = Math.min(900, window.innerWidth - 40);
-          const h = Math.min(600, window.innerHeight - 150);
-          win.style.width = w + "px";
-          win.style.height = h + "px";
-          win.style.left = (window.innerWidth - w) / 2 + "px";
-          win.style.top = (window.innerHeight - h) / 2 - 20 + "px";
+    makeDraggable(icon) {
+      let sx, sy;
+      const onMove = (e) => {
+        if (Math.abs(e.clientX - sx) > 5 || Math.abs(e.clientY - sy) > 5) {
+          window.removeEventListener("mousemove", onMove);
+          this.startDragging(icon, sx, sy);
         }
+      };
+      icon.onmousedown = (e) => {
+        if (e.button !== 0) return;
+        sx = e.clientX;
+        sy = e.clientY;
+        window.addEventListener("mousemove", onMove);
+        window.addEventListener(
+          "mouseup",
+          () => window.removeEventListener("mousemove", onMove),
+          { once: true },
+        );
+      };
+    }
 
-        win.innerHTML = `
+    startDragging(item, x, y) {
+      this.isDragging = true;
+      this.draggedItem = item;
+      this.startPos = { x: x - item.offsetLeft, y: y - item.offsetTop };
+      item.classList.add("z-50", "scale-105", "opacity-80");
+      item.style.transition = "none";
+    }
+
+    updateDragging(e) {
+      if (!this.isDragging || !this.draggedItem) return;
+      let nx = e.clientX - this.startPos.x;
+      let ny = e.clientY - this.startPos.y;
+      nx = Math.max(0, Math.min(window.innerWidth - 90, nx));
+      ny = Math.max(0, Math.min(window.innerHeight - 90, ny));
+      this.draggedItem.style.left = nx + "px";
+      this.draggedItem.style.top = ny + "px";
+    }
+
+    endDragging() {
+      if (!this.isDragging || !this.draggedItem) return;
+      const left = parseInt(this.draggedItem.style.left);
+      const top = parseInt(this.draggedItem.style.top);
+      const col = Math.round((left - 30) / this.gridSize.w);
+      const row = Math.round((top - 30) / this.gridSize.h);
+
+      const finalX = 30 + col * this.gridSize.w;
+      const finalY = 30 + row * this.gridSize.h;
+
+      this.draggedItem.style.transition =
+        "all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)";
+      this.draggedItem.style.left = finalX + "px";
+      this.draggedItem.style.top = finalY + "px";
+
+      const item = state.desktopItems.find(
+        (i) => i.id === this.draggedItem.dataset.appId,
+      );
+      if (item && window.vfs) {
+        const vfsItem = window.vfs.getItem(item.id);
+        if (vfsItem) {
+          vfsItem.x = finalX;
+          vfsItem.y = finalY;
+          window.vfs.save();
+        }
+      }
+
+      this.draggedItem.classList.remove("z-50", "scale-105", "opacity-80");
+      this.isDragging = false;
+      this.draggedItem = null;
+    }
+
+    startSelection(e) {
+      this.isSelecting = true;
+      this.selectionStart = { x: e.clientX, y: e.clientY };
+      this.selectionBox.classList.remove("hidden");
+      this.selectionBox.style.left = e.clientX + "px";
+      this.selectionBox.style.top = e.clientY + "px";
+      this.selectionBox.style.width = "1px";
+      this.selectionBox.style.height = "1px";
+
+      // Unselect everything when starting a new selection on desktop background
+      this.container
+        .querySelectorAll(".desktop-icon")
+        .forEach((i) =>
+          i.classList.remove("bg-zinc-900/60", "border-zinc-800", "selected"),
+        );
+    }
+
+    updateSelection(e) {
+      const cx = e.clientX,
+        cy = e.clientY;
+      const w = Math.abs(cx - this.selectionStart.x);
+      const h = Math.abs(cy - this.selectionStart.y);
+      const l = Math.min(cx, this.selectionStart.x);
+      const t = Math.min(cy, this.selectionStart.y);
+      this.selectionBox.style.width = w + "px";
+      this.selectionBox.style.height = h + "px";
+      this.selectionBox.style.left = l + "px";
+      this.selectionBox.style.top = t + "px";
+
+      this.container.querySelectorAll(".desktop-icon").forEach((icon) => {
+        const rect = icon.getBoundingClientRect();
+        if (
+          l < rect.right &&
+          l + w > rect.left &&
+          t < rect.bottom &&
+          t + h > rect.top
+        ) {
+          icon.classList.add("bg-zinc-900/60", "border-zinc-800", "selected");
+        } else {
+          icon.classList.remove(
+            "bg-zinc-900/60",
+            "border-zinc-800",
+            "selected",
+          );
+        }
+      });
+    }
+
+    endSelection() {
+      this.isSelecting = false;
+      this.selectionBox.classList.add("hidden");
+    }
+  }
+
+  class WindowManager {
+    constructor() {
+      this.container = document.getElementById("windows-container");
+      this.windows = new Map();
+      this.zIndex = 2000;
+      this.activeId = null;
+      this.init();
+    }
+
+    tileWindows() {
+      if (state.isMobile || !state.tilingEnabled) return;
+      const visibleWins = Array.from(this.windows.values()).filter(
+        (w) => w.style.display !== "none",
+      );
+      if (visibleWins.length === 0) return;
+
+      const count = visibleWins.length;
+      const cols = count > 1 ? (count > 4 ? 3 : 2) : 1;
+      const rows = Math.ceil(count / cols);
+
+      const gap = 12;
+      const marginX = 40; // Total horizontal margin
+      const marginY = 40; // Top margin
+      const bottomSpace = 100; // Space at bottom (dock)
+
+      const screenW = window.innerWidth - marginX;
+      const screenH = window.innerHeight - marginY - bottomSpace;
+
+      const offsetX = marginX / 2;
+      const offsetY = marginY;
+
+      visibleWins.forEach((win, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+
+        const w = (screenW - (cols + 1) * gap) / cols;
+        const h = (screenH - (rows + 1) * gap) / rows;
+
+        win.style.width = w + "px";
+        win.style.height = h + "px";
+        win.style.left = offsetX + gap + col * (w + gap) + "px";
+        win.style.top = offsetY + gap + row * (h + gap) + "px";
+        win.style.transition = "all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)";
+      });
+    }
+
+    init() {
+      document.querySelectorAll(".app-btn").forEach((btn) => {
+        btn.onclick = () => this.toggleWindow(btn.dataset.dockId);
+      });
+      const startBtn = document.getElementById("start-btn");
+      if (startBtn) startBtn.onclick = () => this.toggleWindow("about");
+    }
+
+    async createWindow(id) {
+      let app = appsDef[id];
+      let vfsItem = null;
+      if (!app && id && id.toString().startsWith("preview-")) {
+        app = { id: id, title: "Aperçu HTML", icon: "eye", type: "internal" };
+      }
+
+      if (!app && window.vfs) {
+        vfsItem = window.vfs.getItem(id);
+        if (vfsItem) {
+          if (vfsItem.type === "app") {
+            app = appsDef[vfsItem.appId];
+          } else if (vfsItem.type === "folder") {
+            app = appsDef["explorer"];
+          } else if (vfsItem.type === "file") {
+            const ext = window.vfs.getFileExtension(vfsItem.name);
+            if (["txt", "js", "json", "md", "html", "css"].includes(ext)) {
+              app = appsDef["editor"];
+            } else if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
+              app = appsDef["viewer"];
+            } else if (["mp4", "webm", "mov"].includes(ext)) {
+              app = appsDef["video"];
+            } else {
+              return alert(
+                "Aucune application trouvée pour ce type de fichier (" +
+                  ext +
+                  ").",
+              );
+            }
+          }
+        }
+      }
+
+      const instanceId = vfsItem ? "win-" + vfsItem.id : id;
+      if (this.windows.has(instanceId)) {
+        this.focusWindow(instanceId);
+        return;
+      }
+
+      if (!app && state.desktopItems) {
+        app = state.desktopItems.find((i) => i.id === id); // fallback
+      }
+      if (!app) return;
+
+      const win = document.createElement("div");
+      win.className =
+        "window absolute bg-black/95 backdrop-blur-md flex flex-col overflow-hidden transition-all duration-300 pointer-events-auto border border-zinc-900 shadow-[0_30px_100px_rgba(0,0,0,1)] rounded-sm opacity-0 scale-95";
+      win.id = `window-element-${instanceId}`;
+      win.style.zIndex = ++this.zIndex;
+
+      let overrideTitle = app.title;
+      if (vfsItem) overrideTitle = vfsItem.name;
+
+      if (state.isMobile) {
+        win.style.width = "100%";
+        win.style.height = "calc(100% - 80px)";
+        win.style.left = "0px";
+        win.style.top = "0px";
+        win.classList.add("mobile-fullscreen");
+      } else {
+        const w = Math.min(900, window.innerWidth - 40);
+        const h = Math.min(600, window.innerHeight - 150);
+        win.style.width = w + "px";
+        win.style.height = h + "px";
+        win.style.left = (window.innerWidth - w) / 2 + "px";
+        win.style.top = (window.innerHeight - h) / 2 - 20 + "px";
+      }
+
+      win.innerHTML = `
           <div class="window-header h-11 bg-white/5 border-b border-white/5 flex items-center justify-between px-6 cursor-grab active:cursor-grabbing select-none relative z-40">
              <div class="flex items-center gap-3">
-                <span class="text-xs font-black tracking-widest uppercase text-white/50">${app.title}</span>
+                <span class="text-xs font-black tracking-widest uppercase text-white/50 win-title-bar">${overrideTitle}</span>
              </div>
              <div class="flex items-center gap-2">
                 <button class="win-btn min-btn w-3 h-3 rounded-full bg-amber-500/80 border border-amber-500/30 hover:scale-125 transition-all"></button>
@@ -644,210 +923,233 @@ const apps = apps_raw.map((app) => ({
                 <button class="win-btn close-btn w-3 h-3 rounded-full bg-rose-500/80 border border-rose-500/30 hover:scale-125 transition-all"></button>
              </div>
           </div>
-          <div class="window-content flex-1 relative overflow-hidden">
+          <div class="window-content flex-1 relative overflow-hidden bg-black/50">
             <div class="p-10 text-center animate-pulse text-slate-500 font-mono">Chargement...</div>
           </div>
           <div class="resize-handle absolute right-0 bottom-0 w-4 h-4 cursor-se-resize z-50 ${state.isMobile ? "hidden" : ""}"></div>
         `;
 
-        win.querySelector(".close-btn").onclick = () => this.closeWindow(id);
-        win.querySelector(".min-btn").onclick = () => this.minimizeWindow(id);
-        if (!state.isMobile)
-          win.querySelector(".max-btn").onclick = () =>
-            this.maximizeWindow(win);
-        win.onmousedown = () => this.focusWindow(id);
+      win.querySelector(".close-btn").onclick = () =>
+        this.closeWindow(instanceId);
+      win.querySelector(".min-btn").onclick = () =>
+        this.minimizeWindow(instanceId);
+      if (!state.isMobile)
+        win.querySelector(".max-btn").onclick = () => this.maximizeWindow(win);
+      win.onmousedown = () => this.focusWindow(instanceId);
 
-        if (!state.isMobile) {
-          this.makeDraggable(win);
-          this.makeResizable(win);
-        }
+      if (!state.isMobile) {
+        this.makeDraggable(win);
+        this.makeResizable(win);
+      }
 
-        this.container.appendChild(win);
-        this.windows.set(id, win);
-        this.updateDock(id, true);
+      this.container.appendChild(win);
+      this.windows.set(instanceId, win);
+      this.updateDock(app.id, true);
 
-        try {
-          if (app.type === "iframe") {
-            win.querySelector(".window-content").innerHTML =
-              `<iframe src="${app.url}" class="w-full h-full border-none bg-white"></iframe>`;
-          } else {
-            const response = await fetch(
-              `${state.baseUrl}/apps_content/${id}.html`,
-            );
-            if (response.ok) {
-              const html = await response.text();
-              win.querySelector(".window-content").innerHTML = html;
-
-              // Evluate innerHTML scripts
-              const scripts = win
-                .querySelector(".window-content")
-                .querySelectorAll("script");
-              scripts.forEach((oldScript) => {
-                const newScript = document.createElement("script");
-                if (oldScript.src) newScript.src = oldScript.src;
-                newScript.textContent = oldScript.textContent;
-                oldScript.parentNode.replaceChild(newScript, oldScript);
-              });
-
-              if (window.lucide) window.lucide.createIcons();
-            } else {
-              win.querySelector(".window-content").innerHTML =
-                `<div class="p-10 text-slate-400 font-mono text-center"><i data-lucide="info" class="w-12 h-12 mx-auto mb-4 opacity-20"></i><br/>Contenu vide ou application système "${id}".</div>`;
-              if (window.lucide) window.lucide.createIcons();
-            }
-          }
-        } catch (e) {
+      try {
+        if (app.type === "iframe") {
           win.querySelector(".window-content").innerHTML =
-            `<div class="p-10 text-rose-500 font-mono">Erreur système.</div>`;
-        }
-
-        requestAnimationFrame(() => {
-          win.classList.remove("opacity-0", "scale-95");
-          this.focusWindow(id);
-        });
-      }
-
-      openWindow(id) {
-        let win = this.windows.get(id);
-        if (!win) this.createWindow(id);
-        else {
-          win.style.display = "flex";
-          setTimeout(() => {
-            win.classList.remove("opacity-0", "scale-95");
-            this.focusWindow(id);
-          }, 10);
-        }
-      }
-
-      toggleWindow(id) {
-        const win = this.windows.get(id);
-        if (!win || win.style.display === "none") this.openWindow(id);
-        else
-          this.activeId === id ? this.minimizeWindow(id) : this.focusWindow(id);
-      }
-
-      closeWindow(id) {
-        const win = this.windows.get(id);
-        if (win) {
-          win.classList.add("opacity-0", "scale-95");
-          setTimeout(() => {
-            win.remove();
-            this.windows.delete(id);
-            this.updateDock(id, false);
-          }, 300);
-        }
-      }
-
-      minimizeWindow(id) {
-        const win = this.windows.get(id);
-        if (win) {
-          win.classList.add("opacity-0", "scale-95");
-          setTimeout(() => (win.style.display = "none"), 300);
-        }
-      }
-
-      focusWindow(id) {
-        const win = this.windows.get(id);
-        if (win) {
-          win.style.zIndex = ++this.zIndex;
-          this.activeId = id;
-        }
-      }
-
-      maximizeWindow(win) {
-        if (win.classList.contains("maximized")) {
-          win.classList.remove("maximized");
-          win.style.width = win.dataset.pw;
-          win.style.height = win.dataset.ph;
-          win.style.left = win.dataset.pl;
-          win.style.top = win.dataset.pt;
+            `<iframe src="${app.url}" class="w-full h-full border-none bg-white"></iframe>`;
         } else {
-          win.dataset.pw = win.style.width;
-          win.dataset.ph = win.style.height;
-          win.dataset.pl = win.style.left;
-          win.dataset.pt = win.style.top;
-          win.classList.add("maximized");
-          win.style.width = "calc(100% - 20px)";
-          win.style.height = "calc(100% - 110px)";
-          win.style.left = "10px";
-          win.style.top = "10px";
-        }
-      }
+          const response = await fetch(
+            `${state.baseUrl}/apps_content/${app.id}.html`,
+          );
+          if (response.ok) {
+            let html = await response.text();
 
-      makeDraggable(win) {
-        const header = win.querySelector(".window-header");
-        let dx,
-          dy,
-          dragging = false;
-        header.onmousedown = (e) => {
-          if (win.classList.contains("maximized")) return;
-          dragging = true;
-          dx = e.clientX - win.offsetLeft;
-          dy = e.clientY - win.offsetTop;
-          win.style.transition = "none";
-        };
-        window.addEventListener("mousemove", (e) => {
-          if (dragging) {
-            win.style.left = e.clientX - dx + "px";
-            win.style.top = e.clientY - dy + "px";
-          }
-        });
-        window.addEventListener("mouseup", () => {
-          dragging = false;
-          win.style.transition = "all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)";
-        });
-      }
+            // Replace placeholders in the HTML
+            html = html.replace(/\${__winId}/g, instanceId);
+            html = html.replace(/\${__contextId}/g, vfsItem ? vfsItem.id : "");
+            html = html.replace(/\${__appId}/g, app.id);
 
-      makeResizable(win) {
-        const handle = win.querySelector(".resize-handle");
-        let sw,
-          sh,
-          sx,
-          sy,
-          resizing = false;
-        handle.onmousedown = (e) => {
-          e.preventDefault();
-          resizing = true;
-          sw = win.offsetWidth;
-          sh = win.offsetHeight;
-          sx = e.clientX;
-          sy = e.clientY;
-        };
-        window.addEventListener("mousemove", (e) => {
-          if (resizing) {
-            win.style.width = Math.max(350, sw + (e.clientX - sx)) + "px";
-            win.style.height = Math.max(250, sh + (e.clientY - sy)) + "px";
-          }
-        });
-        window.addEventListener("mouseup", () => (resizing = false));
-      }
+            win.querySelector(".window-content").innerHTML = html;
 
-      updateDock(id, active) {
-        const btn = document.querySelector(`.app-btn[data-dock-id="${id}"]`);
-        const ind = btn?.querySelector(".indicator");
-        if (ind) {
-          if (active) {
-            ind.classList.add("opacity-100", "scale-100");
-            ind.classList.remove("opacity-0", "scale-50");
+            // Evaluate innerHTML scripts
+            const scripts = win
+              .querySelector(".window-content")
+              .querySelectorAll("script");
+            scripts.forEach((oldScript) => {
+              const newScript = document.createElement("script");
+              if (oldScript.src) {
+                newScript.src = oldScript.src;
+              } else {
+                newScript.textContent = `
+                    (function(__winId, __contextId, __appId) {
+                      ${oldScript.textContent}
+                    })('${instanceId}', '${vfsItem ? vfsItem.id : ""}', '${app.id}');
+                  `;
+              }
+              oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+
+            if (window.lucide) window.lucide.createIcons();
           } else {
-            ind.classList.remove("opacity-100", "scale-100");
-            ind.classList.add("opacity-0", "scale-50");
+            win.querySelector(".window-content").innerHTML =
+              `<div class="p-10 text-slate-400 font-mono text-center"><i data-lucide="info" class="w-12 h-12 mx-auto mb-4 opacity-20"></i><br/>Contenu vide ou application système "${app.id}".</div>`;
+            if (window.lucide) window.lucide.createIcons();
           }
         }
+      } catch (e) {
+        win.querySelector(".window-content").innerHTML =
+          `<div class="p-10 text-rose-500 font-mono">Erreur système.</div>`;
+      }
+
+      requestAnimationFrame(() => {
+        win.classList.remove("opacity-0", "scale-95");
+        this.focusWindow(instanceId);
+        this.tileWindows();
+      });
+    }
+
+    openWindow(id) {
+      const instanceId = id.startsWith("win-")
+        ? id
+        : window.vfs?.getItem(id)
+          ? "win-" + id
+          : id;
+      let win = this.windows.get(instanceId);
+
+      if (!win) {
+        this.createWindow(id);
+      } else {
+        win.style.display = "flex";
+        setTimeout(() => {
+          win.classList.remove("opacity-0", "scale-95");
+          this.focusWindow(instanceId);
+        }, 10);
       }
     }
 
-    function init() {
-      if (!document.getElementById("desktop-surface")) return;
-      window.wm = new WindowManager();
-      window.dm = new DesktopManager();
-      new ContextMenu();
-      new TrayManager();
-      if (window.lucide) window.lucide.createIcons();
+    toggleWindow(id) {
+      const win = this.windows.get(id);
+      if (!win || win.style.display === "none") this.openWindow(id);
+      else
+        this.activeId === id ? this.minimizeWindow(id) : this.focusWindow(id);
     }
-    document.addEventListener("DOMContentLoaded", init);
-    document.addEventListener("astro:page-load", init);
-  })();
+
+    closeWindow(id) {
+      const win = this.windows.get(id);
+      if (win) {
+        win.classList.add("opacity-0", "scale-95");
+        setTimeout(() => {
+          win.remove();
+          this.windows.delete(id);
+          this.updateDock(id, false);
+          this.tileWindows();
+        }, 300);
+      }
+    }
+
+    minimizeWindow(id) {
+      const win = this.windows.get(id);
+      if (win) {
+        win.classList.add("opacity-0", "scale-95");
+        setTimeout(() => (win.style.display = "none"), 300);
+      }
+    }
+
+    focusWindow(id) {
+      const win = this.windows.get(id);
+      if (win) {
+        win.style.zIndex = ++this.zIndex;
+        this.activeId = id;
+      }
+    }
+
+    maximizeWindow(win) {
+      if (win.classList.contains("maximized")) {
+        win.classList.remove("maximized");
+        win.style.width = win.dataset.pw;
+        win.style.height = win.dataset.ph;
+        win.style.left = win.dataset.pl;
+        win.style.top = win.dataset.pt;
+      } else {
+        win.dataset.pw = win.style.width;
+        win.dataset.ph = win.style.height;
+        win.dataset.pl = win.style.left;
+        win.dataset.pt = win.style.top;
+        win.classList.add("maximized");
+        win.style.width = "calc(100% - 20px)";
+        win.style.height = "calc(100% - 110px)";
+        win.style.left = "10px";
+        win.style.top = "10px";
+      }
+    }
+
+    makeDraggable(win) {
+      const header = win.querySelector(".window-header");
+      let dx,
+        dy,
+        dragging = false;
+      header.onmousedown = (e) => {
+        if (win.classList.contains("maximized")) return;
+        dragging = true;
+        dx = e.clientX - win.offsetLeft;
+        dy = e.clientY - win.offsetTop;
+        win.style.transition = "none";
+      };
+      window.addEventListener("mousemove", (e) => {
+        if (dragging) {
+          win.style.left = e.clientX - dx + "px";
+          win.style.top = e.clientY - dy + "px";
+        }
+      });
+      window.addEventListener("mouseup", () => {
+        dragging = false;
+        win.style.transition = "all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)";
+      });
+    }
+
+    makeResizable(win) {
+      const handle = win.querySelector(".resize-handle");
+      let sw,
+        sh,
+        sx,
+        sy,
+        resizing = false;
+      handle.onmousedown = (e) => {
+        e.preventDefault();
+        resizing = true;
+        sw = win.offsetWidth;
+        sh = win.offsetHeight;
+        sx = e.clientX;
+        sy = e.clientY;
+      };
+      window.addEventListener("mousemove", (e) => {
+        if (resizing) {
+          win.style.width = Math.max(350, sw + (e.clientX - sx)) + "px";
+          win.style.height = Math.max(250, sh + (e.clientY - sy)) + "px";
+        }
+      });
+      window.addEventListener("mouseup", () => (resizing = false));
+    }
+
+    updateDock(id, active) {
+      const btn = document.querySelector(`.app-btn[data-dock-id="${id}"]`);
+      const ind = btn?.querySelector(".indicator");
+      if (ind) {
+        if (active) {
+          ind.classList.add("opacity-100", "scale-100");
+          ind.classList.remove("opacity-0", "scale-50");
+        } else {
+          ind.classList.remove("opacity-100", "scale-100");
+          ind.classList.add("opacity-0", "scale-50");
+        }
+      }
+    }
+  }
+
+  function init() {
+    if (!document.getElementById("desktop-surface")) return;
+    window.wm = new WindowManager();
+    window.dm = new DesktopManager();
+    new ContextMenu();
+    new TrayManager();
+    if (window.lucide) window.lucide.createIcons();
+    setTimeout(initVFS, 100); // Give layout time to load scripts
+  }
+  document.addEventListener("DOMContentLoaded", init);
+  document.addEventListener("astro:page-load", init);
 </script>
 
 <style>

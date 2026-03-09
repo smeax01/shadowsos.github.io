@@ -1,0 +1,61 @@
+<div class="flex flex-col h-full w-full bg-zinc-950 text-zinc-300 font-mono text-sm" id="editor-app-${__winId}">
+  <div class="h-12 bg-zinc-900/80 border-b border-zinc-900 flex items-center px-4 justify-between backdrop-blur-md">
+    <div class="flex items-center gap-2">
+      <i data-lucide="file-text" class="w-4 h-4 text-zinc-400"></i>
+      <span id="editor-title-${__winId}" class="text-zinc-200">Sans titre.txt</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-xs transition-colors border border-zinc-700 flex items-center gap-2 group" id="editor-save-${__winId}">
+        <i data-lucide="save" class="w-3.5 h-3.5 text-zinc-400 group-hover:text-white"></i> Enregistrer
+      </button>
+    </div>
+  </div>
+  <textarea id="editor-textarea-${__winId}" class="flex-1 w-full bg-zinc-950 text-zinc-300 p-4 resize-none focus:outline-none placeholder:text-zinc-700 border-none leading-relaxed tracking-wide" spellcheck="false" placeholder="Commencez à taper..."></textarea>
+</div>
+
+<script>
+  (function() {
+    const fileId = __contextId;
+    const saveBtn = document.getElementById(`editor-save-${__winId}`);
+    const textarea = document.getElementById(`editor-textarea-${__winId}`);
+    const titleEl = document.getElementById(`editor-title-${__winId}`);
+    
+    let file = null;
+    if (fileId && window.vfs) {
+      file = window.vfs.getItem(fileId);
+      if (file) {
+        titleEl.textContent = file.name;
+        textarea.value = file.content || '';
+      }
+    }
+    
+    saveBtn.onclick = () => {
+      if (file && window.vfs) {
+        window.vfs.updateContent(file.id, textarea.value);
+        saveBtn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Sauvegardé`;
+        if (window.lucide) window.lucide.createIcons({ root: saveBtn.parentElement });
+        setTimeout(() => {
+          saveBtn.innerHTML = `<i data-lucide="save" class="w-3.5 h-3.5 text-zinc-400 group-hover:text-white"></i> Enregistrer`;
+          if (window.lucide) window.lucide.createIcons({ root: saveBtn.parentElement });
+        }, 2000);
+      } else if (window.vfs) {
+        const name = prompt("Nom du fichier à sauvegarder sur le bureau :", "Nouveau document.txt");
+        if (name) {
+          const newId = window.vfs.createFile(name, "file", textarea.value, "desktop");
+          file = window.vfs.getItem(newId);
+          titleEl.textContent = name;
+        }
+      }
+    };
+    
+    // Ctrl+S
+    textarea.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveBtn.click();
+      }
+    });
+
+    if (window.lucide) window.lucide.createIcons({ root: document.getElementById(`editor-app-${__winId}`) });
+  })();
+</script>

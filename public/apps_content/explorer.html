@@ -1,0 +1,316 @@
+<div class="flex h-full w-full bg-zinc-950 text-sm text-zinc-300 select-none" id="explorer-app-${__winId}">
+  
+  <!-- Sidebar -->
+  <div class="w-48 bg-zinc-900/50 border-r border-zinc-900 flex flex-col p-2 space-y-0.5 overflow-y-auto hidden sm:flex">
+    <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest px-2 py-2">Raccourcis</div>
+    <div class="explorer-nav-item flex items-center gap-2 px-2 py-1.5 hover:bg-zinc-800/80 rounded cursor-pointer transition-colors" data-id="desktop">
+      <i data-lucide="monitor" class="w-4 h-4 text-zinc-400"></i> Bureau
+    </div>
+    <div class="explorer-nav-item flex items-center gap-2 px-2 py-1.5 hover:bg-zinc-800/80 rounded cursor-pointer transition-colors" data-id="documents">
+      <i data-lucide="file-text" class="w-4 h-4 text-blue-400"></i> Documents
+    </div>
+    <div class="explorer-nav-item flex items-center gap-2 px-2 py-1.5 hover:bg-zinc-800/80 rounded cursor-pointer transition-colors" data-id="downloads">
+      <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i> Téléchargements
+    </div>
+    <div class="explorer-nav-item flex items-center gap-2 px-2 py-1.5 hover:bg-zinc-800/80 rounded cursor-pointer transition-colors" data-id="pictures">
+      <i data-lucide="image" class="w-4 h-4 text-rose-400"></i> Images
+    </div>
+    <div class="explorer-nav-item flex items-center gap-2 px-2 py-1.5 hover:bg-zinc-800/80 rounded cursor-pointer transition-colors" data-id="videos">
+      <i data-lucide="film" class="w-4 h-4 text-purple-400"></i> Vidéos
+    </div>
+  </div>
+
+  <div class="flex-1 flex flex-col min-w-0">
+    <!-- Toolbar -->
+    <div class="h-12 bg-zinc-900/80 border-b border-zinc-900 flex items-center px-4 gap-4 backdrop-blur-md">
+      <div class="flex items-center gap-1">
+        <button class="w-7 h-7 flex items-center justify-center hover:bg-zinc-800 rounded disabled:opacity-30 disabled:hover:bg-transparent" id="explorer-back-${__winId}">
+          <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        </button>
+        <button class="w-7 h-7 flex items-center justify-center hover:bg-zinc-800 rounded disabled:opacity-30 disabled:hover:bg-transparent" id="explorer-up-${__winId}">
+          <i data-lucide="arrow-up" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 bg-zinc-950 border border-zinc-800 rounded px-3 py-1.5 flex items-center gap-2 text-xs overflow-hidden">
+        <i data-lucide="folder" class="w-3.5 h-3.5 text-zinc-500"></i>
+        <div id="explorer-path-container-${__winId}" class="flex items-center gap-1 text-zinc-300 font-mono tracking-wide truncate">
+          <!-- Breadcrumbs -->
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1">
+        <button class="w-8 h-8 flex items-center justify-center hover:bg-zinc-800 rounded group transition-colors relative" id="explorer-new-folder-${__winId}" title="Nouveau Dossier">
+          <i data-lucide="folder-plus" class="w-4 h-4 text-zinc-400 group-hover:text-white"></i>
+        </button>
+        <button class="w-8 h-8 flex items-center justify-center hover:bg-zinc-800 rounded group transition-colors relative" id="explorer-new-file-${__winId}" title="Nouveau Fichier">
+          <i data-lucide="file-plus" class="w-4 h-4 text-zinc-400 group-hover:text-white"></i>
+        </button>
+        <div class="w-[1px] h-4 bg-zinc-800 mx-1"></div>
+        <input type="file" id="explorer-upload-${__winId}" class="hidden" multiple />
+        <button class="w-8 h-8 flex items-center justify-center hover:bg-zinc-800 rounded group transition-colors relative" onclick="document.getElementById('explorer-upload-${__winId}').click()" title="Importer">
+          <i data-lucide="upload" class="w-4 h-4 text-emerald-400 group-hover:text-emerald-300"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content List -->
+    <div class="flex-1 overflow-y-auto p-4 bg-zinc-950/50" id="explorer-content-${__winId}">
+      <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4" id="explorer-grid-${__winId}">
+        <!-- Items generated here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- Custom Context Menu for Explorer -->
+    <div id="explorer-ctx-${__winId}" class="fixed z-[9999] w-48 bg-zinc-900 border border-zinc-800 rounded shadow-2xl py-1 text-zinc-300 hidden select-none">
+      <div class="ctx-item px-3 py-1.5 hover:bg-zinc-800 hover:text-white cursor-pointer flex items-center gap-2" data-action="open">
+        <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Ouvrir
+      </div>
+      <div class="h-[1px] bg-zinc-800 my-1"></div>
+      <div class="ctx-item px-3 py-1.5 hover:bg-zinc-800 hover:text-white cursor-pointer flex items-center gap-2" data-action="copy">
+        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copier
+      </div>
+      <div class="ctx-item px-3 py-1.5 hover:bg-zinc-800 hover:text-white cursor-pointer flex items-center gap-2" data-action="paste">
+        <i data-lucide="clipboard-paste" class="w-3.5 h-3.5"></i> Coller
+      </div>
+      <div class="h-[1px] bg-zinc-800 my-1"></div>
+      <div class="ctx-item px-3 py-1.5 hover:bg-zinc-800 hover:text-white cursor-pointer flex items-center gap-2" data-action="rename">
+        <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Renommer
+      </div>
+      <div class="ctx-item px-3 py-1.5 hover:bg-rose-950/50 hover:text-rose-400 cursor-pointer flex items-center gap-2" data-action="delete">
+        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Supprimer
+      </div>
+      <div class="h-[1px] bg-zinc-800 my-1"></div>
+      <div class="ctx-item px-3 py-1.5 hover:bg-zinc-800 hover:text-white cursor-pointer flex items-center gap-2" data-action="download">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i> Télécharger (Réel)
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        const root = document.getElementById(`explorer-app-${__winId}`);
+        const grid = document.getElementById(`explorer-grid-${__winId}`);
+        const pathContainer = document.getElementById(`explorer-path-container-${__winId}`);
+        const backBtn = document.getElementById(`explorer-back-${__winId}`);
+        const upBtn = document.getElementById(`explorer-up-${__winId}`);
+        const uploadInput = document.getElementById(`explorer-upload-${__winId}`);
+        const ctxMenu = document.getElementById(`explorer-ctx-${__winId}`);
+        
+        let selectedId = null;
+        let currentFolderId = __contextId || 'documents';
+        let history = [];
+
+        function initExplorer() {
+          if (!window.vfs) {
+            setTimeout(initExplorer, 100);
+            return;
+          }
+          if (!window.vfs.getItem(currentFolderId)) currentFolderId = 'documents';
+          render();
+        }
+
+        function render() {
+          const folder = window.vfs.getItem(currentFolderId);
+          if (!folder || folder.type !== 'folder') {
+            currentFolderId = 'documents';
+            render();
+            return;
+          }
+          
+          // Breadcrumbs
+          const path = window.vfs.getPath(currentFolderId);
+          pathContainer.innerHTML = '';
+          path.forEach((p, idx) => {
+            if (idx > 0) {
+              const sep = document.createElement('span');
+              sep.className = "text-zinc-600 px-0.5";
+              sep.textContent = '/';
+              pathContainer.appendChild(sep);
+            }
+            const b = document.createElement('span');
+            b.className = "hover:text-white cursor-pointer transition-colors " + (idx === path.length - 1 ? "text-zinc-100 font-bold underline" : "");
+            b.textContent = p.name;
+            b.onclick = (e) => {
+              e.stopPropagation();
+              navigateTo(p.id);
+            };
+            pathContainer.appendChild(b);
+          });
+          
+          upBtn.disabled = !folder.parentId;
+          backBtn.disabled = history.length === 0;
+          
+          const children = window.vfs.getChildren(currentFolderId);
+          grid.innerHTML = '';
+          
+          children.sort((a,b) => {
+            if(a.type === 'folder' && b.type !== 'folder') return -1;
+            if(a.type !== 'folder' && b.type === 'folder') return 1;
+            return a.name.localeCompare(b.name);
+          }).forEach(item => {
+            const div = document.createElement('div');
+            div.className = "flex flex-col items-center gap-2 p-3 rounded hover:bg-zinc-900/50 cursor-pointer group transition-all text-center border border-transparent";
+            if (selectedId === item.id) div.classList.add('bg-zinc-900', 'border-zinc-800', 'ring-1', 'ring-white/5');
+
+            const iconContainer = document.createElement('div');
+            iconContainer.className = "w-12 h-12 flex items-center justify-center rounded-xl bg-zinc-900/80 border border-zinc-800/50 group-hover:bg-zinc-800 group-hover:border-zinc-700 transition-all shadow-sm";
+            
+            const iStr = window.vfs.getIconForFile(item);
+            const iconColor = item.type === 'folder' ? 'text-amber-400' : 
+                             (item.type === 'app' ? 'text-blue-400' : 'text-zinc-400');
+                             
+            iconContainer.innerHTML = `<i data-lucide="${iStr}" class="w-6 h-6 ${iconColor}"></i>`;
+            
+            const name = document.createElement('span');
+            name.className = "text-[11px] text-zinc-400 group-hover:text-zinc-200 truncate w-full px-1";
+            name.textContent = item.name;
+            
+            div.appendChild(iconContainer);
+            div.appendChild(name);
+            
+            div.onclick = (e) => {
+              e.stopPropagation();
+              selectedId = item.id;
+              render();
+            };
+
+            div.ondblclick = () => {
+              if (item.type === 'folder') {
+                navigateTo(item.id);
+              } else {
+                if (window.wm) window.wm.openWindow(item.id);
+              }
+            };
+            
+            div.oncontextmenu = (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              selectedId = item.id;
+              render();
+              showCtxMenu(e.clientX, e.clientY);
+            };
+            
+            grid.appendChild(div);
+          });
+          
+          if (window.lucide) window.lucide.createIcons({ root });
+        }
+
+        function navigateTo(id) {
+          if (currentFolderId !== id) {
+            history.push(currentFolderId);
+            currentFolderId = id;
+            selectedId = null;
+            render();
+          }
+        }
+
+        function showCtxMenu(x, y) {
+          ctxMenu.style.left = x + 'px';
+          ctxMenu.style.top = y + 'px';
+          ctxMenu.classList.remove('hidden');
+        }
+
+        function hideCtxMenu() {
+          ctxMenu.classList.add('hidden');
+        }
+
+        // Global clicks
+        window.onclick = () => {
+          hideCtxMenu();
+          if (!event.target.closest('#explorer-grid-' + __winId)) {
+            // selectedId = null; // Optionnel: déselectionner si clic vide
+            // render();
+          }
+        };
+
+        grid.oncontextmenu = (e) => {
+          if (e.target === grid || e.target.parentElement === grid) {
+            e.preventDefault();
+            selectedId = null;
+            render();
+            showCtxMenu(e.clientX, e.clientY);
+          }
+        };
+
+        ctxMenu.querySelectorAll('.ctx-item').forEach(item => {
+          item.onclick = () => {
+            const action = item.dataset.action;
+            const target = window.vfs.getItem(selectedId);
+            
+            if (action === 'open' && target) {
+              if (target.type === 'folder') navigateTo(target.id);
+              else window.wm.openWindow(target.id);
+            }
+            if (action === 'copy' && selectedId) {
+              if (window.state) window.state.clipboard = selectedId;
+            }
+            if (action === 'paste') {
+              const clip = window.state?.clipboard;
+              if (clip) { window.vfs.copyItem(clip, currentFolderId); render(); }
+            }
+            if (action === 'rename' && selectedId) {
+              const name = prompt("Nouveau nom:", target.name);
+              if (name) { window.vfs.renameItem(selectedId, name); render(); }
+            }
+            if (action === 'delete' && selectedId) {
+              if (confirm(`Supprimer ${target.name} ?`)) { window.vfs.deleteItem(selectedId); render(); }
+            }
+            if (action === 'download' && target) {
+              const a = document.createElement('a');
+              const content = target.content || '';
+              a.href = content.startsWith('data:') ? content : 'data:text/plain;charset=utf-8,' + encodeURIComponent(content);
+              a.download = target.name;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }
+            hideCtxMenu();
+          };
+        });
+
+        // Sidebar
+        root.querySelectorAll('.explorer-nav-item').forEach(nav => {
+          nav.onclick = () => navigateTo(nav.dataset.id);
+        });
+
+        backBtn.onclick = () => {
+          if (history.length) {
+            currentFolderId = history.pop();
+            render();
+          }
+        };
+        
+        upBtn.onclick = () => {
+          const folder = window.vfs.getItem(currentFolderId);
+          if (folder && folder.parentId) navigateTo(folder.parentId);
+        };
+
+        document.getElementById(`explorer-new-folder-${__winId}`).onclick = () => {
+          const name = prompt("Nom du dossier:");
+          if (name) { window.vfs.createFolder(name, currentFolderId); render(); }
+        };
+        
+        document.getElementById(`explorer-new-file-${__winId}`).onclick = () => {
+          const name = prompt("Nom du fichier:");
+          if (name) { window.vfs.createFile(name, "file", "", currentFolderId); render(); }
+        };
+
+        uploadInput.onchange = (e) => {
+          for(let file of e.target.files) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              window.vfs.createFile(file.name, "file", ev.target.result, currentFolderId);
+              render();
+            };
+            if(file.type.startsWith('image/') || file.type.startsWith('video/')) reader.readAsDataURL(file);
+            else reader.readAsText(file);
+          }
+        };
+
+        window.addEventListener('vfs-changed', render);
+        initExplorer();
+      })();
+    </script>
