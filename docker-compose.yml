@@ -1,0 +1,23 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: shadow2-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: shadowos4_db
+      MYSQL_USER: shadowos_user
+      MYSQL_PASSWORD: dZ4rLdPw47?!mmlb
+      MYSQL_ROOT_PASSWORD: root-shadow-local
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./infra/sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot-shadow-local"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  mysql_data:

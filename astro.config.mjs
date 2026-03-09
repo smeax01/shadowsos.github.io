@@ -7,7 +7,10 @@ import node from "@astrojs/node";
 export default defineConfig({
   site: "https://smeax01.github.io",
   base: "/",
-  output: "static",
+  output: "server",
+  adapter: node({
+    mode: "standalone",
+  }),
   vite: {
     plugins: [tailwindcss()],
   },

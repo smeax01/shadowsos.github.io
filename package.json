@@ -12,6 +12,10 @@
     "@astrojs/node": "^9.5.1",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.16.6",
+    "bcryptjs": "^3.0.3",
+    "cookie": "^1.1.1",
+    "jose": "^6.2.1",
+    "mysql2": "^3.19.0",
     "tailwindcss": "^4.1.18"
   }
 }

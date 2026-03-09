@@ -1,0 +1,9 @@
+---
+import { verifyToken } from "../lib/auth.js";
+
+const session = Astro.cookies.get("shadow_session")?.value;
+if (session) {
+  Astro.cookies.delete("shadow_session", { path: "/" });
+}
+return Astro.redirect("/login");
+---

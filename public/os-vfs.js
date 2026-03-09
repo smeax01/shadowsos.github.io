@@ -25,11 +25,14 @@ class VirtualFileSystem {
     window.location.reload();
   }
 
-  load() {
+  load(initialData) {
     try {
       const saved = localStorage.getItem('shadowos_vfs');
       if (saved) {
         this.fs = JSON.parse(saved);
+      } else if (initialData) {
+        this.fs = typeof initialData === 'string' ? JSON.parse(initialData) : initialData;
+        this.save();
       }
     } catch (e) {
       console.error("VFS load error", e);
@@ -40,10 +43,28 @@ class VirtualFileSystem {
     try {
       localStorage.setItem('shadowos_vfs', JSON.stringify(this.fs));
       window.dispatchEvent(new CustomEvent('vfs-changed'));
+      this.sync();
     } catch (e) {
       if(e.name === 'QuotaExceededError') {
         alert("Stockage plein ! Impossible de sauvegarder.");
       }
+    }
+  }
+
+  async sync() {
+    if (this._syncing) return;
+    this._syncing = true;
+    try {
+        const size = JSON.stringify(this.fs).length;
+        await fetch('/api/sync-vfs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ vfs_data: this.fs, used_storage: size })
+        });
+    } catch (e) {
+        console.warn("VFS Sync failed", e);
+    } finally {
+        this._syncing = false;
     }
   }
 
@@ -208,4 +229,7 @@ class VirtualFileSystem {
   }
 }
 
-window.vfs = new VirtualFileSystem();
+window.initVFS = (initialData) => {
+  window.vfs = new VirtualFileSystem();
+  window.vfs.load(initialData);
+};

@@ -1,0 +1,247 @@
+---
+import OsLayout from "../layouts/OsLayout.astro";
+import pool from "../lib/db.js";
+import { signToken } from "../lib/auth.js";
+import bcrypt from "bcryptjs";
+
+let error = "";
+let mode: "login" | "register" = "login";
+let identifier = "";
+let email = "";
+
+if (Astro.request.method === "POST") {
+  try {
+    const data = await Astro.request.formData();
+
+    const actionRaw = data.get("action")?.toString().trim().toLowerCase();
+    mode = actionRaw === "register" ? "register" : "login";
+
+    identifier = data.get("identifier")?.toString().trim() || "";
+    email = data.get("email")?.toString().trim() || "";
+    const password = data.get("password")?.toString() || "";
+
+    if (!identifier) throw new Error("Le pseudo ou l'email est requis.");
+    if (!password) throw new Error("Le mot de passe est requis.");
+
+    if (mode === "register") {
+      if (identifier.length < 3) {
+        throw new Error("Le pseudo doit contenir au moins 3 caractères.");
+      }
+      if (identifier.length > 32) {
+        throw new Error("Le pseudo doit contenir au maximum 32 caractères.");
+      }
+
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        throw new Error("L'email fourni n'est pas valide.");
+      }
+
+      const [existingRows] = (await pool.execute(
+        "SELECT id FROM users WHERE username = ? OR email = ? OR email = ? LIMIT 1",
+        [identifier, identifier, email || "__no_email__"],
+      )) as any;
+
+      if (existingRows.length > 0) {
+        throw new Error("Ce pseudo ou cet email est déjà utilisé.");
+      }
+
+      const hashed = await bcrypt.hash(password, 10);
+      await pool.execute(
+        "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
+        [identifier, email || `${identifier}@shadowos.v4`, hashed],
+      );
+    }
+
+    const [rows] = (await pool.execute(
+      "SELECT id, username, password FROM users WHERE username = ? OR email = ? LIMIT 1",
+      [identifier, identifier],
+    )) as any;
+
+    const user = rows[0];
+    if (!user) {
+      throw new Error("Identifiants incorrects.");
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      throw new Error("Identifiants incorrects.");
+    }
+
+    const token = await signToken({ id: user.id, username: user.username });
+    Astro.cookies.set("shadow_session", token, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "strict",
+      secure: import.meta.env.PROD,
+      maxAge: 60 * 60 * 24,
+    });
+
+    return Astro.redirect("/");
+  } catch (err: any) {
+    if (
+      err?.code === "ECONNREFUSED" ||
+      err?.code === "ENOTFOUND" ||
+      err?.code === "ETIMEDOUT"
+    ) {
+      error =
+        "Base de donnees indisponible. Verifie que MySQL est demarre et que DB_HOST/DB_PORT sont corrects.";
+    } else {
+      error =
+        err?.message || "Une erreur est survenue lors de l'authentification.";
+    }
+  }
+}
+---
+
+<OsLayout title="Authentification - ShadowOS 4">
+  <div
+    class="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6"
+    style={`background-image: linear-gradient(to bottom right, rgba(2,6,23,0.9), rgba(9,9,11,0.95)), url('${import.meta.env.BASE_URL}wallpaper.gif'); background-size: cover; background-position: center;`}
+  >
+    <div class="absolute inset-0 bg-black/45"></div>
+
+    <div class="relative z-10 w-full max-w-md">
+      <div class="mb-6 flex items-center justify-center gap-3">
+        <img src="/os-logo.png" alt="ShadowOS" class="h-9 w-9 rounded-xl border border-white/10 bg-black/50 p-1.5" />
+        <div class="leading-tight">
+          <p class="text-sm font-semibold tracking-wide text-zinc-200">ShadowOS 4</p>
+          <p class="text-[10px] uppercase tracking-[0.2em] text-zinc-500">Secure Session</p>
+        </div>
+      </div>
+
+      <section class="rounded-3xl border border-white/10 bg-zinc-950/80 p-6 shadow-2xl backdrop-blur-xl sm:p-7">
+        <div class="mb-6 grid grid-cols-2 rounded-2xl border border-white/10 bg-black/25 p-1 text-xs font-semibold uppercase tracking-wider">
+          <button
+            id="tab-login"
+            type="button"
+            class:list={[
+              "rounded-xl px-3 py-2 transition-colors",
+              mode === "login" ? "bg-white/10 text-white" : "text-zinc-400 hover:text-zinc-200",
+            ]}
+          >
+            Connexion
+          </button>
+          <button
+            id="tab-register"
+            type="button"
+            class:list={[
+              "rounded-xl px-3 py-2 transition-colors",
+              mode === "register" ? "bg-white/10 text-white" : "text-zinc-400 hover:text-zinc-200",
+            ]}
+          >
+            Inscription
+          </button>
+        </div>
+
+        {
+          error && (
+            <div class="mb-5 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs text-rose-200">
+              {error}
+            </div>
+          )
+        }
+
+        <form method="POST" id="auth-form" class="space-y-4">
+          <input type="hidden" name="action" id="action-input" value={mode} />
+
+          <div>
+            <label for="identifier" class="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+              Pseudo ou email
+            </label>
+            <div class="relative">
+              <i data-lucide="user" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500"></i>
+              <input
+                id="identifier"
+                type="text"
+                name="identifier"
+                value={identifier}
+                required
+                autocomplete="username"
+                placeholder="ex: smeax"
+                class="w-full rounded-xl border border-zinc-800 bg-black/35 py-3 pl-9 pr-3 text-sm text-zinc-100 outline-none transition focus:border-zinc-500"
+              />
+            </div>
+          </div>
+
+          <div id="email-field" class:list={["transition-all", mode === "register" ? "block" : "hidden"]}>
+            <label for="email" class="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+              Email (optionnel)
+            </label>
+            <div class="relative">
+              <i data-lucide="mail" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500"></i>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                value={email}
+                autocomplete="email"
+                placeholder="ex: toi@exemple.com"
+                class="w-full rounded-xl border border-zinc-800 bg-black/35 py-3 pl-9 pr-3 text-sm text-zinc-100 outline-none transition focus:border-zinc-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="password" class="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+              Mot de passe
+            </label>
+            <div class="relative">
+              <i data-lucide="lock" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500"></i>
+              <input
+                id="password"
+                type="password"
+                name="password"
+                required
+                autocomplete={mode === "register" ? "new-password" : "current-password"}
+                placeholder="••••••••"
+                class="w-full rounded-xl border border-zinc-800 bg-black/35 py-3 pl-9 pr-3 text-sm text-zinc-100 outline-none transition focus:border-zinc-500"
+              />
+            </div>
+          </div>
+
+          <button
+            id="submit-btn"
+            type="submit"
+            class="mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-zinc-100 transition hover:bg-white/15"
+          >
+            {mode === "register" ? "Créer un compte" : "Se connecter"}
+          </button>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script is:inline>
+    const actionInput = document.getElementById("action-input");
+    const tabLogin = document.getElementById("tab-login");
+    const tabRegister = document.getElementById("tab-register");
+    const emailField = document.getElementById("email-field");
+    const submitBtn = document.getElementById("submit-btn");
+    const passwordInput = document.getElementById("password");
+
+    const setMode = (mode) => {
+      const isRegister = mode === "register";
+
+      actionInput.value = mode;
+      emailField.classList.toggle("hidden", !isRegister);
+      emailField.classList.toggle("block", isRegister);
+
+      tabLogin.classList.toggle("bg-white/10", !isRegister);
+      tabLogin.classList.toggle("text-white", !isRegister);
+      tabLogin.classList.toggle("text-zinc-400", isRegister);
+
+      tabRegister.classList.toggle("bg-white/10", isRegister);
+      tabRegister.classList.toggle("text-white", isRegister);
+      tabRegister.classList.toggle("text-zinc-400", !isRegister);
+
+      submitBtn.textContent = isRegister ? "Créer un compte" : "Se connecter";
+      passwordInput.setAttribute("autocomplete", isRegister ? "new-password" : "current-password");
+    };
+
+    tabLogin?.addEventListener("click", () => setMode("login"));
+    tabRegister?.addEventListener("click", () => setMode("register"));
+
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  </script>
+</OsLayout>
