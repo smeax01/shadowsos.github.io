@@ -130,7 +130,9 @@ class VirtualFileSystem {
   }
 
   getChildren(parentId) {
-    return Object.values(this.fs).filter(item => item.parentId === parentId);
+    return Object.values(this.fs)
+      .filter(item => item.parentId === parentId)
+      .sort((a, b) => (a.order || a.date) - (b.order || b.date));
   }
 
   deleteItem(id) {

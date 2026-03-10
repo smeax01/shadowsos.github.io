@@ -939,20 +939,33 @@ const apps = apps_raw.map((app) => ({
       if (!this.container || !window.vfs) return;
 
       if (window.vfs.fs["dock"] && window.vfs.fs["dock"].first_boot) {
-        if (typeof apps !== "undefined") {
-          apps
-            .filter((a) => !a.hidden)
-            .forEach((app) => {
-              window.vfs.createAppShortcut(app.id, app.title, app.icon, "dock");
-            });
-        }
         delete window.vfs.fs["dock"].first_boot;
         window.vfs.save();
-        return; // wait for vfs-changed or continue
+        return;
+      }
+
+      const dockItems = window.vfs.getChildren("dock");
+
+      // Auto-repair if the infinite loop bug caused duplicates
+      const appCounts = {};
+      let hasDuplicates = false;
+      dockItems.forEach((item) => {
+        if (item.type !== "app") return;
+        if (!appCounts[item.appId]) appCounts[item.appId] = 0;
+        appCounts[item.appId]++;
+        if (appCounts[item.appId] > 1) hasDuplicates = true;
+      });
+
+      if (hasDuplicates) {
+        // Silent wipe out to fix crash and respect the user's wish for an empty dock
+        dockItems.forEach((i) => {
+          delete window.vfs.fs[i.id];
+        });
+        window.vfs.save();
+        return;
       }
 
       this.container.innerHTML = "";
-      const dockItems = window.vfs.getChildren("dock");
 
       dockItems.forEach((item) => {
         if (item.type !== "app") return;
@@ -964,6 +977,7 @@ const apps = apps_raw.map((app) => ({
           "app-btn w-10 h-10 flex items-center justify-center hover:bg-zinc-900/80 rounded transition-colors active:scale-95 group relative border border-transparent hover:border-zinc-800";
         btn.title = appDef.title;
         btn.dataset.dockId = item.appId;
+        btn.draggable = true;
 
         let lucideIcon =
           appDef.icon && appDef.icon.startsWith("/") ? "cloud" : appDef.icon;
@@ -974,6 +988,55 @@ const apps = apps_raw.map((app) => ({
           </div>
           <div class="indicator absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full opacity-0 scale-50 transition-all duration-300 shadow-[0_0_8px_rgba(255,255,255,0.8)] z-10"></div>
         `;
+
+        btn.ondragstart = (e) => {
+          e.dataTransfer.setData("text/plain", item.id);
+          e.dataTransfer.effectAllowed = "move";
+          btn.classList.add("opacity-50");
+        };
+
+        btn.ondragend = (e) => {
+          btn.classList.remove("opacity-50");
+          document
+            .querySelectorAll(".app-btn")
+            .forEach((b) => (b.style.boxShadow = "none"));
+        };
+
+        btn.ondragover = (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+          const rect = btn.getBoundingClientRect();
+          const mid = rect.left + rect.width / 2;
+          if (e.clientX < mid) btn.style.boxShadow = "-2px 0 0 0 #3b82f6";
+          else btn.style.boxShadow = "2px 0 0 0 #3b82f6";
+        };
+
+        btn.ondragleave = () => {
+          btn.style.boxShadow = "none";
+        };
+
+        btn.ondrop = (e) => {
+          e.preventDefault();
+          btn.style.boxShadow = "none";
+          const draggedId = e.dataTransfer.getData("text/plain");
+          if (!draggedId || draggedId === item.id) return;
+          const rect = btn.getBoundingClientRect();
+          const dropAfter = e.clientX >= rect.left + rect.width / 2;
+
+          const currentDockItems = window.vfs.getChildren("dock");
+          const draggedIdx = currentDockItems.findIndex(
+            (i) => i.id === draggedId,
+          );
+          if (draggedIdx === -1) return;
+
+          const draggedItem = currentDockItems.splice(draggedIdx, 1)[0];
+          let targetIdx = currentDockItems.findIndex((i) => i.id === item.id);
+          if (dropAfter) targetIdx++;
+
+          currentDockItems.splice(targetIdx, 0, draggedItem);
+          currentDockItems.forEach((i, idx) => (i.order = idx + 1));
+          window.vfs.save();
+        };
 
         btn.onclick = () => {
           if (window.wm) window.wm.toggleWindow(item.appId);
@@ -1342,6 +1405,9 @@ const apps = apps_raw.map((app) => ({
 
   function init() {
     if (!document.getElementById("desktop-surface")) return;
+    if (window.__os_initialized) return;
+    window.__os_initialized = true;
+
     window.wm = new WindowManager();
     window.dm = new DesktopManager();
     window.dockm = new DockManager();
