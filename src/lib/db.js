@@ -1,44 +1,63 @@
-import mysql from 'mysql2/promise';
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
+import path from 'path';
 
-const rawHost = process.env.DB_HOST || '127.0.0.1';
-const [hostFromEnv, portFromHost] = rawHost.split(':');
+let dbInstance = null;
 
-const pool = mysql.createPool({
-  host: hostFromEnv,
-  port: Number(process.env.DB_PORT || portFromHost || 3306),
-  user: process.env.DB_USER || 'shadowos_user',
-  password: process.env.DB_PASSWORD || 'dZ4rLdPw47?!mmlb',
-  database: process.env.DB_NAME || 'shadowos4_db',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
+async function getDB() {
+  if (!dbInstance) {
+    dbInstance = await open({
+      // Save it at project root (or inside src) so github pushes it
+      filename: path.resolve(process.cwd(), 'shadowos.sqlite'),
+      driver: sqlite3.Database
+    });
 
-async function initDB() {
-  try {
-    const conn = await pool.getConnection();
-    console.log("MySQL: Connected!");
+    console.log("SQLite: Connected!");
 
-    await conn.execute(`
+    await dbInstance.exec(`
       CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(255) UNIQUE NOT NULL,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        vfs_data LONGTEXT,
-        used_storage BIGINT DEFAULT 0,
-        quota BIGINT DEFAULT 5368709120, -- 5GB default
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        vfs_data TEXT,
+        used_storage INTEGER DEFAULT 0,
+        quota INTEGER DEFAULT 5368709120,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
-
-    conn.release();
-    console.log("MySQL: Database initialized");
-  } catch (err) {
-    console.error("MySQL Error:", err.message);
+    
+    console.log("SQLite: Database initialized");
   }
+  return dbInstance;
 }
 
-initDB();
+// Mimic mysql2 pool.execute
+const pool = {
+  async execute(sql, params = []) {
+    const db = await getDB();
+    
+    // Convert named parameter syntax or ? to match if needed, but sqlite supports ?
+    // Check if SELECT to return rows
+    if (sql.trim().toUpperCase().startsWith("SELECT")) {
+      const rows = await db.all(sql, params);
+      return [rows]; // mimicking mysql2 [rows, fields]
+    } else {
+      const result = await db.run(sql, params);
+      // add insertId mapping to match mysql2
+      result.insertId = result.lastID;
+      return [result]; // [result]
+    }
+  },
+  async getConnection() {
+    return {
+      execute: this.execute.bind(this),
+      release: () => {}
+    };
+  }
+};
+
+// Auto-init connection
+getDB().catch(console.error);
 
 export default pool;
