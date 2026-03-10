@@ -1,4 +1,4 @@
-<div class="h-full flex flex-col md:flex-row bg-[#121212] text-white font-sans overflow-hidden border-t border-zinc-900">
+<div class="h-full flex flex-col md:flex-row bg-[#121212] text-white font-sans overflow-hidden border-t border-zinc-900" id="settings-app">
   
   <!-- Sidebar -->
   <div class="w-full md:w-64 bg-[#181818] border-r border-zinc-800 flex flex-col overflow-y-auto shrink-0 transition-colors">
@@ -12,16 +12,6 @@
       <button class="settings-tab active flex items-center gap-3 w-full p-3 rounded-md bg-zinc-800/80 text-white transition-colors text-left group">
         <i data-lucide="palette" class="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors"></i> Personnalisation
       </button>
-      <button class="settings-tab flex items-center gap-3 w-full p-3 rounded-md hover:bg-zinc-800/40 text-zinc-400 hover:text-white transition-colors text-left group">
-        <i data-lucide="user-cog" class="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors"></i> Compte Utilisateur
-      </button>
-      <button class="settings-tab flex items-center gap-3 w-full p-3 rounded-md hover:bg-zinc-800/40 text-zinc-400 hover:text-white transition-colors text-left group">
-        <i data-lucide="languages" class="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors"></i> Langue & Région
-      </button>
-      <div class="h-[1px] bg-zinc-800 my-2 mx-2"></div>
-      <button class="settings-tab flex items-center gap-3 w-full p-3 rounded-md hover:bg-zinc-800/40 text-zinc-400 hover:text-white transition-colors text-left group">
-        <i data-lucide="info" class="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors"></i> Système
-      </button>
     </div>
   </div>
 
@@ -29,83 +19,28 @@
   <div class="flex-1 p-8 lg:p-12 overflow-y-auto bg-[#121212]">
     
     <div class="max-w-3xl">
-      <h3 class="text-2xl font-bold mb-8 text-white">Personnalisation (AMOLED)</h3>
+      <h3 class="text-2xl font-bold mb-8 text-white">Apparence</h3>
       
       <!-- Setting Group -->
       <div class="bg-[#1a1a1a] border border-zinc-800 rounded-md overflow-hidden mb-8 shadow-sm">
         
-        <!-- Toggle Dark Mode -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 border-b border-zinc-800/50 hover:bg-[#202020] transition-colors cursor-pointer group">
+        <!-- Toggle Mode -->
+        <div id="theme-toggle-btn" class="flex flex-col sm:flex-row sm:items-center justify-between p-6 border-b border-zinc-800/50 hover:bg-[#202020] transition-colors cursor-pointer group">
           <div class="flex items-start md:items-center gap-4 mb-4 sm:mb-0">
             <div class="p-2.5 bg-zinc-900 border border-zinc-700 rounded-md shadow-inner">
-              <i data-lucide="moon-star" class="w-5 h-5 text-indigo-400"></i>
+              <i data-lucide="sun-moon" class="w-5 h-5 text-indigo-400"></i>
             </div>
             <div>
-              <p class="font-bold text-white leading-tight">Thème Sombre Absolu</p>
-              <p class="text-xs text-zinc-500 mt-1">Économise l'énergie sur écran OLED</p>
+              <p class="font-bold text-white leading-tight">Thème Clair / Sombre</p>
+              <p class="text-xs text-zinc-500 mt-1">Activer le mode lumineux</p>
             </div>
           </div>
           <!-- Switch -->
-          <div class="relative w-12 h-6 bg-indigo-600 rounded-full cursor-pointer shadow-inner shrink-0 group-active:scale-95 transition-transform">
-            <div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-md"></div>
+          <div id="theme-switch" class="relative w-12 h-6 bg-zinc-700 rounded-full cursor-pointer shadow-inner shrink-0 group-active:scale-95 transition-all">
+            <div id="theme-knob" class="absolute left-1 top-1 w-4 h-4 bg-zinc-400 rounded-full shadow-md transition-all"></div>
           </div>
-        </div>
-
-        <!-- Accent Colors -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 border-b border-zinc-800/50 hover:bg-[#202020] transition-colors cursor-pointer group">
-          <div class="flex items-start md:items-center gap-4 mb-4 sm:mb-0">
-            <div class="p-2.5 bg-zinc-900 border border-zinc-700 rounded-md shadow-inner">
-              <i data-lucide="paintbrush" class="w-5 h-5 text-pink-400"></i>
-            </div>
-            <div>
-              <p class="font-bold text-white leading-tight">Couleur d'accentuation</p>
-              <p class="text-xs text-zinc-500 mt-1">Couleur des boutons et sélections</p>
-            </div>
-          </div>
-          
-          <div class="flex items-center gap-2">
-            <div class="w-6 h-6 rounded-full bg-blue-500 ring-2 ring-zinc-700 hover:scale-110 transition-transform cursor-pointer"></div>
-            <div class="w-6 h-6 rounded-full bg-rose-500 hover:scale-110 transition-transform cursor-pointer"></div>
-            <div class="w-6 h-6 rounded-full bg-emerald-500 hover:scale-110 transition-transform cursor-pointer"></div>
-            <div class="w-6 h-6 rounded-full bg-indigo-500 hover:scale-110 transition-transform cursor-pointer"></div>
-            <div class="w-6 h-6 rounded-full bg-zinc-400 ring-2 ring-white hover:scale-110 transition-transform cursor-pointer"></div>
-          </div>
-        </div>
-
-        <!-- Animation -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 hover:bg-[#202020] transition-colors cursor-pointer group">
-          <div class="flex items-start md:items-center gap-4 mb-4 sm:mb-0">
-            <div class="p-2.5 bg-zinc-900 border border-zinc-700 rounded-md shadow-inner">
-              <i data-lucide="film" class="w-5 h-5 text-emerald-400"></i>
-            </div>
-            <div>
-              <p class="font-bold text-white leading-tight">Animations d'interface</p>
-              <p class="text-xs text-zinc-500 mt-1">Réduire pour plus de vitesse</p>
-            </div>
-          </div>
-          <!-- Switch -->
-          <div class="relative w-12 h-6 bg-zinc-700 rounded-full cursor-pointer shadow-inner shrink-0 group-active:scale-95 transition-transform">
-            <div class="absolute left-1 top-1 w-4 h-4 bg-zinc-400 rounded-full shadow-md"></div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- User Settings Preview -->
-      <h3 class="text-2xl font-bold mb-8 text-white">Compte</h3>
-      <div class="bg-[#1a1a1a] border border-zinc-800 rounded-md p-6 flex items-center gap-6 shadow-sm">
-        <div class="w-20 h-20 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center text-3xl font-black text-zinc-500">
-          U
-        </div>
-        <div class="flex-1">
-          <div class="flex items-center gap-3">
-             <input type="text" value="Smeax" class="bg-transparent border-none text-2xl font-black text-white focus:outline-none focus:border-b focus:border-zinc-500 w-full max-w-[200px]" readonly>
-             <i data-lucide="pencil" class="w-4 h-4 text-zinc-500 cursor-pointer hover:text-white transition-colors" title="Modifier"></i>
-          </div>
-          <p class="text-zinc-500 text-sm mt-1">Administrateur local</p>
         </div>
       </div>
-
     </div>
   </div>
 </div>
@@ -114,5 +49,43 @@
     if (window.lucide) {
       window.lucide.createIcons();
     }
+    
+    const themeBtn = document.getElementById("theme-toggle-btn");
+    const themeSwitch = document.getElementById("theme-switch");
+    const themeKnob = document.getElementById("theme-knob");
+    
+    // Check current theme from localStorage instead of body class, because iframe is inverted by parent
+    const isLightMode = localStorage.getItem("shadowos_theme") === "light";
+    
+    // Track internal state so toggle works without relying on parent class
+    let lightModeState = isLightMode;
+
+    const updateUI = (light) => {
+      if (light) {
+        themeSwitch.classList.replace("bg-zinc-700", "bg-indigo-600");
+        themeKnob.classList.replace("bg-zinc-400", "bg-white");
+        themeKnob.style.transform = "translateX(24px)";
+      } else {
+        themeSwitch.classList.replace("bg-indigo-600", "bg-zinc-700");
+        themeKnob.classList.replace("bg-white", "bg-zinc-400");
+        themeKnob.style.transform = "translateX(0px)";
+      }
+    };
+    
+    updateUI(lightModeState);
+    
+    themeBtn.addEventListener("click", () => {
+      lightModeState = !lightModeState;
+      const willBeLight = lightModeState;
+      
+      localStorage.setItem("shadowos_theme", willBeLight ? "light" : "dark");
+      
+      // Notify parent to apply invert filter immediately
+      if (window.parent) {
+        window.parent.postMessage({ type: 'THEME_CHANGED', theme: willBeLight ? "light" : "dark" }, '*');
+      }
+      
+      updateUI(willBeLight);
+    });
   })();
 </script>

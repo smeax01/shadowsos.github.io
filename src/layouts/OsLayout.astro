@@ -45,7 +45,45 @@ const { title, description = "Smeax OS - Une expérience interactive cachée" } 
         overscroll-behavior: none;
         touch-action: none;
       }
+      .light-theme-active {
+        filter: invert(1) hue-rotate(180deg);
+        background-color: white !important; /* Forces white bg when inverted from black */
+      }
+      .light-theme-active img,
+      .light-theme-active video,
+      .light-theme-active .no-invert,
+      .light-theme-active [style*="background-image"] {
+        filter: invert(1) hue-rotate(180deg);
+      }
     </style>
+    <script>
+      (function () {
+        const theme = localStorage.getItem("shadowos_theme");
+        if (theme === "light") {
+          document.documentElement.classList.add("light-theme-active");
+        }
+      })();
+      // Listen for changes from other tabs/iframes
+      window.addEventListener("storage", (e) => {
+        if (e.key === "shadowos_theme") {
+          if (e.newValue === "light") {
+            document.documentElement.classList.add("light-theme-active");
+          } else {
+            document.documentElement.classList.remove("light-theme-active");
+          }
+        }
+      });
+      // Also listen for a custom event from the iframe if they share the same origin
+      window.addEventListener("message", (e) => {
+        if (e.data && e.data.type === "THEME_CHANGED") {
+          if (e.data.theme === "light") {
+            document.documentElement.classList.add("light-theme-active");
+          } else {
+            document.documentElement.classList.remove("light-theme-active");
+          }
+        }
+      });
+    </script>
   </head>
   <body
     class="h-full w-full bg-midnight text-text-main antialiased font-sans overflow-hidden selection:bg-purple-500/30 selection:text-purple-200"

@@ -180,7 +180,10 @@ const apps = apps_raw.map((app) => ({
     <script
       id="vfs-initial-data"
       type="application/json"
-      set:html={user.vfs_data || "null"}
+      set:html={(user.vfs_data || "null").replace(
+        /<\/script>/gi,
+        "<\\/script>",
+      )}
     />
 
     <!-- Tray Menu -->
