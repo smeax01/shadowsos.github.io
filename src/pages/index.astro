@@ -929,6 +929,17 @@ const apps = apps_raw.map((app) => ({
       this.menu.style.left = Math.min(x, window.innerWidth - 224) + "px";
       this.menu.style.top = y - 140 + "px";
       this.menu.classList.remove("hidden");
+
+      const unpinBtn = this.menu.querySelector('[data-action="unpin"]');
+      if (unpinBtn) {
+        if (["about", "browser", "settings"].includes(appId)) {
+          unpinBtn.style.display = "none";
+          unpinBtn.previousElementSibling.style.display = "none"; // The divider
+        } else {
+          unpinBtn.style.display = "flex";
+          unpinBtn.previousElementSibling.style.display = "block"; // The divider
+        }
+      }
     }
 
     hideMenu() {
@@ -957,10 +968,41 @@ const apps = apps_raw.map((app) => ({
       });
 
       if (hasDuplicates) {
-        // Silent wipe out to fix crash and respect the user's wish for an empty dock
+        // Silent wipe out to fix crash
         dockItems.forEach((i) => {
           delete window.vfs.fs[i.id];
         });
+        window.vfs.save();
+        return;
+      }
+
+      // Ensure default apps are always present
+      const defaultAppIds = ["about", "browser", "settings"];
+      let vfsChanged = false;
+      defaultAppIds.forEach((id) => {
+        if (!dockItems.find((i) => i.appId === id)) {
+          const app =
+            typeof appsDef !== "undefined"
+              ? appsDef[id]
+              : apps.find((a) => a.id === id);
+          if (app) {
+            const newId = window.vfs.createId();
+            window.vfs.fs[newId] = {
+              id: newId,
+              type: "app",
+              appId: app.id,
+              name: app.title,
+              icon: app.icon,
+              parentId: "dock",
+              date: Date.now(),
+              order: -1,
+            };
+            vfsChanged = true;
+          }
+        }
+      });
+
+      if (vfsChanged) {
         window.vfs.save();
         return;
       }
