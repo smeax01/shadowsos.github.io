@@ -72,6 +72,7 @@ class VirtualFileSystem {
     const defaults = {
       'root': { id: 'root', type: 'folder', name: 'Root', parentId: null, date: Date.now() },
       'desktop': { id: 'desktop', type: 'folder', name: 'Bureau', parentId: 'root', date: Date.now() },
+      'dock': { id: 'dock', type: 'folder', name: 'Dock', parentId: 'root', date: Date.now(), first_boot: true },
       'documents': { id: 'documents', type: 'folder', name: 'Documents', parentId: 'root', date: Date.now() },
       'downloads': { id: 'downloads', type: 'folder', name: 'Téléchargements', parentId: 'root', date: Date.now() },
       'pictures': { id: 'pictures', type: 'folder', name: 'Images', parentId: 'root', date: Date.now() },

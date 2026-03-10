@@ -140,6 +140,17 @@ const apps = apps_raw.map((app) => ({
       <div class="h-[1px] bg-zinc-900 my-1 mx-1"></div>
       <div
         class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-zinc-900 hover:text-white cursor-pointer rounded-sm transition-colors group"
+        data-action="pin-to-dock"
+      >
+        <div class="flex items-center gap-2.5">
+          <i
+            data-lucide="pin"
+            class="w-4 h-4 text-zinc-400 group-hover:text-white"></i>
+          <span class="text-sm font-medium">Épingler au dock</span>
+        </div>
+      </div>
+      <div
+        class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-zinc-900 hover:text-white cursor-pointer rounded-sm transition-colors group"
         data-action="tile"
       >
         <div class="flex items-center gap-2.5">
@@ -159,14 +170,18 @@ const apps = apps_raw.map((app) => ({
           <i
             data-lucide="refresh-ccw"
             class="w-4 h-4 text-zinc-500 group-hover:text-rose-400"></i>
-          <span class="text-xs font-bold uppercase tracking-tighter">Réparer le système</span>
+          <span class="text-xs font-bold uppercase tracking-tighter"
+            >Réparer le système</span
+          >
         </div>
       </div>
     </div>
 
-    <script id="vfs-initial-data" type="application/json">
-      {JSON.stringify(user.vfs_data || null)}
-    </script>
+    <script
+      id="vfs-initial-data"
+      type="application/json"
+      set:html={user.vfs_data || "null"}
+    />
 
     <!-- Tray Menu -->
     <div
@@ -298,28 +313,7 @@ const apps = apps_raw.map((app) => ({
       <div class="h-6 w-[1px] bg-zinc-800 mx-1"></div>
 
       <!-- Dock Apps -->
-      <div class="flex items-center gap-1.5" id="taskbar-apps">
-        {
-          apps
-            .filter((a) => !a.hidden)
-            .map((app) => (
-              <button
-                class="app-btn w-10 h-10 flex items-center justify-center hover:bg-zinc-900/80 rounded transition-colors active:scale-95 group relative border border-transparent hover:border-zinc-800"
-                title={app.title}
-                data-dock-id={app.id}
-              >
-                <div class="relative w-5 h-5 flex items-center justify-center">
-                  <i
-                    data-lucide={app.lucide_icon}
-                    class={`w-full h-full text-zinc-500 group-hover:text-zinc-200 transition-all duration-300`}
-                  />
-                </div>
-
-                <div class="indicator absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full opacity-0 scale-50 transition-all duration-300 shadow-[0_0_8px_rgba(255,255,255,0.8)] z-10" />
-              </button>
-            ))
-        }
-      </div>
+      <div class="flex items-center gap-1.5" id="taskbar-apps"></div>
 
       <div class="h-6 w-[1px] bg-zinc-800 mx-1"></div>
 
@@ -401,9 +395,11 @@ const apps = apps_raw.map((app) => ({
 
     if (window.dm) {
       window.dm.render();
+      if (window.dockm) window.dockm.render();
     } else {
       setTimeout(() => {
         if (window.dm) window.dm.render();
+        if (window.dockm) window.dockm.render();
       }, 500);
     }
   }
@@ -513,6 +509,22 @@ const apps = apps_raw.map((app) => ({
         case "tile":
           state.tilingEnabled = !state.tilingEnabled;
           if (window.wm) window.wm.tileWindows();
+          break;
+        case "pin-to-dock":
+          if (window.vfs && state.selectedItemId) {
+            const item = window.vfs.getItem(state.selectedItemId);
+            if (item && item.type === "app") {
+              const dockApps = window.vfs.getChildren("dock");
+              if (!dockApps.find((a) => a.appId === item.appId)) {
+                window.vfs.createAppShortcut(
+                  item.appId,
+                  item.name,
+                  item.icon,
+                  "dock",
+                );
+              }
+            }
+          }
           break;
         case "reset-vfs":
           if (
@@ -833,6 +845,146 @@ const apps = apps_raw.map((app) => ({
     endSelection() {
       this.isSelecting = false;
       this.selectionBox.classList.add("hidden");
+    }
+  }
+
+  class DockManager {
+    constructor() {
+      this.container = document.getElementById("taskbar-apps");
+      this.menu = document.createElement("div");
+      this.initMenu();
+      this.selectedAppId = null;
+      this.init();
+    }
+
+    initMenu() {
+      this.menu.className =
+        "fixed z-[10000] w-56 bg-black/95 backdrop-blur-md border border-zinc-900 rounded-md shadow-2xl py-1.5 text-zinc-200 hidden select-none p-1 pointer-events-auto";
+      this.menu.innerHTML = `
+        <div class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-zinc-900 hover:text-white cursor-pointer rounded-sm transition-colors group" data-action="open">
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="external-link" class="w-4 h-4 text-zinc-400 group-hover:text-white"></i>
+            <span class="text-sm font-medium">Ouvrir l'application</span>
+          </div>
+        </div>
+        <div class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-zinc-900 hover:text-white cursor-pointer rounded-sm transition-colors group" data-action="close">
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="x-circle" class="w-4 h-4 text-zinc-400 group-hover:text-white"></i>
+            <span class="text-sm font-medium">Fermer toutes les fenêtres</span>
+          </div>
+        </div>
+        <div class="h-[1px] bg-zinc-900 my-1 mx-1"></div>
+        <div class="menu-item px-3 py-1.5 flex items-center justify-between hover:bg-rose-950/30 hover:text-rose-400 cursor-pointer rounded-sm transition-colors group" data-action="unpin">
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="pin-off" class="w-4 h-4 text-zinc-500 group-hover:text-rose-400"></i>
+            <span class="text-sm font-medium">Détacher du dock</span>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(this.menu);
+
+      this.menu.querySelectorAll(".menu-item").forEach((item) => {
+        item.onclick = (e) => {
+          this.handleAction(item.dataset.action);
+        };
+      });
+    }
+
+    init() {
+      document.addEventListener("click", () => this.hideMenu());
+      this.menu.onclick = (e) => e.stopPropagation();
+      window.addEventListener("vfs-changed", () => this.render());
+    }
+
+    handleAction(action) {
+      this.hideMenu();
+      if (!this.selectedAppId) return;
+
+      if (action === "open") {
+        if (window.wm) window.wm.openWindow(this.selectedAppId);
+      } else if (action === "close") {
+        if (window.wm) {
+          const wins = Array.from(window.wm.windows.values()).filter(
+            (w) => w.dataset.appId === this.selectedAppId,
+          );
+          wins.forEach((w) => window.wm.closeWindow(w.id));
+        }
+      } else if (action === "unpin") {
+        if (window.vfs) {
+          const items = window.vfs.getChildren("dock");
+          const item = items.find((i) => i.appId === this.selectedAppId);
+          if (item) {
+            window.vfs.deleteItem(item.id);
+            this.render();
+          }
+        }
+      }
+    }
+
+    showMenu(x, y, appId) {
+      this.selectedAppId = appId;
+      this.menu.style.left = Math.min(x, window.innerWidth - 224) + "px";
+      this.menu.style.top = y - 140 + "px";
+      this.menu.classList.remove("hidden");
+    }
+
+    hideMenu() {
+      this.menu.classList.add("hidden");
+    }
+
+    render() {
+      if (!this.container || !window.vfs) return;
+
+      if (window.vfs.fs["dock"] && window.vfs.fs["dock"].first_boot) {
+        if (typeof apps !== "undefined") {
+          apps
+            .filter((a) => !a.hidden)
+            .forEach((app) => {
+              window.vfs.createAppShortcut(app.id, app.title, app.icon, "dock");
+            });
+        }
+        delete window.vfs.fs["dock"].first_boot;
+        window.vfs.save();
+        return; // wait for vfs-changed or continue
+      }
+
+      this.container.innerHTML = "";
+      const dockItems = window.vfs.getChildren("dock");
+
+      dockItems.forEach((item) => {
+        if (item.type !== "app") return;
+        const appDef = appsDef[item.appId];
+        if (!appDef) return;
+
+        const btn = document.createElement("button");
+        btn.className =
+          "app-btn w-10 h-10 flex items-center justify-center hover:bg-zinc-900/80 rounded transition-colors active:scale-95 group relative border border-transparent hover:border-zinc-800";
+        btn.title = appDef.title;
+        btn.dataset.dockId = item.appId;
+
+        let lucideIcon =
+          appDef.icon && appDef.icon.startsWith("/") ? "cloud" : appDef.icon;
+
+        btn.innerHTML = `
+          <div class="relative w-5 h-5 flex items-center justify-center pointer-events-none">
+            <i data-lucide="${lucideIcon}" class="w-full h-full text-zinc-500 group-hover:text-zinc-200 transition-all duration-300"></i>
+          </div>
+          <div class="indicator absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full opacity-0 scale-50 transition-all duration-300 shadow-[0_0_8px_rgba(255,255,255,0.8)] z-10"></div>
+        `;
+
+        btn.onclick = () => {
+          if (window.wm) window.wm.toggleWindow(item.appId);
+        };
+
+        btn.oncontextmenu = (e) => {
+          e.preventDefault();
+          this.showMenu(e.clientX, e.clientY, item.appId);
+        };
+
+        this.container.appendChild(btn);
+      });
+
+      if (window.lucide) window.lucide.createIcons();
     }
   }
 
@@ -1189,6 +1341,7 @@ const apps = apps_raw.map((app) => ({
     if (!document.getElementById("desktop-surface")) return;
     window.wm = new WindowManager();
     window.dm = new DesktopManager();
+    window.dockm = new DockManager();
     new ContextMenu();
     new TrayManager();
     if (window.lucide) window.lucide.createIcons();

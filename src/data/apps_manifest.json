@@ -5,7 +5,7 @@
     "icon": "user",
     "color": "text-blue-400",
     "type": "internal",
-    "description": "Informations sur Smeax"
+    "description": "Informations"
   },
   {
     "id": "browser",
@@ -13,15 +13,7 @@
     "icon": "search",
     "color": "text-sky-400",
     "type": "internal",
-    "description": "Moteur de recherche Smeax"
-  },
-  {
-    "id": "projects",
-    "title": "Projets",
-    "icon": "folder-git-2",
-    "color": "text-green-400",
-    "type": "internal",
-    "description": "Mes réalisations"
+    "description": "Moteur de recherche"
   },
   {
     "id": "explorer",
@@ -38,15 +30,6 @@
     "color": "text-slate-400",
     "type": "internal",
     "description": "Configuration du système"
-  },
-  {
-    "id": "shadow",
-    "title": "Shadow Cloud",
-    "icon": "/os-logo.png",
-    "color": "text-white",
-    "type": "iframe",
-    "url": "https://smeax01.github.io/smeax/",
-    "description": "Portail Cloud Shadow"
   },
   {
     "id": "terminal",
